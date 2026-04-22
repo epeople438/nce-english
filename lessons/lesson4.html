@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>新概念英语 · Lesson 4 · An umbrella</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #E65100;
+    --orange-mid: #F57C00;
+    --amber: #FF8F00;
+    --sun: #FFD54F;
+    --green: #66BB6A;
+    --sky: #4FC3F7;
+    --coral: #FF7043;
+    --bg: #FFF8E1;
+    --text: #1A237E;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { font-family:'Nunito',sans-serif; background:var(--bg); min-height:100vh; overflow-x:hidden; padding-bottom:24px; }
+
+  #header {
+    background:linear-gradient(135deg,#E65100,#F57C00);
+    padding:12px 16px; padding-top:calc(12px + env(safe-area-inset-top,0px));
+    display:flex; align-items:center; gap:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.22);
+    position:sticky; top:0; z-index:50;
+  }
+  #back-btn { width:36px; height:36px; background:rgba(255,255,255,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.1rem; text-decoration:none; flex-shrink:0; }
+  #back-btn:active { background:rgba(255,255,255,0.3); }
+  #header-title { flex:1; }
+  #header-title h1 { font-family:'Fredoka One',cursive; color:white; font-size:1rem; line-height:1.2; }
+  #header-title .sub { color:rgba(255,255,255,0.6); font-size:0.72rem; font-weight:600; }
+  #star-bar { display:flex; gap:4px; }
+  .star-icon { font-size:1.4rem; filter:grayscale(1) opacity(0.35); transition:all 0.4s; }
+  .star-icon.lit { filter:none; animation:starPop 0.5s ease; }
+  @keyframes starPop { 0%{transform:scale(1)} 50%{transform:scale(1.5) rotate(20deg)} 100%{transform:scale(1)} }
+
+  #progress-wrap { background:#FFE0B2; height:7px; }
+  #progress-bar { height:100%; background:linear-gradient(90deg,#FFD54F,#FF7043); width:0%; transition:width 0.6s; border-radius:0 4px 4px 0; }
+
+  .stage { display:none; animation:fadeIn 0.45s ease; padding:16px; max-width:680px; margin:0 auto; }
+  .stage.active { display:block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .stage-badge { display:inline-flex; align-items:center; gap:7px; background:var(--orange-mid); color:white; font-family:'Fredoka One',cursive; font-size:1rem; padding:6px 16px; border-radius:999px; margin-bottom:12px; box-shadow:0 3px 8px rgba(245,124,0,0.4); }
+
+  .scene-box { background:white; border-radius:22px; padding:20px; box-shadow:0 6px 24px rgba(0,0,0,0.09); position:relative; overflow:hidden; }
+  .scene-box::before { content:''; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#FF7043,#FFD54F,#66BB6A,#4FC3F7,#AB47BC); }
+
+  .instr { background:linear-gradient(135deg,#FFF8E1,#FFE0B2); border-radius:10px; padding:10px 14px; font-size:0.85rem; color:#E65100; font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:6px; }
+
+  /* READING PASSAGE */
+  .reading-box {
+    background:linear-gradient(135deg,#FFF8E1,#FFFDE7);
+    border-radius:16px; padding:18px;
+    border:2px solid #FFE0B2; margin-bottom:14px;
+  }
+  .reading-title { font-family:'Fredoka One',cursive; font-size:1.1rem; color:#E65100; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .reading-line {
+    display:flex; align-items:flex-start; gap:10px;
+    padding:9px 12px; border-radius:10px; cursor:pointer;
+    transition:transform 0.2s; margin-bottom:8px;
+    background:white; border:2px solid #FFE0B2;
+  }
+  .reading-line:hover { transform:scale(1.01); }
+  .reading-line.playing { box-shadow:0 4px 12px rgba(0,0,0,0.14); background:#FFF3E0; }
+  .rl-num { font-family:'Fredoka One',cursive; font-size:0.85rem; color:#FFB74D; flex-shrink:0; width:20px; }
+  .rl-en { font-size:0.95rem; font-weight:800; color:#1A237E; }
+  .rl-zh { font-size:0.78rem; color:#666; margin-top:2px; }
+  .rl-icon { width:30px; height:30px; background:var(--amber); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.85rem; flex-shrink:0; margin-left:auto; }
+  .reading-line.playing .rl-icon { background:var(--coral); animation:pulse 0.6s infinite alternate; }
+  @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.2)} }
+
+  /* VOCAB */
+  .vocab-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .vocab-card { background:white; border-radius:18px; padding:16px 12px; text-align:center; cursor:pointer; border:3px solid #E0E0E0; transition:all 0.22s; box-shadow:0 3px 10px rgba(0,0,0,0.05); }
+  .vocab-card:hover { transform:translateY(-3px); box-shadow:0 7px 18px rgba(0,0,0,0.1); }
+  .vocab-card.playing { border-color:var(--amber); background:#FFF8E1; }
+  .vocab-emoji { font-size:2.8rem; margin-bottom:7px; display:block; }
+  .vocab-en { font-family:'Fredoka One',cursive; font-size:1.1rem; color:var(--text); margin-bottom:3px; }
+  .vocab-zh { font-size:0.8rem; color:#888; }
+  .vocab-pron { font-size:0.75rem; color:var(--coral); font-style:italic; margin-top:2px; }
+
+  /* ===== A/AN CONVEYOR BELT GAME ===== */
+  .conveyor-area {
+    background:linear-gradient(160deg,#FFF8E1,#FFF3E0);
+    border-radius:16px; padding:16px;
+    border:2px dashed #FFB74D; margin-bottom:14px;
+  }
+
+  .conveyor-score {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:12px;
+  }
+  .cv-score-num { font-family:'Fredoka One',cursive; font-size:1rem; color:#E65100; }
+  .cv-progress-dots { display:flex; gap:5px; }
+  .cv-dot { width:16px; height:16px; border-radius:50%; background:#E0E0E0; transition:all 0.3s; }
+  .cv-dot.correct { background:#66BB6A; }
+  .cv-dot.wrong   { background:#EF5350; }
+
+  /* Item display */
+  .cv-item-box {
+    background:white; border-radius:16px; padding:20px 16px;
+    text-align:center; box-shadow:0 4px 16px rgba(0,0,0,0.09);
+    border:2px solid #FFE0B2; margin-bottom:14px;
+    animation:dropIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    min-height:140px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px;
+  }
+  @keyframes dropIn { from{transform:translateY(-30px) scale(0.8);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
+
+  .cv-item-emoji { font-size:3.8rem; line-height:1; }
+  .cv-item-name { font-family:'Fredoka One',cursive; font-size:1.4rem; color:#1A237E; }
+  .cv-item-pron { font-size:0.78rem; color:var(--coral); font-style:italic; }
+
+  /* a / an baskets */
+  .basket-row {
+    display:grid; grid-template-columns:1fr 1fr; gap:12px;
+    margin-top:4px;
+  }
+  .basket-btn {
+    padding:16px 10px; border-radius:18px;
+    font-family:'Fredoka One',cursive; font-size:1.4rem;
+    border:3px solid transparent; cursor:pointer;
+    transition:all 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+  }
+  .basket-btn:active { transform:scale(0.95); }
+  .basket-a  { background:linear-gradient(135deg,#E3F2FD,#BBDEFB); border-color:#90CAF9; color:#1565C0; }
+  .basket-an { background:linear-gradient(135deg,#E8F5E9,#C8E6C9); border-color:#A5D6A7; color:#2E7D32; }
+  .basket-btn:hover { transform:translateY(-3px); box-shadow:0 6px 16px rgba(0,0,0,0.15); }
+  .basket-label { font-size:0.75rem; font-family:'Nunito',sans-serif; font-weight:700; }
+
+  .basket-btn.correct-flash { animation:correctPop 0.4s ease; }
+  .basket-btn.wrong-flash   { animation:shake 0.4s ease; }
+  @keyframes correctPop { 0%{transform:scale(1)} 50%{transform:scale(1.06)} 100%{transform:scale(1)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+
+  /* Rule tip strip */
+  .rule-tip {
+    background:linear-gradient(135deg,#E8F5E9,#C8E6C9);
+    border-radius:12px; padding:12px 14px;
+    margin-bottom:14px; border:2px solid #A5D6A7;
+    font-size:0.85rem; color:#1B5E20; font-weight:700;
+    display:flex; align-items:flex-start; gap:8px;
+  }
+
+  /* Feedback full-width */
+  .cv-feedback {
+    text-align:center; padding:16px;
+    background:white; border-radius:14px;
+    box-shadow:0 3px 12px rgba(0,0,0,0.07);
+    margin-top:8px; animation:dropIn 0.3s ease;
+  }
+  .cv-feedback-emoji { font-size:2.5rem; }
+  .cv-feedback-text { font-family:'Fredoka One',cursive; font-size:1.1rem; margin-top:6px; }
+  .cv-feedback-correct { color:#2E7D32; }
+  .cv-feedback-wrong   { color:#C62828; }
+  .cv-feedback-answer  { font-size:0.9rem; color:#555; font-weight:700; margin-top:4px; }
+
+  /* complete */
+  .cv-complete { text-align:center; padding:16px; }
+  .cv-complete-emoji { font-size:3.5rem; display:block; animation:bounce 1s infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  /* FILL */
+  .dialogue-fill { display:flex; flex-direction:column; gap:12px; }
+  .fill-line { display:flex; align-items:center; gap:8px; padding:10px 14px; background:white; border-radius:12px; border:2px solid #E0E0E0; flex-wrap:wrap; }
+  .fill-speaker-tag { font-size:1.3rem; }
+  .fill-text { font-size:0.95rem; font-weight:700; color:#333; }
+  .fill-blank { display:inline-block; min-width:60px; border-bottom:3px solid var(--coral); text-align:center; font-weight:800; font-size:0.95rem; color:var(--coral); cursor:pointer; padding:2px 6px; border-radius:4px; transition:background 0.2s; }
+  .fill-blank:hover { background:#FFF3E0; }
+  .fill-blank.filled { color:#2E7D32; border-color:#66BB6A; background:#E8F5E9; }
+  .fill-blank.wrong-fill { animation:shake 0.4s ease; background:#FFCDD2; border-color:#EF9A9A; color:#C62828; }
+  .word-bank { display:flex; flex-wrap:wrap; gap:9px; padding:14px; background:#FFF3E0; border-radius:14px; margin-top:10px; }
+  .word-chip { padding:7px 14px; background:white; border-radius:999px; font-weight:700; font-size:0.88rem; color:#E65100; border:2px solid #FFCC80; cursor:pointer; transition:all 0.2s; user-select:none; }
+  .word-chip:hover { background:#FFF8E1; transform:translateY(-2px); }
+  .word-chip.used { opacity:0.32; pointer-events:none; }
+  .word-chip.selected { outline:3px solid #FF7043; background:#FFF3E0; }
+
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:12px 24px; border-radius:999px; font-family:'Fredoka One',cursive; font-size:1rem; cursor:pointer; border:none; transition:all 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.14); }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.18); }
+  .btn:active { transform:translateY(0); }
+  .btn-primary { background:linear-gradient(135deg,#FF7043,#FF5252); color:white; }
+  .btn-next { background:linear-gradient(135deg,#66BB6A,#43A047); color:white; }
+  .btn-check { background:linear-gradient(135deg,#42A5F5,#1E88E5); color:white; }
+  .btn-wrap { margin-top:18px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+
+  #stage-finish { text-align:center; }
+  .trophy-box { background:white; border-radius:22px; padding:30px 20px; box-shadow:0 8px 28px rgba(0,0,0,0.1); }
+  .trophy-emoji { font-size:4.5rem; animation:bounce 1s infinite; display:block; }
+  .finish-title { font-family:'Fredoka One',cursive; font-size:1.8rem; color:var(--coral); margin:12px 0 5px; }
+  .finish-subtitle { font-size:0.9rem; color:#888; }
+  .stars-display { font-size:2.2rem; margin:14px 0; letter-spacing:6px; }
+  .grammar-tip { background:linear-gradient(135deg,#FFF9C4,#FFF59D); border-radius:14px; padding:14px 16px; margin:14px 0; border:2px solid #FFD54F; }
+  .grammar-tip-title { font-weight:800; color:#F57F17; font-size:0.9rem; margin-bottom:8px; }
+  .grammar-row { font-size:0.88rem; color:#333; font-weight:600; margin-bottom:5px; line-height:1.6; }
+  .grammar-en { color:#1A237E; font-weight:800; }
+  .grammar-zh { color:#888; font-weight:600; }
+
+  #toast { position:fixed; top:70px; left:50%; transform:translateX(-50%) translateY(-16px); background:#1A237E; color:white; padding:10px 22px; border-radius:999px; font-weight:700; font-size:0.95rem; opacity:0; transition:all 0.3s; z-index:100; pointer-events:none; white-space:nowrap; }
+  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .confetti-item { position:fixed; border-radius:2px; animation:confettiFall linear forwards; pointer-events:none; z-index:999; }
+  @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <a id="back-btn" href="../index.html">←</a>
+  <div id="header-title">
+    <h1>Lesson 4 · An umbrella</h1>
+    <div class="sub">新概念英语第一册 · 练习课</div>
+  </div>
+  <div id="star-bar">
+    <span class="star-icon" id="star1">⭐</span>
+    <span class="star-icon" id="star2">⭐</span>
+    <span class="star-icon" id="star3">⭐</span>
+    <span class="star-icon" id="star4">⭐</span>
+  </div>
+</div>
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+<div id="toast"></div>
+
+<!-- INTRO -->
+<div class="stage active" id="stage-intro">
+  <div style="text-align:center;padding:24px 0;">
+    <div style="font-size:4.5rem;margin-bottom:10px;animation:bounce 1.2s infinite;">☂️</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#E65100;margin-bottom:6px;">An umbrella</div>
+    <div style="color:#888;font-size:0.9rem;margin-bottom:6px;">一把雨伞</div>
+    <div style="color:#666;font-size:0.85rem;margin-bottom:20px;line-height:1.7;">
+      今天是练习课！来搞清楚一个<br>
+      特别容易搞混的规则：<br>
+      <b style="color:#E65100;font-size:1rem;">a</b> 和 <b style="color:#2E7D32;font-size:1rem;">an</b> 到底什么时候用哪个？
+    </div>
+    <div class="grammar-tip" style="text-align:left;margin:0 0 20px;">
+      <div class="grammar-tip-title">📌 今天的语法公式</div>
+      <div class="grammar-row"><span class="grammar-en">a</span> + 辅音开头的单词 <span class="grammar-zh">（大多数情况）</span></div>
+      <div class="grammar-row"><span class="grammar-en" style="color:#2E7D32;">an</span> + 元音开头的单词 <span class="grammar-zh">（a e i o u 开头）</span></div>
+      <div class="grammar-row" style="margin-top:8px;">
+        <span class="grammar-en">a coat</span> <span class="grammar-zh">一件外套</span> &nbsp;·&nbsp;
+        <span class="grammar-en">an umbrella</span> <span class="grammar-zh">一把雨伞</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:22px;">
+      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">📖 读课文</div>
+      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">📚 认单词</div>
+      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">🏭 a/an分类</div>
+      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">✏️ 填一填</div>
+    </div>
+    <button class="btn btn-primary" onclick="goStage(1)">🚀 开始冒险！</button>
+  </div>
+</div>
+
+<!-- STAGE 1: READING -->
+<div class="stage" id="stage-reading">
+  <div class="stage-badge">📖 第1关 · 读课文</div>
+  <div class="scene-box">
+    <div class="instr">💡 今天是课文朗读，点每句话跟着读！</div>
+    <div class="reading-box">
+      <div class="reading-title">☂️ An umbrella</div>
+      <div id="reading-lines"></div>
+    </div>
+    <div class="btn-wrap">
+      <button class="btn btn-primary" onclick="readAll()">▶ 全部朗读</button>
+      <button class="btn btn-next" id="btn-read-next" onclick="finishStage(1)" style="display:none">下一关 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- STAGE 2: VOCAB -->
+<div class="stage" id="stage-vocab">
+  <div class="stage-badge">📚 第2关 · 认单词</div>
+  <div class="scene-box">
+    <div class="instr">💡 点卡片听发音！注意哪些用 a，哪些用 an！</div>
+    <div class="vocab-grid" id="vocab-grid"></div>
+    <div class="btn-wrap"><button class="btn btn-next" onclick="finishStage(2)">下一关 →</button></div>
+  </div>
+</div>
+
+<!-- STAGE 3: A/AN GAME -->
+<div class="stage" id="stage-game">
+  <div class="stage-badge">🏭 第3关 · a / an 分类机</div>
+  <div class="scene-box">
+    <div class="rule-tip">
+      💡 <div><b>记住规则：</b> 看单词第一个字母！<br>
+      <b style="color:#1565C0;">a / e / i / o / u</b> 开头 → 用 <b style="color:#2E7D32;">an</b> &nbsp;|&nbsp; 其他字母开头 → 用 <b style="color:#1565C0;">a</b></div>
+    </div>
+    <div class="conveyor-area">
+      <div class="conveyor-score">
+        <div class="cv-score-num" id="cv-score-text">第 1 / 10 题</div>
+        <div class="cv-progress-dots" id="cv-dots"></div>
+      </div>
+      <div id="cv-item-box"></div>
+      <div id="cv-feedback-box"></div>
+    </div>
+    <div class="basket-row" id="basket-row">
+      <button class="basket-btn basket-a" id="btn-a" onclick="answerAN(false)">
+        <span style="font-size:2rem;">🅰️</span>
+        <span>a ___</span>
+        <span class="basket-label">辅音开头</span>
+      </button>
+      <button class="basket-btn basket-an" id="btn-an" onclick="answerAN(true)">
+        <span style="font-size:2rem;">🟢</span>
+        <span>an ___</span>
+        <span class="basket-label">元音开头 a/e/i/o/u</span>
+      </button>
+    </div>
+    <div class="btn-wrap">
+      <button class="btn btn-next" id="btn-game-next" onclick="finishStage(3)" style="display:none">下一关 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- STAGE 4: FILL -->
+<div class="stage" id="stage-fill">
+  <div class="stage-badge">✏️ 第4关 · 填一填</div>
+  <div class="scene-box">
+    <div class="instr">💡 从词库选词，点空白处填入！注意 a 还是 an！</div>
+    <div class="dialogue-fill" id="fill-lines"></div>
+    <div style="margin-top:14px;font-weight:800;color:#E65100;font-size:0.85rem;">📦 词库</div>
+    <div class="word-bank" id="word-bank"></div>
+    <div class="btn-wrap">
+      <button class="btn btn-check" onclick="checkFill()">✔ 检查答案</button>
+      <button class="btn btn-next" id="btn-fill-next" onclick="finishStage(4)" style="display:none">完成！🎉</button>
+    </div>
+  </div>
+</div>
+
+<!-- FINISH -->
+<div class="stage" id="stage-finish">
+  <div class="trophy-box">
+    <span class="trophy-emoji">🏆</span>
+    <div class="finish-title">太棒了！</div>
+    <div class="finish-subtitle">Lesson 4 全部通关！a / an 你掌握了！</div>
+    <div class="stars-display" id="finish-stars">⭐⭐⭐⭐</div>
+    <div class="grammar-tip" style="text-align:left;">
+      <div class="grammar-tip-title">🧠 今天记住了吗？</div>
+      <div class="grammar-row"><span class="grammar-en">a coat, a pen, a book, a car, a key</span></div>
+      <div class="grammar-row"><span class="grammar-en" style="color:#2E7D32;">an umbrella, an apple, an egg, an orange</span></div>
+      <div class="grammar-row" style="margin-top:6px;"><span class="grammar-zh">a/e/i/o/u 开头用 an，其他用 a！</span></div>
+    </div>
+    <div class="btn-wrap">
+      <a class="btn btn-next" href="../index.html">🏠 回主页</a>
+      <button class="btn btn-primary" onclick="restartAll()">🔄 再玩一次</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Reading passages - short descriptive sentences
+const readingLines = [
+  { en:"This is a coat.",            zh:"这是一件外套。"    },
+  { en:"And this is an umbrella.",   zh:"这是一把雨伞。"    },
+  { en:"Is this your coat?",         zh:"这是你的外套吗？"   },
+  { en:"No, it isn't.",              zh:"不，不是我的。"    },
+  { en:"This is my umbrella.",       zh:"这是我的雨伞。"    },
+  { en:"Is this your umbrella?",     zh:"这是你的雨伞吗？"   },
+  { en:"Yes, it is.",                zh:"是的，是我的。"    },
+  { en:"Thank you very much!",       zh:"非常感谢！"       },
+];
+
+const vocab = [
+  { en:'coat',      zh:'外套',  emoji:'🧥', pron:"/koʊt/",       article:'a'  },
+  { en:'umbrella',  zh:'雨伞',  emoji:'☂️',  pron:"/ʌmˈbrelə/",  article:'an' },
+  { en:'dress',     zh:'连衣裙', emoji:'👗', pron:"/dres/",       article:'a'  },
+  { en:'blouse',    zh:'女式衬衫',emoji:'👚', pron:"/blaʊz/",     article:'a'  },
+  { en:'apple',     zh:'苹果',  emoji:'🍎', pron:"/ˈæpəl/",     article:'an' },
+  { en:'egg',       zh:'鸡蛋',  emoji:'🥚', pron:"/eɡ/",         article:'an' },
+  { en:'orange',    zh:'橙子',  emoji:'🍊', pron:"/ˈɔːrɪndʒ/",  article:'an' },
+  { en:'car',       zh:'汽车',  emoji:'🚗', pron:"/kɑːr/",       article:'a'  },
+];
+
+// A/AN game items - more variety
+const anItems = [
+  { word:'umbrella', emoji:'☂️',  pron:"/ʌmˈbrelə/",   needsAn:true  },
+  { word:'coat',     emoji:'🧥', pron:"/koʊt/",         needsAn:false },
+  { word:'apple',    emoji:'🍎', pron:"/ˈæpəl/",        needsAn:true  },
+  { word:'pen',      emoji:'🖊️',  pron:"/pen/",          needsAn:false },
+  { word:'egg',      emoji:'🥚', pron:"/eɡ/",            needsAn:true  },
+  { word:'book',     emoji:'📖', pron:"/bʊk/",           needsAn:false },
+  { word:'orange',   emoji:'🍊', pron:"/ˈɔːrɪndʒ/",    needsAn:true  },
+  { word:'key',      emoji:'🔑', pron:"/kiː/",           needsAn:false },
+  { word:'ice cream',emoji:'🍦', pron:"/aɪs kriːm/",    needsAn:true  },
+  { word:'dress',    emoji:'👗', pron:"/dres/",          needsAn:false },
+];
+
+const fillTemplate = [
+  { speaker:'📝', before:'This is ', blank:'a', after:' coat.',            answer:'a'   },
+  { speaker:'📝', before:'And this is ', blank:'an', after:' umbrella.',   answer:'an'  },
+  { speaker:'👨', before:'Is this ', blank:'your', after:' coat?',         answer:'your'},
+  { speaker:'👩', before:'No, it ', blank:"isn't", after:'.',              answer:"isn't"},
+  { speaker:'📝', before:'This is my ', blank:'umbrella', after:'.',       answer:'umbrella'},
+  { speaker:'👩', before:'Yes, it ', blank:'is', after:'. Thank you!',     answer:'is'  },
+];
+const wordBank = ['a','an','your',"isn't",'umbrella','is','my','coat'];
+
+let readSet=new Set(), starsEarned=0;
+let cvIndex=0, cvResults=[], cvLocked=false;
+let fillAnswers={}, selectedChipWord=null, selectedChipEl=null;
+
+function speak(text,rate=0.88){
+  return new Promise(resolve=>{
+    if(!window.speechSynthesis){resolve();return;}
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='en-US';u.rate=rate;u.pitch=1.05;u.onend=resolve;u.onerror=resolve;
+    const v=speechSynthesis.getVoices();
+    const pref=v.find(x=>x.lang.startsWith('en')&&(x.name.includes('Samantha')||x.name.includes('Daniel')||x.name.includes('Google')));
+    if(pref)u.voice=pref;
+    speechSynthesis.speak(u);
+  });
+}
+
+const stageIds=['intro','reading','vocab','game','fill','finish'];
+function goStage(n){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage-'+stageIds[n]).classList.add('active');
+  document.getElementById('progress-bar').style.width=['0','20','40','60','80','100'][n]+'%';
+  window.scrollTo(0,0);
+}
+function earnStar(n){document.getElementById('star'+n).classList.add('lit');starsEarned=Math.max(starsEarned,n);}
+function finishStage(n){
+  earnStar(n);
+  showToast(['','🌟 第1关完成！','🌟 第2关完成！','🌟 第3关完成！','🎉 全部完成！'][n]);
+  if(n<4)setTimeout(()=>goStage(n+1),600);
+  else setTimeout(showFinish,600);
+}
+function showFinish(){
+  goStage(5);saveProgress(starsEarned);launchConfetti();
+  document.getElementById('finish-stars').textContent='⭐'.repeat(starsEarned);
+}
+function saveProgress(stars){
+  try{const p=JSON.parse(localStorage.getItem('nce_progress')||'{}');p[4]={stars:Math.max(stars,(p[4]||{}).stars||0),date:new Date().toISOString()};localStorage.setItem('nce_progress',JSON.stringify(p));}catch(e){}
+}
+function restartAll(){
+  readSet.clear();starsEarned=0;cvIndex=0;cvResults=[];cvLocked=false;fillAnswers={};
+  document.querySelectorAll('.star-icon').forEach(s=>s.classList.remove('lit'));
+  buildReading();buildVocab();buildCVGame();buildFill();goStage(0);
+}
+function showToast(msg,dur=2000){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+
+// STAGE 1: READING
+function buildReading(){
+  const container=document.getElementById('reading-lines');container.innerHTML='';
+  readingLines.forEach((line,i)=>{
+    const div=document.createElement('div');div.className='reading-line';div.id=`rl-${i}`;
+    div.innerHTML=`<span class="rl-num">${i+1}</span><div class="d-text"><div class="rl-en">${line.en}</div><div class="rl-zh">${line.zh}</div></div><div class="rl-icon">🔊</div>`;
+    div.onclick=()=>readLine(i);container.appendChild(div);
+  });
+  document.getElementById('btn-read-next').style.display='none';
+}
+async function readLine(i){
+  const el=document.getElementById(`rl-${i}`);el.classList.add('playing');
+  await speak(readingLines[i].en);
+  el.classList.remove('playing');
+  readSet.add(i);
+  if(readSet.size>=readingLines.length){document.getElementById('btn-read-next').style.display='inline-flex';showToast('👏 全部读完！');}
+}
+async function readAll(){for(let i=0;i<readingLines.length;i++){await readLine(i);await new Promise(r=>setTimeout(r,250));}}
+
+// STAGE 2: VOCAB
+function buildVocab(){
+  const g=document.getElementById('vocab-grid');g.innerHTML='';
+  vocab.forEach(v=>{
+    const c=document.createElement('div');c.className='vocab-card';
+    c.innerHTML=`<span class="vocab-emoji">${v.emoji}</span><div class="vocab-en"><span style="color:${v.article==='an'?'#2E7D32':'#1565C0'};font-size:0.85rem;">${v.article}</span> ${v.en}</div><div class="vocab-pron">${v.pron}</div><div class="vocab-zh">${v.zh}</div>`;
+    c.onclick=async()=>{c.classList.add('playing');await speak(`${v.article} ${v.en}`,0.8);c.classList.remove('playing');};
+    g.appendChild(c);
+  });
+}
+
+// STAGE 3: A/AN GAME
+function buildCVGame(){
+  cvIndex=0;cvResults=[];cvLocked=false;
+  document.getElementById('btn-game-next').style.display='none';
+  document.getElementById('cv-feedback-box').innerHTML='';
+  // build dots
+  const dots=document.getElementById('cv-dots');dots.innerHTML='';
+  anItems.forEach((_,i)=>{const d=document.createElement('div');d.className='cv-dot';d.id=`cvdot-${i}`;dots.appendChild(d);});
+  // show baskets
+  document.getElementById('basket-row').style.display='grid';
+  showCVItem(0);
+}
+
+function showCVItem(idx){
+  if(idx>=anItems.length){showCVComplete();return;}
+  const item=anItems[idx];
+  cvLocked=false;
+  document.getElementById('cv-score-text').textContent=`第 ${idx+1} / ${anItems.length} 题`;
+  document.getElementById('cv-feedback-box').innerHTML='';
+
+  const box=document.getElementById('cv-item-box');
+  box.innerHTML='';
+  const div=document.createElement('div');div.className='cv-item-box';
+  div.innerHTML=`<div class="cv-item-emoji">${item.emoji}</div><div class="cv-item-name">${item.word}</div><div class="cv-item-pron">${item.pron}</div>`;
+  box.appendChild(div);
+  speak(item.word,0.82);
+}
+
+async function answerAN(userSaysAn){
+  if(cvLocked)return;
+  cvLocked=true;
+  const item=anItems[cvIndex];
+  const correct=(userSaysAn===item.needsAn);
+  cvResults.push(correct);
+
+  const dot=document.getElementById(`cvdot-${cvIndex}`);
+  if(dot)dot.className='cv-dot '+(correct?'correct':'wrong');
+
+  // Flash button
+  const btnId=userSaysAn?'btn-an':'btn-a';
+  const btn=document.getElementById(btnId);
+  btn.classList.add(correct?'correct-flash':'wrong-flash');
+  setTimeout(()=>btn.classList.remove('correct-flash','wrong-flash'),500);
+
+  // Feedback
+  const correctArticle=item.needsAn?'an':'a';
+  const fb=document.getElementById('cv-feedback-box');
+  fb.innerHTML=`<div class="cv-feedback">
+    <div class="cv-feedback-emoji">${correct?'🎉':'❌'}</div>
+    <div class="cv-feedback-text ${correct?'cv-feedback-correct':'cv-feedback-wrong'}">${correct?'正确！':'再想想～'}</div>
+    <div class="cv-feedback-answer">${correctArticle} ${item.word}</div>
+  </div>`;
+
+  await speak(`${correctArticle} ${item.word}`,0.85);
+  if(correct)showToast(['👍 对！','🌟 棒！','✨ 正确！'][cvIndex%3]);
+  else showToast(`✅ 正确是：${correctArticle} ${item.word}`);
+
+  cvIndex++;
+  setTimeout(()=>showCVItem(cvIndex),1300);
+}
+
+function showCVComplete(){
+  document.getElementById('cv-item-box').innerHTML='';
+  document.getElementById('cv-feedback-box').innerHTML='';
+  document.getElementById('basket-row').style.display='none';
+  const c=cvResults.filter(Boolean).length;
+  const total=anItems.length;
+  const area=document.querySelector('.conveyor-area');
+  area.innerHTML+=`<div class="cv-complete"><span class="cv-complete-emoji">${c>=total*0.8?'🏆':'💪'}</span><div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#E65100;margin:10px 0 4px;">${c}/${total} 答对了！</div><div style="font-size:0.9rem;color:#888;">${c>=total*0.8?'a / an 高手！🏅':'多练练会更好！'}</div></div>`;
+  document.getElementById('btn-game-next').style.display='inline-flex';
+  showToast(`🏭 分类完成！${c}/${total}正确`);
+}
+
+// STAGE 4
+function buildFill(){
+  const container=document.getElementById('fill-lines');container.innerHTML='';fillAnswers={};
+  fillTemplate.forEach((line,li)=>{
+    const div=document.createElement('div');div.className='fill-line';
+    let inner=`<span class="fill-speaker-tag">${line.speaker}</span> `;
+    if(line.blank!==null&&line.blank!==undefined){
+      inner+=`<span class="fill-text">${line.before}</span><span class="fill-blank" id="blank-${li}" onclick="fillBlank(${li})">　　</span><span class="fill-text">${line.after}</span>`;
+    }else{
+      inner+=`<span class="fill-text">${line.before}${line.after}</span>`;
+    }
+    div.innerHTML=inner;container.appendChild(div);
+  });
+  const wb=document.getElementById('word-bank');wb.innerHTML='';
+  shuffle(wordBank).forEach(w=>{
+    const chip=document.createElement('div');chip.className='word-chip';chip.textContent=w;
+    chip.id=`chip-${w.replace(/[\s']/g,'_')}`;
+    chip.onclick=()=>selectChip(w,chip);wb.appendChild(chip);
+  });
+  selectedChipWord=null;selectedChipEl=null;
+  document.getElementById('btn-fill-next').style.display='none';
+}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function selectChip(w,el){document.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('selected'));selectedChipWord=w;selectedChipEl=el;el.classList.add('selected');speak(w,0.85);}
+function fillBlank(li){
+  if(!selectedChipWord){showToast('👆 先从词库选一个词！');return;}
+  const b=document.getElementById(`blank-${li}`);
+  if(b.classList.contains('filled')){const ow=b.dataset.word;const oc=document.getElementById(`chip-${ow.replace(/[\s']/g,'_')}`);if(oc)oc.classList.remove('used');delete fillAnswers[li];b.classList.remove('filled');}
+  fillAnswers[li]=selectedChipWord;b.textContent=selectedChipWord;b.classList.add('filled');b.dataset.word=selectedChipWord;
+  if(selectedChipEl)selectedChipEl.classList.add('used');
+  selectedChipWord=null;selectedChipEl=null;document.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('selected'));
+}
+function checkFill(){
+  let allCorrect=true,allFilled=true;
+  fillTemplate.forEach((line,li)=>{
+    if(line.blank===null||line.blank===undefined)return;
+    const b=document.getElementById(`blank-${li}`);
+    if(!fillAnswers[li]){allFilled=false;return;}
+    if(fillAnswers[li].toLowerCase()===line.answer.toLowerCase()){b.classList.remove('wrong-fill');}
+    else{b.classList.add('wrong-fill');setTimeout(()=>b.classList.remove('wrong-fill'),600);allCorrect=false;}
+  });
+  if(!allFilled){showToast('📝 还有空没填哦！');return;}
+  if(allCorrect){showToast('🎉 全对！太厉害了！');document.getElementById('btn-fill-next').style.display='inline-flex';}
+  else showToast('❌ 有一些不对，再试试！');
+}
+function launchConfetti(){
+  const colors=['#FF7043','#FFD54F','#66BB6A','#4FC3F7','#AB47BC','#EC407A'];
+  for(let i=0;i<55;i++){const el=document.createElement('div');el.className='confetti-item';el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${5+Math.random()*8}px;height:${5+Math.random()*8}px;animation-duration:${2+Math.random()*2.5}s;animation-delay:${Math.random()*1.5}s;`;document.body.appendChild(el);setTimeout(()=>el.remove(),5000);}
+}
+
+if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
+buildReading();buildVocab();buildCVGame();buildFill();
+</script>
+</body>
+</html>
