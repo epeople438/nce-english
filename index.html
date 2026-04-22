@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="新概念英语">
+<meta name="theme-color" content="#0D47A1">
+<title>新概念英语 · 游戏版</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue-dark: #0D47A1;
+    --blue: #1565C0;
+    --blue-mid: #1976D2;
+    --sky: #4FC3F7;
+    --sun: #FFD54F;
+    --coral: #FF7043;
+    --green: #66BB6A;
+    --purple: #AB47BC;
+    --locked: #B0BEC5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #0D47A1;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+    padding-bottom: 30px;
+  }
+
+  /* ===== HERO HEADER ===== */
+  .hero {
+    background: linear-gradient(160deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%);
+    padding: 50px 20px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: rgba(79,195,247,0.12);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -30px;
+    width: 150px; height: 150px;
+    background: rgba(255,213,79,0.08);
+    border-radius: 50%;
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+  }
+  .app-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #FFD54F, #FF7043);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  }
+  .app-name {
+    font-family: 'Fredoka One', cursive;
+    color: white;
+    font-size: 1.1rem;
+    line-height: 1.2;
+  }
+  .app-sub { color: rgba(255,255,255,0.6); font-size: 0.75rem; font-weight: 600; }
+
+  /* Progress summary */
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    position: relative;
+    z-index: 1;
+  }
+  .stat-card {
+    background: rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 12px 10px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .stat-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.6rem;
+    color: #FFD54F;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+  .stat-label { font-size: 0.7rem; color: rgba(255,255,255,0.7); font-weight: 600; }
+
+  /* ===== STREAK BANNER ===== */
+  .streak-banner {
+    margin: 0 16px;
+    background: linear-gradient(135deg, #FF7043, #FF5252);
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: -16px;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 6px 20px rgba(255,82,82,0.35);
+  }
+  .streak-fire { font-size: 1.8rem; }
+  .streak-text { color: white; font-weight: 800; font-size: 0.95rem; }
+  .streak-sub { color: rgba(255,255,255,0.8); font-size: 0.75rem; font-weight: 600; margin-top: 1px; }
+  .streak-days {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-family: 'Fredoka One', cursive;
+    color: white;
+    font-size: 1.1rem;
+  }
+
+  /* ===== CONTENT AREA ===== */
+  .content {
+    padding: 20px 16px 0;
+  }
+
+  /* ===== UNIT SECTION ===== */
+  .unit-section { margin-bottom: 24px; }
+  .unit-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .unit-pill {
+    background: rgba(255,255,255,0.12);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-family: 'Fredoka One', cursive;
+    color: white;
+    font-size: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .unit-title {
+    color: rgba(255,255,255,0.85);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  /* ===== LESSON GRID ===== */
+  .lesson-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .lesson-card {
+    border-radius: 18px;
+    padding: 14px 8px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    text-decoration: none;
+    display: block;
+  }
+  .lesson-card:active { transform: scale(0.95); }
+
+  /* DONE state */
+  .lesson-card.done {
+    background: linear-gradient(135deg, #43A047, #2E7D32);
+    box-shadow: 0 4px 14px rgba(67,160,71,0.4);
+  }
+  /* CURRENT state */
+  .lesson-card.current {
+    background: linear-gradient(135deg, #FF7043, #F4511E);
+    box-shadow: 0 6px 20px rgba(255,112,67,0.5);
+    animation: currentPulse 2s ease-in-out infinite;
+  }
+  @keyframes currentPulse {
+    0%, 100% { box-shadow: 0 6px 20px rgba(255,112,67,0.5); }
+    50% { box-shadow: 0 8px 28px rgba(255,112,67,0.8); }
+  }
+  /* LOCKED state */
+  .lesson-card.locked {
+    background: rgba(255,255,255,0.08);
+    cursor: not-allowed;
+  }
+  .lesson-card.locked:active { transform: none; }
+
+  .lesson-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .lesson-card.done .lesson-num { color: white; }
+  .lesson-card.current .lesson-num { color: white; }
+  .lesson-card.locked .lesson-num { color: rgba(255,255,255,0.3); }
+
+  .lesson-icon { font-size: 1.3rem; display: block; margin-bottom: 2px; }
+  .lesson-card.locked .lesson-icon { filter: grayscale(1) opacity(0.3); }
+
+  .lesson-name {
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .lesson-card.done .lesson-name { color: rgba(255,255,255,0.85); }
+  .lesson-card.current .lesson-name { color: rgba(255,255,255,0.9); }
+  .lesson-card.locked .lesson-name { color: rgba(255,255,255,0.25); }
+
+  /* Stars on done cards */
+  .lesson-stars {
+    font-size: 0.55rem;
+    margin-top: 3px;
+    letter-spacing: 1px;
+  }
+
+  /* Lock icon */
+  .lock-icon {
+    position: absolute;
+    top: 6px; right: 6px;
+    font-size: 0.7rem;
+    opacity: 0.3;
+  }
+
+  /* NEW badge */
+  .new-badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    background: #FFD54F;
+    color: #B71C1C;
+    font-size: 0.55rem;
+    font-weight: 900;
+    padding: 2px 5px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  /* ===== BOTTOM CTA ===== */
+  .bottom-cta {
+    margin: 8px 16px 0;
+    background: linear-gradient(135deg, #FFD54F, #FFCA28);
+    border-radius: 20px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255,213,79,0.3);
+    text-decoration: none;
+  }
+  .cta-emoji { font-size: 2.2rem; }
+  .cta-text { font-weight: 800; color: #1A237E; font-size: 1rem; }
+  .cta-sub { color: rgba(26,35,126,0.6); font-size: 0.8rem; font-weight: 600; margin-top: 2px; }
+  .cta-arrow {
+    margin-left: auto;
+    width: 36px; height: 36px;
+    background: #1565C0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  /* ===== INSTALL HINT ===== */
+  #install-hint {
+    margin: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  #install-hint p { color: rgba(255,255,255,0.75); font-size: 0.78rem; font-weight: 600; line-height: 1.5; }
+  #install-hint .hint-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+  /* Safe area for notch phones */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .hero { padding-top: calc(50px + env(safe-area-inset-top)); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-top">
+    <div class="app-logo">
+      <div class="logo-icon">⭐</div>
+      <div>
+        <div class="app-name">新概念英语</div>
+        <div class="app-sub">游戏学英语 · 第一册</div>
+      </div>
+    </div>
+    <div style="font-size:1.8rem;">🎮</div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-done">0</div>
+      <div class="stat-label">已完成课数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-stars">0</div>
+      <div class="stat-label">获得星星</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="stat-streak">0</div>
+      <div class="stat-label">连续天数</div>
+    </div>
+  </div>
+</div>
+
+<!-- STREAK BANNER -->
+<div class="streak-banner">
+  <div class="streak-fire">🔥</div>
+  <div>
+    <div class="streak-text">今天来学一课！</div>
+    <div class="streak-sub">每天10分钟，英语不再难</div>
+  </div>
+  <div class="streak-days" id="streak-days">Day 1</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- QUICK START -->
+  <a class="bottom-cta" href="./lessons/lesson1.html" style="margin:20px 0 24px;">
+    <div class="cta-emoji">🚀</div>
+    <div>
+      <div class="cta-text">继续学习</div>
+      <div class="cta-sub">Lesson 1 · Excuse me!</div>
+    </div>
+    <div class="cta-arrow">→</div>
+  </a>
+
+  <!-- UNIT 1 -->
+  <div class="unit-section">
+    <div class="unit-header">
+      <div class="unit-pill">Unit 1</div>
+      <div class="unit-title">打招呼 · 问路 · 认物品</div>
+    </div>
+    <div class="lesson-grid" id="grid-unit1"></div>
+  </div>
+
+  <!-- UNIT 2 -->
+  <div class="unit-section">
+    <div class="unit-header">
+      <div class="unit-pill">Unit 2</div>
+      <div class="unit-title">职业 · 家庭 · 颜色</div>
+    </div>
+    <div class="lesson-grid" id="grid-unit2"></div>
+  </div>
+
+  <!-- UNIT 3 -->
+  <div class="unit-section">
+    <div class="unit-header">
+      <div class="unit-pill">Unit 3</div>
+      <div class="unit-title">房间 · 物品 · 地点</div>
+    </div>
+    <div class="lesson-grid" id="grid-unit3"></div>
+  </div>
+
+  <!-- UNIT 4 -->
+  <div class="unit-section">
+    <div class="unit-header">
+      <div class="unit-pill">Unit 4</div>
+      <div class="unit-title">时间 · 日常 · 购物</div>
+    </div>
+    <div class="lesson-grid" id="grid-unit4"></div>
+  </div>
+
+</div>
+
+<!-- INSTALL HINT -->
+<div id="install-hint">
+  <div class="hint-icon">📲</div>
+  <p>Safari 浏览器打开后，点底部 <strong style="color:white;">分享按钮</strong> → <strong style="color:white;">添加到主屏幕</strong>，就像 App 一样使用！</p>
+</div>
+
+<script>
+// ===== LESSON DATA =====
+const lessons = [
+  // Unit 1: L1-24
+  { id:1,  name:'Excuse me!',        icon:'👜', unit:1 },
+  { id:2,  name:'Is this...?',       icon:'👔', unit:1 },
+  { id:3,  name:'Sorry!',            icon:'🙏', unit:1 },
+  { id:4,  name:'An umbrella',       icon:'☂️',  unit:1 },
+  { id:5,  name:'Nice to meet you',  icon:'🤝', unit:1 },
+  { id:6,  name:'What make?',        icon:'🚗', unit:1 },
+  { id:7,  name:'Are you...?',       icon:'❓', unit:1 },
+  { id:8,  name:'Open your book',    icon:'📖', unit:1 },
+  { id:9,  name:'How are you?',      icon:'😊', unit:1 },
+  { id:10, name:'Look at him!',      icon:'👀', unit:1 },
+  { id:11, name:'Is this...?',       icon:'🏠', unit:1 },
+  { id:12, name:'What color?',       icon:'🎨', unit:1 },
+  { id:13, name:'A new dress',       icon:'👗', unit:1 },
+  { id:14, name:'I\'m hungry!',      icon:'🍎', unit:1 },
+  { id:15, name:'Your passports',    icon:'🛂', unit:1 },
+  { id:16, name:'Are they?',         icon:'👨‍👩‍👧', unit:1 },
+  { id:17, name:'How do you do?',    icon:'👋', unit:1 },
+  { id:18, name:'What\'s your job?', icon:'👩‍💼', unit:1 },
+  { id:19, name:'Tired and hot',     icon:'😓', unit:1 },
+  { id:20, name:'Look at her!',      icon:'👩', unit:1 },
+  { id:21, name:'Which book?',       icon:'📚', unit:1 },
+  { id:22, name:'Which glasses?',    icon:'👓', unit:1 },
+  { id:23, name:'A new house',       icon:'🏡', unit:1 },
+  { id:24, name:'Give me...',        icon:'🎁', unit:1 },
+
+  // Unit 2: L25-48
+  { id:25, name:'Mrs. Smith',        icon:'👩‍🦳', unit:2 },
+  { id:26, name:'The Jones\'s',      icon:'👨‍👩‍👦', unit:2 },
+  { id:27, name:'A new house',       icon:'🏘️', unit:2 },
+  { id:28, name:'He\'s/she\'s',      icon:'👤', unit:2 },
+  { id:29, name:'Come in, Amy!',     icon:'🚪', unit:2 },
+  { id:30, name:'I\'m busy',         icon:'⏰', unit:2 },
+  { id:31, name:'Don\'t do that!',   icon:'🚫', unit:2 },
+  { id:32, name:'Shut that window!', icon:'🪟', unit:2 },
+  { id:33, name:'A fine day',        icon:'☀️',  unit:2 },
+  { id:34, name:'What time is it?',  icon:'🕐', unit:2 },
+  { id:35, name:'Our school',        icon:'🏫', unit:2 },
+  { id:36, name:'Where\'s...?',      icon:'🗺️', unit:2 },
+  { id:37, name:'Making a bookcase', icon:'🔨', unit:2 },
+  { id:38, name:'What\'s next?',     icon:'📋', unit:2 },
+  { id:39, name:'Don\'t drop it!',   icon:'⚠️', unit:2 },
+  { id:40, name:'What do you do?',   icon:'💼', unit:2 },
+  { id:41, name:'Penny\'s bag',      icon:'👛', unit:2 },
+  { id:42, name:'Is there...?',      icon:'🔍', unit:2 },
+  { id:43, name:'Hurry up!',         icon:'🏃', unit:2 },
+  { id:44, name:'What\'s the matter?',icon:'🤒',unit:2 },
+  { id:45, name:'The boss\'s letter',icon:'📧', unit:2 },
+  { id:46, name:'Can you...?',       icon:'💡', unit:2 },
+  { id:47, name:'A cup of coffee',   icon:'☕', unit:2 },
+  { id:48, name:'Do you like...?',   icon:'❤️',  unit:2 },
+
+  // Unit 3: L49-72
+  { id:49, name:'At the airport',    icon:'✈️',  unit:3 },
+  { id:50, name:'Who\'s...?',        icon:'🙋', unit:3 },
+  { id:51, name:'A pleasant climate',icon:'🌤️', unit:3 },
+  { id:52, name:'What nationality?', icon:'🌍', unit:3 },
+  { id:53, name:'An interesting job',icon:'🔬', unit:3 },
+  { id:54, name:'Are you free?',     icon:'📅', unit:3 },
+  { id:55, name:'The Sawyer family', icon:'👨‍👩‍👧‍👦',unit:3 },
+  { id:56, name:'What do they do?',  icon:'🏋️', unit:3 },
+  { id:57, name:'An old cap',        icon:'🧢', unit:3 },
+  { id:58, name:'What\'s happened?', icon:'😮', unit:3 },
+  { id:59, name:'Is that right?',    icon:'✅', unit:3 },
+  { id:60, name:'What\'s the time?', icon:'⌚', unit:3 },
+  { id:61, name:'A bad cold',        icon:'🤧', unit:3 },
+  { id:62, name:'How do you feel?',  icon:'💊', unit:3 },
+  { id:63, name:'Thank you, doctor', icon:'👨‍⚕️', unit:3 },
+  { id:64, name:'Not much!',         icon:'😏', unit:3 },
+  { id:65, name:'Not a baby',        icon:'👶', unit:3 },
+  { id:66, name:'What\'s for...?',   icon:'🍽️', unit:3 },
+  { id:67, name:'The weekend',       icon:'🎉', unit:3 },
+  { id:68, name:'Calling the fire brigade',icon:'🚒',unit:3 },
+  { id:69, name:'The car race',      icon:'🏎️', unit:3 },
+  { id:70, name:'When were you born?',icon:'🎂',unit:3 },
+  { id:71, name:'In the country',    icon:'🌾', unit:3 },
+  { id:72, name:'Not yet!',          icon:'😴', unit:3 },
+
+  // Unit 4: L73-96
+  { id:73, name:'The way to King St.',icon:'🗺️',unit:4 },
+  { id:74, name:'I agree',           icon:'🤝', unit:4 },
+  { id:75, name:'Uncomfortable!',    icon:'😣', unit:4 },
+  { id:76, name:'Make up your mind', icon:'🤔', unit:4 },
+  { id:77, name:'Terrible toothache',icon:'🦷', unit:4 },
+  { id:78, name:'Have you...?',      icon:'🎤', unit:4 },
+  { id:79, name:'Carol\'s shopping', icon:'🛍️', unit:4 },
+  { id:80, name:'I\'m on a diet',    icon:'🥗', unit:4 },
+  { id:81, name:'Roast beef',        icon:'🥩', unit:4 },
+  { id:82, name:'Whose is it?',      icon:'🏷️', unit:4 },
+  { id:83, name:'Going on holiday',  icon:'🏖️', unit:4 },
+  { id:84, name:'Have you been?',    icon:'🌍', unit:4 },
+  { id:85, name:'Paris in spring',   icon:'🗼', unit:4 },
+  { id:86, name:'It\'s cooler here', icon:'🌬️', unit:4 },
+  { id:87, name:'A car crash',       icon:'🚗', unit:4 },
+  { id:88, name:'Have you found...?',icon:'🔎', unit:4 },
+  { id:89, name:'For sale',          icon:'🏷️', unit:4 },
+  { id:90, name:'The race',          icon:'🏁', unit:4 },
+  { id:91, name:'Poor Ian!',         icon:'😢', unit:4 },
+  { id:92, name:'Whose is it?',      icon:'💎', unit:4 },
+  { id:93, name:'Our village',       icon:'🏘️', unit:4 },
+  { id:94, name:'A history lesson',  icon:'📜', unit:4 },
+  { id:95, name:'Forgotten!',        icon:'🤦', unit:4 },
+  { id:96, name:'The prize',         icon:'🏆', unit:4 },
+];
+
+// ===== PROGRESS from localStorage =====
+function getProgress() {
+  try {
+    return JSON.parse(localStorage.getItem('nce_progress') || '{}');
+  } catch { return {}; }
+}
+
+function getTotalDone() {
+  const p = getProgress();
+  return Object.keys(p).filter(k => p[k] && p[k].stars > 0).length;
+}
+
+function getTotalStars() {
+  const p = getProgress();
+  return Object.values(p).reduce((sum, v) => sum + (v.stars || 0), 0);
+}
+
+function getStreak() {
+  try {
+    const s = JSON.parse(localStorage.getItem('nce_streak') || '{"days":1,"last":""}');
+    const today = new Date().toDateString();
+    if(s.last !== today) {
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
+      s.days = (s.last === yesterday) ? s.days + 1 : 1;
+      s.last = today;
+      localStorage.setItem('nce_streak', JSON.stringify(s));
+    }
+    return s.days;
+  } catch { return 1; }
+}
+
+// ===== BUILD GRID =====
+function buildGrid(unitNum, containerId) {
+  const container = document.getElementById(containerId);
+  const progress = getProgress();
+  const unitLessons = lessons.filter(l => l.unit === unitNum);
+  const totalDone = getTotalDone();
+
+  unitLessons.forEach(lesson => {
+    const p = progress[lesson.id] || {};
+    const isDone = p.stars > 0;
+    const isCurrent = !isDone && (lesson.id === 1 || progress[lesson.id - 1]?.stars > 0 || (lesson.id === totalDone + 1));
+    const isFirst = lesson.id === 1;
+    const isLocked = !isDone && !isCurrent && !isFirst;
+
+    const card = document.createElement('a');
+    card.className = 'lesson-card ' + (isDone ? 'done' : isCurrent || isFirst ? 'current' : 'locked');
+
+    if(!isLocked) {
+      card.href = `./lessons/lesson${lesson.id}.html`;
+    } else {
+      card.onclick = (e) => { e.preventDefault(); showLockedHint(); };
+      card.href = '#';
+    }
+
+    const starsStr = isDone ? '⭐'.repeat(p.stars) : '';
+
+    card.innerHTML = `
+      ${!isDone && !isFirst && (isCurrent) ? '<div class="new-badge">NEW</div>' : ''}
+      ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+      <div class="lesson-num">${lesson.id}</div>
+      <span class="lesson-icon">${lesson.icon}</span>
+      <div class="lesson-name">${lesson.name}</div>
+      ${starsStr ? `<div class="lesson-stars">${starsStr}</div>` : ''}
+    `;
+    container.appendChild(card);
+  });
+}
+
+function showLockedHint() {
+  const hint = document.createElement('div');
+  hint.style.cssText = `
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+    background:#1A237E; color:white; padding:12px 20px; border-radius:999px;
+    font-weight:700; font-size:0.9rem; z-index:999;
+    box-shadow:0 4px 20px rgba(0,0,0,0.3); white-space:nowrap;
+    animation: fadeInUp 0.3s ease;
+  `;
+  hint.textContent = '🔒 先完成前一课，才能解锁这课！';
+  document.body.appendChild(hint);
+  setTimeout(() => hint.remove(), 2500);
+}
+
+// ===== INIT =====
+const streak = getStreak();
+const done = getTotalDone();
+const stars = getTotalStars();
+
+document.getElementById('stat-done').textContent = done;
+document.getElementById('stat-stars').textContent = stars;
+document.getElementById('stat-streak').textContent = streak;
+document.getElementById('streak-days').textContent = `Day ${streak}`;
+
+buildGrid(1, 'grid-unit1');
+buildGrid(2, 'grid-unit2');
+buildGrid(3, 'grid-unit3');
+buildGrid(4, 'grid-unit4');
+
+// Update continue button
+const progress = getProgress();
+let nextLesson = 1;
+for(let i = 1; i <= 96; i++) {
+  if(!progress[i] || !progress[i].stars) { nextLesson = i; break; }
+}
+const cta = document.querySelector('.bottom-cta');
+const ctaSub = cta.querySelector('.cta-sub');
+const lessonData = lessons.find(l => l.id === nextLesson);
+cta.href = `./lessons/lesson${nextLesson}.html`;
+if(lessonData) ctaSub.textContent = `Lesson ${nextLesson} · ${lessonData.name}`;
+
+// Register service worker
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    console.log('SW registered:', reg.scope);
+  }).catch(err => console.log('SW error:', err));
+}
+</script>
+</body>
+</html>
