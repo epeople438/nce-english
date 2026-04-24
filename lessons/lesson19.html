@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lesson 19 · Tired and thirsty</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #BF360C;
+    --primary-light: #FF7043;
+    --primary-pale: #FBE9E7;
+    --accent: #1565C0;
+    --accent-light: #E3F2FD;
+    --bg: #FFF3EE;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #6c757d;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(191,54,12,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+  .top-nav { background: var(--primary); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; font-size: 20px; border-radius: 12px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .nav-title { flex: 1; font-family: 'Fredoka One', cursive; font-size: 17px; }
+  .star-row { display: flex; gap: 4px; }
+  .star { font-size: 22px; filter: grayscale(1); transition: filter 0.4s; }
+  .star.earned { filter: grayscale(0); }
+  .progress-wrap { height: 6px; background: rgba(255,255,255,0.3); }
+  .progress-bar { height: 6px; background: linear-gradient(90deg,#FFAB91,#FFD54F,#80CBC4,#CE93D8); width: 0%; transition: width 0.6s ease; }
+  .stage { display: none; animation: fadeUp 0.4s ease; }
+  .stage.active { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);} }
+  .scene-header { background: var(--primary); color: white; text-align: center; padding: 18px 20px 14px; border-radius: 0 0 var(--radius) var(--radius); margin-bottom: 18px; }
+  .scene-header .emoji-row { font-size: 36px; margin-bottom: 6px; }
+  .scene-header h2 { font-family: 'Fredoka One', cursive; font-size: 22px; }
+  .scene-header p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin: 0 16px 16px; padding: 20px; border-top: 5px solid var(--primary-light); }
+  .stage-label { display: flex; align-items: center; gap: 8px; margin: 0 16px 12px; }
+  .stage-label .num { background: var(--primary); color: white; font-family: 'Fredoka One', cursive; font-size: 15px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .stage-label .title { font-size: 16px; font-weight: 800; color: var(--primary); }
+  /* DIALOGUE */
+  .play-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 10px; }
+  .dialogue-list { display: flex; flex-direction: column; gap: 10px; }
+  .dialogue-item { border-radius: 14px; padding: 12px 16px; background: #f8f8f8; border-left: 4px solid #ddd; cursor: pointer; transition: all 0.2s; opacity: 0.55; }
+  .dialogue-item.revealed { opacity: 1; background: var(--primary-pale); border-left-color: var(--primary-light); }
+  .dialogue-item.playing { transform: scale(1.02); box-shadow: 0 4px 16px rgba(255,112,67,0.22); }
+  .speaker { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 4px; }
+  .dialogue-en { font-family: 'Fredoka One', cursive; font-size: 18px; line-height: 1.3; }
+  .dialogue-zh { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  /* VOCAB */
+  .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .vocab-card { background: var(--primary-pale); border-radius: 14px; padding: 14px 12px; text-align: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+  .vocab-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .vocab-emoji { font-size: 28px; }
+  .vocab-en { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--primary); margin: 4px 0 2px; }
+  .vocab-zh { font-size: 12px; color: var(--text-muted); }
+  /* EMOTION GAME */
+  .game-instruction { background: var(--accent-light); border-radius: 14px; padding: 12px 16px; font-size: 14px; font-weight: 700; color: #0d47a1; margin-bottom: 14px; text-align: center; }
+  .emotion-scene { background: linear-gradient(135deg, #FBE9E7, #FFF8E1); border-radius: 18px; padding: 20px 16px; margin-bottom: 14px; text-align: center; }
+  .emotion-scene .scene-emoji { font-size: 52px; margin-bottom: 8px; transition: transform 0.3s; }
+  .emotion-scene .scene-q { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--primary); line-height: 1.4; }
+  .emotion-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .emotion-opt { background: white; border: 2px solid #ddd; border-radius: 14px; padding: 12px 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.4; }
+  .emotion-opt:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .emotion-opt.sel-correct { background: var(--primary-pale); border-color: var(--primary); color: var(--primary); }
+  .emotion-opt.sel-wrong { background: #FFCDD2; border-color: #ef5350; }
+  .emotion-fb { font-family: 'Fredoka One', cursive; font-size: 16px; text-align: center; margin-top: 12px; min-height: 26px; }
+  .q-counter { text-align: center; font-size: 13px; color: var(--text-muted); font-weight: 700; margin-bottom: 10px; }
+  /* FILL */
+  .fill-list { display: flex; flex-direction: column; gap: 10px; }
+  .fill-item { background: #f8f8f8; border-radius: 14px; padding: 14px 16px; border: 2px solid #eee; }
+  .fill-sentence { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
+  .fill-options { display: flex; gap: 8px; flex-wrap: wrap; }
+  .fill-opt { background: white; border: 2px solid #ddd; border-radius: 10px; padding: 6px 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .fill-opt:hover { border-color: var(--primary-light); }
+  .fill-opt.correct-ans { background: var(--primary-pale); border-color: var(--primary); }
+  .fill-opt.wrong-ans { background: #FFCDD2; border-color: #ef5350; }
+  .fill-feedback { font-size: 12px; margin-top: 6px; font-weight: 700; }
+  .score-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; transition: background 0.3s; }
+  .dot.done { background: var(--primary-light); }
+  .btn { display: block; width: calc(100% - 32px); margin: 0 16px 12px; background: var(--primary); color: white; border: none; border-radius: var(--radius); padding: 16px; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(191,54,12,0.28); }
+  .btn:hover { background: var(--primary-light); transform: translateY(-2px); }
+  .btn:disabled { background: #ccc; box-shadow: none; transform: none; cursor: not-allowed; }
+  .complete-card { background: var(--primary); color: white; border-radius: var(--radius); margin: 0 16px; padding: 30px 20px; text-align: center; box-shadow: var(--shadow); }
+  .complete-card h2 { font-family: 'Fredoka One', cursive; font-size: 28px; margin-bottom: 8px; }
+  .complete-card p { opacity: 0.9; margin-bottom: 20px; font-size: 16px; }
+  .star-big { font-size: 42px; }
+  .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 998; }
+  .confetti-piece { position: absolute; border-radius: 2px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;} }
+  .review-list { display: flex; flex-direction: column; gap: 8px; }
+  .review-item { background: var(--primary-pale); border-radius: 12px; padding: 10px 14px; border-left: 4px solid var(--primary-light); }
+  .r-speaker { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); }
+  .r-en { font-family: 'Fredoka One', cursive; font-size: 16px; }
+  .r-zh { font-size: 12px; color: var(--text-muted); }
+  /* there is tip */
+  .grammar-tip { background: linear-gradient(135deg, #FBE9E7, #FFE0B2); border-radius: 16px; padding: 14px; margin-bottom: 12px; border-left: 5px solid var(--primary); }
+  .grammar-tip h3 { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary); margin-bottom: 6px; }
+  .grammar-tip p { font-size: 13px; line-height: 1.65; }
+  .grammar-tip .eg { font-family: 'Fredoka One', cursive; color: var(--primary); font-size: 13px; margin-top: 5px; }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="nav-title">Lesson 19 · Tired and thirsty</div>
+  <div class="star-row">
+    <span class="star" id="s1">⭐</span><span class="star" id="s2">⭐</span>
+    <span class="star" id="s3">⭐</span><span class="star" id="s4">⭐</span>
+  </div>
+</nav>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- STAGE 1: 听对话 -->
+<div class="stage active" id="stage1">
+  <div class="scene-header">
+    <div class="emoji-row">😓🍦</div>
+    <h2>听故事</h2>
+    <p>第1关 · 孩子们又累又渴，妈妈怎么帮他们？</p>
+  </div>
+  <div class="stage-label"><span class="num">1</span><span class="title">点击每句话，听一听！</span></div>
+  <div class="card">
+    <p class="play-hint">👆 逐句点击，全部听完才能过关</p>
+    <div class="dialogue-list" id="dialogueList">
+      <div class="dialogue-item" onclick="playLine(0)">
+        <div class="speaker">Mother 妈妈</div>
+        <div class="dialogue-en">What's the matter, children?</div>
+        <div class="dialogue-zh">怎么啦，孩子们？</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(1)">
+        <div class="speaker">Girl 女孩</div>
+        <div class="dialogue-en">We're tired …</div>
+        <div class="dialogue-zh">我们累了……</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(2)">
+        <div class="speaker">Boy 男孩</div>
+        <div class="dialogue-en">… and thirsty, Mum.</div>
+        <div class="dialogue-zh">……口也渴，妈妈。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(3)">
+        <div class="speaker">Mother 妈妈</div>
+        <div class="dialogue-en">Sit down here.</div>
+        <div class="dialogue-zh">坐在这儿吧。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(4)">
+        <div class="speaker">Mother 妈妈</div>
+        <div class="dialogue-en">Are you all right now?</div>
+        <div class="dialogue-zh">你们现在好些了吗？</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(5)">
+        <div class="speaker">Boy 男孩</div>
+        <div class="dialogue-en">No, we aren't.</div>
+        <div class="dialogue-zh">不，还没有。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(6)">
+        <div class="speaker">Mother 妈妈</div>
+        <div class="dialogue-en">Look! There's an ice cream man.</div>
+        <div class="dialogue-zh">瞧！有个卖冰淇淋的。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(7)">
+        <div class="speaker">Mother 妈妈</div>
+        <div class="dialogue-en">Two ice creams, please.</div>
+        <div class="dialogue-zh">请给两份冰淇淋。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(8)">
+        <div class="speaker">Mother 妈妈</div>
+        <div class="dialogue-en">Here you are, children.</div>
+        <div class="dialogue-zh">拿着，孩子们。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(9)">
+        <div class="speaker">Children 孩子们</div>
+        <div class="dialogue-en">Thanks, Mum.</div>
+        <div class="dialogue-zh">谢谢，妈妈。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(10)">
+        <div class="speaker">Girl 女孩</div>
+        <div class="dialogue-en">These ice creams are nice.</div>
+        <div class="dialogue-zh">这些冰淇淋真好吃。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(11)">
+        <div class="speaker">Mother 妈妈</div>
+        <div class="dialogue-en">Are you all right now?</div>
+        <div class="dialogue-zh">你们现在好了吗？</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(12)">
+        <div class="speaker">Children 孩子们</div>
+        <div class="dialogue-en">Yes, we are, thank you!</div>
+        <div class="dialogue-zh">是的，现在好了，谢谢您！</div>
+      </div>
+    </div>
+  </div>
+  <button class="btn" id="btn1" onclick="nextStage(1)" disabled>下一关 🚀</button>
+</div>
+
+<!-- STAGE 2: 认单词 -->
+<div class="stage" id="stage2">
+  <div class="scene-header">
+    <div class="emoji-row">😴🍦</div>
+    <h2>认单词</h2>
+    <p>第2关 · 表达感受的词！</p>
+  </div>
+  <div class="stage-label"><span class="num">2</span><span class="title">点一点，听一听！</span></div>
+  <div class="card">
+    <div class="grammar-tip">
+      <h3>💡 There's = There is</h3>
+      <p>用来介绍"有某物存在"：<br>
+      <strong>There's an ice cream man.</strong> 有个卖冰淇淋的。<br>
+      主语是 be 后面的名词，单数用 is，复数用 are。</p>
+      <div class="eg">There's a cat. / There are two cats.</div>
+    </div>
+    <div class="vocab-grid">
+      <div class="vocab-card" onclick="speakW('tired')"><div class="vocab-emoji">😩</div><div class="vocab-en">tired</div><div class="vocab-zh">疲惫的</div></div>
+      <div class="vocab-card" onclick="speakW('thirsty')"><div class="vocab-emoji">🥤</div><div class="vocab-en">thirsty</div><div class="vocab-zh">口渴的</div></div>
+      <div class="vocab-card" onclick="speakW('matter')"><div class="vocab-emoji">❓</div><div class="vocab-en">matter</div><div class="vocab-zh">事情，问题</div></div>
+      <div class="vocab-card" onclick="speakW('sit down')"><div class="vocab-emoji">🪑</div><div class="vocab-en">sit down</div><div class="vocab-zh">坐下</div></div>
+      <div class="vocab-card" onclick="speakW('ice cream')"><div class="vocab-emoji">🍦</div><div class="vocab-en">ice cream</div><div class="vocab-zh">冰淇淋</div></div>
+      <div class="vocab-card" onclick="speakW('all right')"><div class="vocab-emoji">✅</div><div class="vocab-en">all right</div><div class="vocab-zh">好，可以</div></div>
+      <div class="vocab-card" onclick="speakW('children')"><div class="vocab-emoji">👧👦</div><div class="vocab-en">children</div><div class="vocab-zh">孩子们</div></div>
+      <div class="vocab-card" onclick="speakW('nice')"><div class="vocab-emoji">😋</div><div class="vocab-en">nice</div><div class="vocab-zh">好吃的，好的</div></div>
+    </div>
+  </div>
+  <button class="btn" onclick="nextStage(2)">下一关 🚀</button>
+</div>
+
+<!-- STAGE 3: 情绪猜猜猜 -->
+<div class="stage" id="stage3">
+  <div class="scene-header">
+    <div class="emoji-row">🎮😓</div>
+    <h2>语法游戏</h2>
+    <p>第3关 · 他们感觉怎么样？</p>
+  </div>
+  <div class="stage-label"><span class="num">3</span><span class="title">根据情景，选出正确的句子！</span></div>
+  <div class="card">
+    <div class="game-instruction">💡 练习 What's the matter? / tired / thirsty / all right 的用法</div>
+    <div class="q-counter" id="qCounter">第 1 / 6 题</div>
+    <div class="emotion-scene">
+      <div id="sceneEmoji" style="font-size:52px;margin-bottom:8px;">😩</div>
+      <div class="scene-q" id="sceneQ" style="font-family:'Fredoka One',cursive;font-size:17px;color:var(--primary);">The boy and girl walked all day. What's the matter?</div>
+    </div>
+    <div class="emotion-opts" id="emotionOpts"></div>
+    <div class="emotion-fb" id="emotionFb"></div>
+  </div>
+  <button class="btn" id="btn3" onclick="nextStage(3)" disabled>下一关 🚀</button>
+</div>
+
+<!-- STAGE 4: 填空 -->
+<div class="stage" id="stage4">
+  <div class="scene-header">
+    <div class="emoji-row">✏️🎯</div>
+    <h2>填一填</h2>
+    <p>第4关 · 选词填空！</p>
+  </div>
+  <div class="stage-label"><span class="num">4</span><span class="title">选出正确的词！</span></div>
+  <div class="card">
+    <div class="score-dots" id="scoreDots4">
+      <div class="dot" id="d4-0"></div><div class="dot" id="d4-1"></div><div class="dot" id="d4-2"></div>
+      <div class="dot" id="d4-3"></div><div class="dot" id="d4-4"></div><div class="dot" id="d4-5"></div>
+    </div>
+    <div class="fill-list" id="fillList"></div>
+  </div>
+  <button class="btn" id="btn4" onclick="completeLesson()" disabled>完成本课 🎉</button>
+</div>
+
+<!-- STAGE 5: 完成 -->
+<div class="stage" id="stage5">
+  <div class="scene-header">
+    <div class="emoji-row">🎊🍦</div>
+    <h2>太棒了！</h2>
+    <p>Lesson 19 全部完成！</p>
+  </div>
+  <div class="complete-card">
+    <div class="star-big">⭐⭐⭐⭐</div>
+    <h2>你得了4颗星！</h2>
+    <p>掌握了 <strong>What's the matter?</strong> 和 <strong>There's...</strong> 句型！</p>
+    <button class="btn" style="background:white;color:var(--primary);margin:0 0 12px;" onclick="showReview()">📖 复习对话</button>
+    <button class="btn" style="background:rgba(255,255,255,0.25);color:white;margin:0;" onclick="location.href='../index.html'">回到主页 🏠</button>
+  </div>
+  <div id="reviewSec" style="display:none;margin-top:16px;">
+    <div class="stage-label"><span class="num">📖</span><span class="title">对话复习</span></div>
+    <div class="card"><div class="review-list" id="reviewList"></div></div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+const LESSON = 19;
+const dialogueData = [
+  {speaker:'Mother',en:"What's the matter, children?",zh:'怎么啦，孩子们？'},
+  {speaker:'Girl',en:"We're tired …",zh:'我们累了……'},
+  {speaker:'Boy',en:'… and thirsty, Mum.',zh:'……口也渴，妈妈。'},
+  {speaker:'Mother',en:'Sit down here.',zh:'坐在这儿吧。'},
+  {speaker:'Mother',en:'Are you all right now?',zh:'你们现在好些了吗？'},
+  {speaker:'Boy',en:"No, we aren't.",zh:'不，还没有。'},
+  {speaker:'Mother',en:"Look! There's an ice cream man.",zh:'瞧！有个卖冰淇淋的。'},
+  {speaker:'Mother',en:'Two ice creams, please.',zh:'请给两份冰淇淋。'},
+  {speaker:'Mother',en:'Here you are, children.',zh:'拿着，孩子们。'},
+  {speaker:'Children',en:'Thanks, Mum.',zh:'谢谢，妈妈。'},
+  {speaker:'Girl',en:'These ice creams are nice.',zh:'这些冰淇淋真好吃。'},
+  {speaker:'Mother',en:'Are you all right now?',zh:'你们现在好了吗？'},
+  {speaker:'Children',en:'Yes, we are, thank you!',zh:'是的，现在好了，谢谢您！'},
+];
+
+const emotionQuestions = [
+  {
+    emoji:'😩',
+    q:"The boy and girl walked all day. What's the matter?",
+    opts:["We're tired and thirsty.","We're fine, thank you!","We're cold and hungry.","We're all right now."],
+    ans:0, fb:"We're tired and thirsty! 又累又渴！",speak:"We're tired and thirsty."
+  },
+  {
+    emoji:'🪑',
+    q:'Mum says: "___ here." (让孩子们坐下)',
+    opts:['Stand up','Sit down','Look at','Come in'],
+    ans:1, fb:'Sit down here. 坐在这儿吧！',speak:'Sit down here.'
+  },
+  {
+    emoji:'🍦',
+    q:"Mum says: \"Look! There's ___ ice cream man.\"",
+    opts:['a','an','the','some'],
+    ans:0, fb:"There's an ice cream man. 等等——ice cream man 以辅音开头，用 an！",speak:"There's an ice cream man."
+  },
+  {
+    emoji:'😋',
+    q:'After eating ice cream, the girl says: "These ice creams are ___."',
+    opts:['tired','thirsty','nice','right'],
+    ans:2, fb:'These ice creams are nice! 好吃！',speak:'These ice creams are nice.'
+  },
+  {
+    emoji:'✅',
+    q:'Mum asks: "Are you all right now?" → (是的！)',
+    opts:["No, we aren't.",'Yes, we are, thank you!','Yes, I am.',"No, I'm not."],
+    ans:1, fb:'Yes, we are, thank you! 现在好了，谢谢！',speak:'Yes, we are, thank you!'
+  },
+  {
+    emoji:'❓',
+    q:'What does Mum ask when the children look upset?',
+    opts:["What's the matter?","Are you Swedish?","What colour is it?","Whose is this?"],
+    ans:0, fb:"What's the matter? 怎么啦？",speak:"What's the matter?"
+  },
+];
+
+const fillQuestions = [
+  {sentence:"What's the ___, children? (怎么啦？)", answer:'matter', opts:['matter','problem','colour','job']},
+  {sentence:"We're ___. (我们累了)", answer:'tired', opts:['tired','thirsty','hungry','right']},
+  {sentence:"___ down here. (坐下)", answer:'Sit', opts:['Sit','Stand','Look','Come']},
+  {sentence:"There's ___ ice cream man. (一个)", answer:'an', opts:['an','a','the','some']},
+  {sentence:"These ice creams ___ nice. (是)", answer:'are', opts:['are','is','am','be']},
+  {sentence:"Yes, we ___, thank you! (是的)", answer:'are', opts:['are','is','am','aren\'t']},
+];
+
+let revealedLines = new Set();
+let currentStage = 1;
+let emotionQIdx = 0, emotionDone = 0;
+let stage4Done = 0;
+
+function speak(text, rate=0.88){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=rate;
+  const v=window.speechSynthesis.getVoices();
+  const pref=v.find(x=>/Samantha|Daniel|Google US|Karen/.test(x.name));
+  if(pref)u.voice=pref;
+  window.speechSynthesis.speak(u);
+}
+function speakW(w){speak(w);}
+
+function playLine(idx){
+  const items=document.querySelectorAll('.dialogue-item');
+  items.forEach(i=>i.classList.remove('playing'));
+  items[idx].classList.add('revealed','playing');
+  speak(dialogueData[idx].en);
+  revealedLines.add(idx);
+  setTimeout(()=>items[idx].classList.remove('playing'),1500);
+  if(revealedLines.size>=dialogueData.length)document.getElementById('btn1').disabled=false;
+}
+
+function nextStage(from){
+  earnStar(from);
+  currentStage=from+1;
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage'+currentStage).classList.add('active');
+  updateProgress();
+  if(currentStage===3)showEmotionQ(0);
+  if(currentStage===4)buildFillGame();
+  window.scrollTo(0,0);
+}
+
+function earnStar(n){
+  const s=document.getElementById('s'+n);
+  if(s){s.classList.add('earned');s.style.transform='scale(1.4) rotate(10deg)';setTimeout(()=>s.style.transform='',400);}
+}
+
+function updateProgress(){
+  document.getElementById('progressBar').style.width=((currentStage-1)/4*100)+'%';
+}
+
+function showEmotionQ(idx){
+  emotionQIdx=idx;
+  const q=emotionQuestions[idx];
+  document.getElementById('sceneEmoji').textContent=q.emoji;
+  document.getElementById('sceneQ').textContent=q.q;
+  document.getElementById('emotionFb').textContent='';
+  document.getElementById('qCounter').textContent=`第 ${idx+1} / ${emotionQuestions.length} 题`;
+  const optsEl=document.getElementById('emotionOpts');
+  optsEl.innerHTML='';
+  q.opts.forEach((o,j)=>{
+    const btn=document.createElement('button');
+    btn.className='emotion-opt';
+    btn.textContent=o;
+    btn.onclick=()=>answerEmotion(j,q.ans,q.fb,q.speak);
+    optsEl.appendChild(btn);
+  });
+}
+
+function answerEmotion(chosen,correct,fb,speakText){
+  const opts=document.querySelectorAll('.emotion-opt');
+  opts.forEach(o=>o.disabled=true);
+  const fbEl=document.getElementById('emotionFb');
+  if(chosen===correct){
+    opts[chosen].classList.add('sel-correct');
+    fbEl.textContent='✅ '+fb;
+    fbEl.style.color='var(--primary)';
+    speak(speakText);
+  } else {
+    opts[chosen].classList.add('sel-wrong');
+    opts[correct].classList.add('sel-correct');
+    fbEl.textContent='💡 '+fb;
+    fbEl.style.color='#e53935';
+  }
+  emotionDone++;
+  setTimeout(()=>{
+    if(emotionDone<emotionQuestions.length){
+      showEmotionQ(emotionDone);
+    } else {
+      document.getElementById('btn3').disabled=false;
+      fbEl.textContent='🎉 全部答完！太厉害了！';
+      fbEl.style.color='var(--primary)';
+    }
+  },1500);
+}
+
+function buildFillGame(){
+  const c=document.getElementById('fillList');
+  c.innerHTML='';
+  fillQuestions.forEach((q,i)=>{
+    const div=document.createElement('div');
+    div.className='fill-item';
+    div.id='fi'+i;
+    const disp=q.sentence.replace('___','<span style="color:var(--primary);font-weight:800">___</span>');
+    div.innerHTML=`<div class="fill-sentence">${disp}</div>
+    <div class="fill-options">${q.opts.map(o=>`<button class="fill-opt" onclick="answerFill(${i},'${o}','${q.answer}')">${o}</button>`).join('')}</div>
+    <div class="fill-feedback" id="ff${i}"></div>`;
+    c.appendChild(div);
+  });
+}
+
+function answerFill(qi,chosen,correct){
+  const item=document.getElementById('fi'+qi);
+  if(item.dataset.done)return;
+  item.dataset.done='1';
+  const opts=item.querySelectorAll('.fill-opt');
+  const fb=document.getElementById('ff'+qi);
+  opts.forEach(o=>{o.disabled=true;if(o.textContent===correct)o.classList.add('correct-ans');});
+  if(chosen===correct){fb.textContent='✅ 正确！';fb.style.color='var(--primary)';speak(correct);}
+  else{opts.forEach(o=>{if(o.textContent===chosen)o.classList.add('wrong-ans');});fb.textContent='💡 正确答案：'+correct;fb.style.color='#e53935';}
+  stage4Done++;
+  document.getElementById('d4-'+(stage4Done-1)).classList.add('done');
+  if(stage4Done>=fillQuestions.length)document.getElementById('btn4').disabled=false;
+}
+
+function completeLesson(){
+  earnStar(4);
+  currentStage=5;
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage5').classList.add('active');
+  document.getElementById('progressBar').style.width='100%';
+  saveProgress();
+  setTimeout(spawnConfetti,300);
+  window.scrollTo(0,0);
+}
+
+function saveProgress(){
+  try{
+    const p=JSON.parse(localStorage.getItem('nce_progress')||'{}');
+    const prev=p[LESSON]?p[LESSON].stars:0;
+    p[LESSON]={stars:Math.max(4,prev),date:new Date().toISOString()};
+    localStorage.setItem('nce_progress',JSON.stringify(p));
+    const streak=JSON.parse(localStorage.getItem('nce_streak')||'{"days":0,"last":""}');
+    const today=new Date().toDateString();
+    if(streak.last!==today){streak.days=(streak.last===new Date(Date.now()-86400000).toDateString())?streak.days+1:1;streak.last=today;}
+    localStorage.setItem('nce_streak',JSON.stringify(streak));
+  }catch(e){}
+}
+
+function showReview(){
+  document.getElementById('reviewSec').style.display='block';
+  document.getElementById('reviewList').innerHTML=dialogueData.map(t=>
+    `<div class="review-item"><div class="r-speaker">${t.speaker}</div><div class="r-en">${t.en}</div><div class="r-zh">${t.zh}</div></div>`
+  ).join('');
+}
+
+function spawnConfetti(){
+  const colors=['#FF7043','#FF9800','#4CAF50','#2196F3','#FFEB3B','#E91E63'];
+  const c=document.getElementById('confettiContainer');
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    const sz=(8+Math.random()*8)+'px';p.style.width=sz;p.style.height=sz;
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.animationDelay=Math.random()*1.5+'s';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',5000);
+}
+
+window.speechSynthesis&&window.speechSynthesis.getVoices();
+updateProgress();
+</script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lesson 17 · How do you do?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4A148C;
+    --primary-light: #AB47BC;
+    --primary-pale: #F3E5F5;
+    --accent: #FF6F00;
+    --accent-light: #FFF8E1;
+    --bg: #F5F0FB;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #6c757d;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(74,20,140,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+  .top-nav { background: var(--primary); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; font-size: 20px; border-radius: 12px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .nav-title { flex: 1; font-family: 'Fredoka One', cursive; font-size: 17px; }
+  .star-row { display: flex; gap: 4px; }
+  .star { font-size: 22px; filter: grayscale(1); transition: filter 0.4s; }
+  .star.earned { filter: grayscale(0); }
+  .progress-wrap { height: 6px; background: rgba(255,255,255,0.3); }
+  .progress-bar { height: 6px; background: linear-gradient(90deg,#CE93D8,#FFD54F,#FF8A65,#80CBC4); width: 0%; transition: width 0.6s ease; }
+  .stage { display: none; animation: fadeUp 0.4s ease; }
+  .stage.active { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);} }
+  .scene-header { background: var(--primary); color: white; text-align: center; padding: 18px 20px 14px; border-radius: 0 0 var(--radius) var(--radius); margin-bottom: 18px; }
+  .scene-header .emoji-row { font-size: 36px; margin-bottom: 6px; }
+  .scene-header h2 { font-family: 'Fredoka One', cursive; font-size: 22px; }
+  .scene-header p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin: 0 16px 16px; padding: 20px; border-top: 5px solid var(--primary-light); }
+  .stage-label { display: flex; align-items: center; gap: 8px; margin: 0 16px 12px; }
+  .stage-label .num { background: var(--primary); color: white; font-family: 'Fredoka One', cursive; font-size: 15px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .stage-label .title { font-size: 16px; font-weight: 800; color: var(--primary); }
+  /* DIALOGUE */
+  .play-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 10px; }
+  .dialogue-list { display: flex; flex-direction: column; gap: 10px; }
+  .dialogue-item { border-radius: 14px; padding: 12px 16px; background: #f8f8f8; border-left: 4px solid #ddd; cursor: pointer; transition: all 0.2s; opacity: 0.55; }
+  .dialogue-item.revealed { opacity: 1; background: var(--primary-pale); border-left-color: var(--primary-light); }
+  .dialogue-item.playing { transform: scale(1.02); box-shadow: 0 4px 16px rgba(171,71,188,0.22); }
+  .speaker { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); margin-bottom: 4px; }
+  .dialogue-en { font-family: 'Fredoka One', cursive; font-size: 18px; line-height: 1.3; }
+  .dialogue-zh { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  /* VOCAB */
+  .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .vocab-card { background: var(--primary-pale); border-radius: 14px; padding: 14px 12px; text-align: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+  .vocab-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .vocab-emoji { font-size: 26px; }
+  .vocab-en { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary); margin: 4px 0 2px; }
+  .vocab-zh { font-size: 12px; color: var(--text-muted); }
+  /* WHO GAME */
+  .game-instruction { background: var(--accent-light); border-radius: 14px; padding: 12px 16px; font-size: 14px; font-weight: 700; color: #7a5800; margin-bottom: 14px; text-align: center; }
+  .who-item { background: #f8f8f8; border-radius: 14px; padding: 16px; margin-bottom: 12px; border: 2px solid #eee; transition: all 0.3s; }
+  .who-item.correct { background: var(--primary-pale); border-color: var(--primary-light); }
+  .who-item.wrong { background: #FFEBEE; border-color: #ef5350; }
+  .who-q { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .who-q .q-emoji { font-size: 22px; }
+  .who-opts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .who-opt { flex: 1; min-width: 90px; background: white; border: 2px solid #ddd; border-radius: 10px; padding: 9px 6px; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; transition: all 0.2s; line-height: 1.3; }
+  .who-opt:hover { border-color: var(--primary-light); background: var(--primary-pale); }
+  .who-opt.sel-correct { background: var(--primary-pale); border-color: var(--primary); color: var(--primary); }
+  .who-opt.sel-wrong { background: #FFCDD2; border-color: #ef5350; }
+  .who-fb { font-size: 13px; color: var(--primary); font-weight: 700; margin-top: 8px; display: none; }
+  /* FILL */
+  .fill-list { display: flex; flex-direction: column; gap: 10px; }
+  .fill-item { background: #f8f8f8; border-radius: 14px; padding: 14px 16px; border: 2px solid #eee; }
+  .fill-sentence { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
+  .fill-options { display: flex; gap: 8px; flex-wrap: wrap; }
+  .fill-opt { background: white; border: 2px solid #ddd; border-radius: 10px; padding: 6px 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .fill-opt:hover { border-color: var(--primary-light); }
+  .fill-opt.correct-ans { background: var(--primary-pale); border-color: var(--primary); }
+  .fill-opt.wrong-ans { background: #FFCDD2; border-color: #ef5350; }
+  .fill-feedback { font-size: 12px; margin-top: 6px; font-weight: 700; }
+  .score-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; transition: background 0.3s; }
+  .dot.done { background: var(--primary-light); }
+  .btn { display: block; width: calc(100% - 32px); margin: 0 16px 12px; background: var(--primary); color: white; border: none; border-radius: var(--radius); padding: 16px; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(74,20,140,0.28); }
+  .btn:hover { background: var(--primary-light); transform: translateY(-2px); }
+  .btn:disabled { background: #ccc; box-shadow: none; transform: none; cursor: not-allowed; }
+  .complete-card { background: var(--primary); color: white; border-radius: var(--radius); margin: 0 16px; padding: 30px 20px; text-align: center; box-shadow: var(--shadow); }
+  .complete-card h2 { font-family: 'Fredoka One', cursive; font-size: 28px; margin-bottom: 8px; }
+  .complete-card p { opacity: 0.9; margin-bottom: 20px; font-size: 16px; }
+  .star-big { font-size: 42px; }
+  .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 998; }
+  .confetti-piece { position: absolute; border-radius: 2px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;} }
+  .review-list { display: flex; flex-direction: column; gap: 8px; }
+  .review-item { background: var(--primary-pale); border-radius: 12px; padding: 10px 14px; border-left: 4px solid var(--primary-light); }
+  .r-speaker { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); }
+  .r-en { font-family: 'Fredoka One', cursive; font-size: 16px; }
+  .r-zh { font-size: 12px; color: var(--text-muted); }
+  .grammar-tip { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); border-radius: 16px; padding: 14px; margin-bottom: 12px; border-left: 5px solid var(--primary); }
+  .grammar-tip h3 { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary); margin-bottom: 6px; }
+  .grammar-tip p { font-size: 13px; line-height: 1.7; }
+  .grammar-tip .eg { font-family: 'Fredoka One', cursive; color: var(--primary); font-size: 13px; margin-top: 5px; }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="nav-title">Lesson 17 · How do you do?</div>
+  <div class="star-row">
+    <span class="star" id="s1">⭐</span><span class="star" id="s2">⭐</span>
+    <span class="star" id="s3">⭐</span><span class="star" id="s4">⭐</span>
+  </div>
+</nav>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- STAGE 1: 听对话 -->
+<div class="stage active" id="stage1">
+  <div class="scene-header">
+    <div class="emoji-row">🏢🤝</div>
+    <h2>听故事</h2>
+    <p>第1关 · 参观公司，认识新同事！</p>
+  </div>
+  <div class="stage-label"><span class="num">1</span><span class="title">点击每句话，听一听！</span></div>
+  <div class="card">
+    <p class="play-hint">👆 逐句点击，全部听完才能过关</p>
+    <div class="dialogue-list" id="dialogueList">
+      <div class="dialogue-item" onclick="playLine(0)">
+        <div class="speaker">Mr. Jackson</div>
+        <div class="dialogue-en">Come and meet our employees, Mr. Richards.</div>
+        <div class="dialogue-zh">来认识一下我们的员工吧，Richards先生。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(1)">
+        <div class="speaker">Mr. Richards</div>
+        <div class="dialogue-en">Thank you, Mr. Jackson.</div>
+        <div class="dialogue-zh">谢谢，Jackson先生。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(2)">
+        <div class="speaker">Mr. Jackson</div>
+        <div class="dialogue-en">This is Nicola Grey, and this is Claire Taylor.</div>
+        <div class="dialogue-zh">这位是Nicola Grey，这位是Claire Taylor。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(3)">
+        <div class="speaker">Mr. Richards</div>
+        <div class="dialogue-en">How do you do?</div>
+        <div class="dialogue-zh">你好！（初次见面用语）</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(4)">
+        <div class="speaker">Mr. Richards</div>
+        <div class="dialogue-en">Those women are very hard-working. What are their jobs?</div>
+        <div class="dialogue-zh">那些女士工作非常努力。她们是做什么的？</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(5)">
+        <div class="speaker">Mr. Jackson</div>
+        <div class="dialogue-en">They're keyboard operators.</div>
+        <div class="dialogue-zh">她们是键盘操作员。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(6)">
+        <div class="speaker">Mr. Jackson</div>
+        <div class="dialogue-en">This is Michael Baker, and this is Jeremy Short.</div>
+        <div class="dialogue-zh">这位是Michael Baker，这位是Jeremy Short。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(7)">
+        <div class="speaker">Mr. Richards</div>
+        <div class="dialogue-en">How do you do?</div>
+        <div class="dialogue-zh">你好！</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(8)">
+        <div class="speaker">Mr. Richards</div>
+        <div class="dialogue-en">They aren't very busy! What are their jobs?</div>
+        <div class="dialogue-zh">他们不是很忙嘛！他们是做什么的？</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(9)">
+        <div class="speaker">Mr. Jackson</div>
+        <div class="dialogue-en">They're sales reps. They're very lazy.</div>
+        <div class="dialogue-zh">他们是销售代表。他们非常懒。</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(10)">
+        <div class="speaker">Mr. Richards</div>
+        <div class="dialogue-en">Who is this young man?</div>
+        <div class="dialogue-zh">这个年轻人是谁？</div>
+      </div>
+      <div class="dialogue-item" onclick="playLine(11)">
+        <div class="speaker">Mr. Jackson</div>
+        <div class="dialogue-en">This is Jim. He's our office assistant.</div>
+        <div class="dialogue-zh">这是Jim，他是我们的办公室助理。</div>
+      </div>
+    </div>
+  </div>
+  <button class="btn" id="btn1" onclick="nextStage(1)" disabled>下一关 🚀</button>
+</div>
+
+<!-- STAGE 2: 认单词 -->
+<div class="stage" id="stage2">
+  <div class="scene-header">
+    <div class="emoji-row">💼✨</div>
+    <h2>认单词</h2>
+    <p>第2关 · 职业和新词！</p>
+  </div>
+  <div class="stage-label"><span class="num">2</span><span class="title">点一点，听一听！</span></div>
+  <div class="card">
+    <div class="grammar-tip">
+      <h3>💡 How do you do? 怎么用？</h3>
+      <p>正式场合第一次见面用语，不是问身体状况。<br>
+      回答也是：<strong>How do you do?</strong><br>
+      非正式：Nice to meet you! / Hello!</p>
+      <div class="eg">Who is this young man? → This is Jim. He's our office assistant.</div>
+    </div>
+    <div class="vocab-grid">
+      <div class="vocab-card" onclick="speakW('employee')"><div class="vocab-emoji">👔</div><div class="vocab-en">employee</div><div class="vocab-zh">雇员</div></div>
+      <div class="vocab-card" onclick="speakW('hard-working')"><div class="vocab-emoji">💪</div><div class="vocab-en">hard-working</div><div class="vocab-zh">勤奋的</div></div>
+      <div class="vocab-card" onclick="speakW('keyboard operator')"><div class="vocab-emoji">⌨️</div><div class="vocab-en">keyboard operator</div><div class="vocab-zh">键盘操作员</div></div>
+      <div class="vocab-card" onclick="speakW('sales rep')"><div class="vocab-emoji">🤝</div><div class="vocab-en">sales rep</div><div class="vocab-zh">销售代表</div></div>
+      <div class="vocab-card" onclick="speakW('lazy')"><div class="vocab-emoji">😴</div><div class="vocab-en">lazy</div><div class="vocab-zh">懒惰的</div></div>
+      <div class="vocab-card" onclick="speakW('office assistant')"><div class="vocab-emoji">📋</div><div class="vocab-en">office assistant</div><div class="vocab-zh">办公室助理</div></div>
+    </div>
+  </div>
+  <button class="btn" onclick="nextStage(2)">下一关 🚀</button>
+</div>
+
+<!-- STAGE 3: Who游戏 -->
+<div class="stage" id="stage3">
+  <div class="scene-header">
+    <div class="emoji-row">🕵️💼</div>
+    <h2>语法游戏</h2>
+    <p>第3关 · 认识公司里的每个人！</p>
+  </div>
+  <div class="stage-label"><span class="num">3</span><span class="title">根据故事，选出正确答案！</span></div>
+  <div class="card">
+    <div class="game-instruction">💡 练习 Who is...? / What are their jobs? / hard-working vs lazy</div>
+    <div class="score-dots" id="scoreDots3">
+      <div class="dot" id="d3-0"></div><div class="dot" id="d3-1"></div>
+      <div class="dot" id="d3-2"></div><div class="dot" id="d3-3"></div><div class="dot" id="d3-4"></div>
+    </div>
+    <div id="whoGame"></div>
+  </div>
+  <button class="btn" id="btn3" onclick="nextStage(3)" disabled>下一关 🚀</button>
+</div>
+
+<!-- STAGE 4: 填空 -->
+<div class="stage" id="stage4">
+  <div class="scene-header">
+    <div class="emoji-row">✏️🎯</div>
+    <h2>填一填</h2>
+    <p>第4关 · 选词填空！</p>
+  </div>
+  <div class="stage-label"><span class="num">4</span><span class="title">选出正确的词！</span></div>
+  <div class="card">
+    <div class="score-dots" id="scoreDots4">
+      <div class="dot" id="d4-0"></div><div class="dot" id="d4-1"></div><div class="dot" id="d4-2"></div>
+      <div class="dot" id="d4-3"></div><div class="dot" id="d4-4"></div><div class="dot" id="d4-5"></div>
+    </div>
+    <div class="fill-list" id="fillList"></div>
+  </div>
+  <button class="btn" id="btn4" onclick="completeLesson()" disabled>完成本课 🎉</button>
+</div>
+
+<!-- STAGE 5: 完成 -->
+<div class="stage" id="stage5">
+  <div class="scene-header">
+    <div class="emoji-row">🎊🤝</div>
+    <h2>太棒了！</h2>
+    <p>Lesson 17 全部完成！</p>
+  </div>
+  <div class="complete-card">
+    <div class="star-big">⭐⭐⭐⭐</div>
+    <h2>你得了4颗星！</h2>
+    <p>掌握了 <strong>How do you do?</strong> 和 <strong>What are their jobs?</strong>！</p>
+    <button class="btn" style="background:white;color:var(--primary);margin:0 0 12px;" onclick="showReview()">📖 复习对话</button>
+    <button class="btn" style="background:rgba(255,255,255,0.25);color:white;margin:0;" onclick="location.href='../index.html'">回到主页 🏠</button>
+  </div>
+  <div id="reviewSec" style="display:none;margin-top:16px;">
+    <div class="stage-label"><span class="num">📖</span><span class="title">对话复习</span></div>
+    <div class="card"><div class="review-list" id="reviewList"></div></div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+const LESSON = 17;
+const dialogueData = [
+  {speaker:'Mr. Jackson', en:'Come and meet our employees, Mr. Richards.', zh:'来认识一下我们的员工吧，Richards先生。'},
+  {speaker:'Mr. Richards', en:'Thank you, Mr. Jackson.', zh:'谢谢，Jackson先生。'},
+  {speaker:'Mr. Jackson', en:'This is Nicola Grey, and this is Claire Taylor.', zh:'这位是Nicola Grey，这位是Claire Taylor。'},
+  {speaker:'Mr. Richards', en:'How do you do?', zh:'你好！（初次见面用语）'},
+  {speaker:'Mr. Richards', en:'Those women are very hard-working. What are their jobs?', zh:'那些女士工作非常努力。她们是做什么的？'},
+  {speaker:'Mr. Jackson', en:"They're keyboard operators.", zh:'她们是键盘操作员。'},
+  {speaker:'Mr. Jackson', en:'This is Michael Baker, and this is Jeremy Short.', zh:'这位是Michael Baker，这位是Jeremy Short。'},
+  {speaker:'Mr. Richards', en:'How do you do?', zh:'你好！'},
+  {speaker:'Mr. Richards', en:"They aren't very busy! What are their jobs?", zh:'他们不是很忙嘛！他们是做什么的？'},
+  {speaker:'Mr. Jackson', en:"They're sales reps. They're very lazy.", zh:'他们是销售代表。他们非常懒。'},
+  {speaker:'Mr. Richards', en:'Who is this young man?', zh:'这个年轻人是谁？'},
+  {speaker:'Mr. Jackson', en:"This is Jim. He's our office assistant.", zh:'这是Jim，他是我们的办公室助理。'},
+];
+
+const whoQuestions = [
+  {emoji:'⌨️', q:'What are Nicola and Claire\'s jobs?', opts:["They're keyboard operators.","They're sales reps.","They're office assistants.","They're very lazy."], ans:0, fb:"They're keyboard operators! 她们是键盘操作员。"},
+  {emoji:'😴', q:'How does Mr. Jackson describe Michael and Jeremy?', opts:['hard-working','busy','lazy','very nice'], ans:2, fb:"They're very lazy! 他们非常懒！"},
+  {emoji:'🤝', q:'What are Michael Baker and Jeremy Short\'s jobs?', opts:["keyboard operators","sales reps","office assistants","employees"], ans:1, fb:"They're sales reps! 他们是销售代表。"},
+  {emoji:'👦', q:'Who is Jim?', opts:["He's a sales rep.","He's a keyboard operator.","He's our office assistant.","He's a manager."], ans:2, fb:"He's our office assistant! 他是办公室助理。"},
+  {emoji:'🤝', q:'When Mr. Richards meets Nicola and Claire, he says:', opts:['Nice to meet you!','How are you?','How do you do?','Good morning!'], ans:2, fb:'How do you do? 正式初次见面用这句！'},
+];
+
+const fillQuestions = [
+  {sentence:'Come and ___ our employees. (认识)', answer:'meet', opts:['meet','see','look','find']},
+  {sentence:'Those women are very hard-___. (勤奋的)', answer:'working', opts:['working','work','worker','works']},
+  {sentence:"What ___ their jobs? (是)", answer:'are', opts:['are','is','am','be']},
+  {sentence:"They're keyboard ___. (操作员)", answer:'operators', opts:['operators','workers','assistants','reps']},
+  {sentence:"They aren't very ___! (忙)", answer:'busy', opts:['busy','lazy','hard','nice']},
+  {sentence:'___ is this young man? (谁)', answer:'Who', opts:['Who','What','Whose','Where']},
+];
+
+let revealedLines = new Set();
+let currentStage = 1;
+let stage3Done = 0, stage4Done = 0;
+
+function speak(text, rate=0.88){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=rate;
+  const v=window.speechSynthesis.getVoices();
+  const pref=v.find(x=>/Samantha|Daniel|Google US|Karen/.test(x.name));
+  if(pref)u.voice=pref;
+  window.speechSynthesis.speak(u);
+}
+function speakW(w){speak(w);}
+
+function playLine(idx){
+  const items=document.querySelectorAll('.dialogue-item');
+  items.forEach(i=>i.classList.remove('playing'));
+  items[idx].classList.add('revealed','playing');
+  speak(dialogueData[idx].en);
+  revealedLines.add(idx);
+  setTimeout(()=>items[idx].classList.remove('playing'),1800);
+  if(revealedLines.size>=dialogueData.length)document.getElementById('btn1').disabled=false;
+}
+
+function nextStage(from){
+  earnStar(from);
+  currentStage=from+1;
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage'+currentStage).classList.add('active');
+  updateProgress();
+  if(currentStage===3)buildWhoGame();
+  if(currentStage===4)buildFillGame();
+  window.scrollTo(0,0);
+}
+
+function earnStar(n){
+  const s=document.getElementById('s'+n);
+  if(s){s.classList.add('earned');s.style.transform='scale(1.4) rotate(10deg)';setTimeout(()=>s.style.transform='',400);}
+}
+function updateProgress(){
+  document.getElementById('progressBar').style.width=((currentStage-1)/4*100)+'%';
+}
+
+function buildWhoGame(){
+  const c=document.getElementById('whoGame');
+  c.innerHTML='';
+  whoQuestions.forEach((q,i)=>{
+    const div=document.createElement('div');
+    div.className='who-item';
+    div.id='wi'+i;
+    div.innerHTML=`<div class="who-q"><span class="q-emoji">${q.emoji}</span>${q.q}</div>
+    <div class="who-opts">${q.opts.map((o,j)=>`<button class="who-opt" onclick="answerWho(${i},${j},${q.ans})">${o}</button>`).join('')}</div>
+    <div class="who-fb" id="wf${i}">✅ ${q.fb}</div>`;
+    c.appendChild(div);
+  });
+}
+
+function answerWho(qi,chosen,correct){
+  const item=document.getElementById('wi'+qi);
+  if(item.dataset.done)return;
+  item.dataset.done='1';
+  const opts=item.querySelectorAll('.who-opt');
+  opts.forEach(o=>o.disabled=true);
+  if(chosen===correct){item.classList.add('correct');opts[chosen].classList.add('sel-correct');speak(whoQuestions[qi].opts[correct]);}
+  else{item.classList.add('wrong');opts[chosen].classList.add('sel-wrong');opts[correct].classList.add('sel-correct');}
+  document.getElementById('wf'+qi).style.display='block';
+  stage3Done++;
+  document.getElementById('d3-'+(stage3Done-1)).classList.add('done');
+  if(stage3Done>=whoQuestions.length)document.getElementById('btn3').disabled=false;
+}
+
+function buildFillGame(){
+  const c=document.getElementById('fillList');
+  c.innerHTML='';
+  fillQuestions.forEach((q,i)=>{
+    const div=document.createElement('div');
+    div.className='fill-item';
+    div.id='fi'+i;
+    const disp=q.sentence.replace('___','<span style="color:var(--primary);font-weight:800">___</span>');
+    div.innerHTML=`<div class="fill-sentence">${disp}</div>
+    <div class="fill-options">${q.opts.map(o=>`<button class="fill-opt" onclick="answerFill(${i},'${o}','${q.answer}')">${o}</button>`).join('')}</div>
+    <div class="fill-feedback" id="ff${i}"></div>`;
+    c.appendChild(div);
+  });
+}
+
+function answerFill(qi,chosen,correct){
+  const item=document.getElementById('fi'+qi);
+  if(item.dataset.done)return;
+  item.dataset.done='1';
+  const opts=item.querySelectorAll('.fill-opt');
+  const fb=document.getElementById('ff'+qi);
+  opts.forEach(o=>{o.disabled=true;if(o.textContent===correct)o.classList.add('correct-ans');});
+  if(chosen===correct){fb.textContent='✅ 正确！';fb.style.color='var(--primary)';speak(correct);}
+  else{opts.forEach(o=>{if(o.textContent===chosen)o.classList.add('wrong-ans');});fb.textContent='💡 正确答案：'+correct;fb.style.color='#e53935';}
+  stage4Done++;
+  document.getElementById('d4-'+(stage4Done-1)).classList.add('done');
+  if(stage4Done>=fillQuestions.length)document.getElementById('btn4').disabled=false;
+}
+
+function completeLesson(){
+  earnStar(4);currentStage=5;
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage5').classList.add('active');
+  document.getElementById('progressBar').style.width='100%';
+  saveProgress();setTimeout(spawnConfetti,300);window.scrollTo(0,0);
+}
+
+function saveProgress(){
+  try{
+    const p=JSON.parse(localStorage.getItem('nce_progress')||'{}');
+    const prev=p[LESSON]?p[LESSON].stars:0;
+    p[LESSON]={stars:Math.max(4,prev),date:new Date().toISOString()};
+    localStorage.setItem('nce_progress',JSON.stringify(p));
+    const streak=JSON.parse(localStorage.getItem('nce_streak')||'{"days":0,"last":""}');
+    const today=new Date().toDateString();
+    if(streak.last!==today){streak.days=(streak.last===new Date(Date.now()-86400000).toDateString())?streak.days+1:1;streak.last=today;}
+    localStorage.setItem('nce_streak',JSON.stringify(streak));
+  }catch(e){}
+}
+
+function showReview(){
+  document.getElementById('reviewSec').style.display='block';
+  document.getElementById('reviewList').innerHTML=dialogueData.map(t=>
+    `<div class="review-item"><div class="r-speaker">${t.speaker}</div><div class="r-en">${t.en}</div><div class="r-zh">${t.zh}</div></div>`
+  ).join('');
+}
+
+function spawnConfetti(){
+  const colors=['#AB47BC','#FF9800','#4CAF50','#2196F3','#FFEB3B','#E91E63'];
+  const c=document.getElementById('confettiContainer');
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div');p.className='confetti-piece';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    const sz=(8+Math.random()*8)+'px';p.style.width=sz;p.style.height=sz;
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.animationDelay=Math.random()*1.5+'s';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',5000);
+}
+
+window.speechSynthesis&&window.speechSynthesis.getVoices();
+updateProgress();
+</script>
+</body>
+</html>

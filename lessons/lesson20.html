@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lesson 20 · Look at them!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2E7D32;
+    --primary-light: #66BB6A;
+    --primary-pale: #E8F5E9;
+    --accent: #E65100;
+    --accent-light: #FFF3E0;
+    --bg: #F1F8F1;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #6c757d;
+    --radius: 20px;
+    --shadow: 0 8px 32px rgba(46,125,50,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+  .top-nav { background: var(--primary); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+  .back-btn { background: rgba(255,255,255,0.18); border: none; color: white; font-size: 20px; border-radius: 12px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .nav-title { flex: 1; font-family: 'Fredoka One', cursive; font-size: 17px; }
+  .star-row { display: flex; gap: 4px; }
+  .star { font-size: 22px; filter: grayscale(1); transition: filter 0.4s; }
+  .star.earned { filter: grayscale(0); }
+  .progress-wrap { height: 6px; background: rgba(255,255,255,0.3); }
+  .progress-bar { height: 6px; background: linear-gradient(90deg,#A5D6A7,#FFD54F,#FF8A65,#CE93D8); width: 0%; transition: width 0.6s ease; }
+  .stage { display: none; animation: fadeUp 0.4s ease; }
+  .stage.active { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);} }
+  .scene-header { background: var(--primary); color: white; text-align: center; padding: 18px 20px 14px; border-radius: 0 0 var(--radius) var(--radius); margin-bottom: 18px; }
+  .scene-header .emoji-row { font-size: 36px; margin-bottom: 6px; }
+  .scene-header h2 { font-family: 'Fredoka One', cursive; font-size: 22px; }
+  .scene-header p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+  .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); margin: 0 16px 16px; padding: 20px; border-top: 5px solid var(--primary-light); }
+  .stage-label { display: flex; align-items: center; gap: 8px; margin: 0 16px 12px; }
+  .stage-label .num { background: var(--primary); color: white; font-family: 'Fredoka One', cursive; font-size: 15px; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .stage-label .title { font-size: 16px; font-weight: 800; color: var(--primary); }
+  /* READ */
+  .play-hint { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 10px; }
+  .read-list { display: flex; flex-direction: column; gap: 10px; }
+  .read-item { border-radius: 14px; padding: 12px 16px; background: #f8f8f8; border-left: 4px solid #ddd; cursor: pointer; transition: all 0.2s; opacity: 0.55; }
+  .read-item.revealed { opacity: 1; background: var(--primary-pale); border-left-color: var(--primary-light); }
+  .read-item.playing { transform: scale(1.02); box-shadow: 0 4px 16px rgba(102,187,106,0.25); }
+  .read-en { font-family: 'Fredoka One', cursive; font-size: 17px; line-height: 1.35; }
+  .read-zh { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  /* GRAMMAR TIP */
+  .grammar-tip { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-radius: 16px; padding: 16px; margin-bottom: 14px; border-left: 5px solid var(--primary); }
+  .grammar-tip h3 { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--primary); margin-bottom: 8px; }
+  .grammar-tip p { font-size: 14px; line-height: 1.7; }
+  .grammar-tip .eg { font-family: 'Fredoka One', cursive; color: var(--primary); font-size: 14px; margin-top: 6px; }
+  /* THIS/THAT TABLE */
+  .dem-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; border-radius: 12px; overflow: hidden; }
+  .dem-table th { background: var(--primary); color: white; padding: 10px 12px; font-family: 'Fredoka One', cursive; font-size: 14px; text-align: center; }
+  .dem-table td { padding: 10px 12px; border-bottom: 1px solid #eee; text-align: center; }
+  .dem-table tr:nth-child(even) td { background: var(--primary-pale); }
+  .dem-table .td-en { font-family: 'Fredoka One', cursive; color: var(--primary); font-size: 16px; }
+  /* VOCAB */
+  .vocab-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .vocab-card { background: var(--primary-pale); border-radius: 14px; padding: 14px 12px; text-align: center; cursor: pointer; transition: all 0.2s; border: 2px solid transparent; }
+  .vocab-card:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .vocab-emoji { font-size: 26px; }
+  .vocab-en { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary); margin: 4px 0 2px; }
+  .vocab-zh { font-size: 12px; color: var(--text-muted); }
+  /* POINTER GAME */
+  .game-instruction { background: var(--accent-light); border-radius: 14px; padding: 12px 16px; font-size: 14px; font-weight: 700; color: #7a3d00; margin-bottom: 14px; text-align: center; }
+  .pointer-item { background: #f8f8f8; border-radius: 14px; padding: 16px; margin-bottom: 12px; border: 2px solid #eee; transition: all 0.3s; }
+  .pointer-item.correct { background: var(--primary-pale); border-color: var(--primary-light); }
+  .pointer-item.wrong { background: #FFEBEE; border-color: #ef5350; }
+  .pointer-q { font-family: 'Fredoka One', cursive; font-size: 17px; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pointer-q .q-emoji { font-size: 24px; }
+  .pointer-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pointer-opt { background: white; border: 2px solid #ddd; border-radius: 12px; padding: 10px 8px; font-family: 'Fredoka One', cursive; font-size: 15px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .pointer-opt:hover { border-color: var(--primary-light); background: var(--primary-pale); }
+  .pointer-opt.sel-correct { background: var(--primary-pale); border-color: var(--primary); color: var(--primary); }
+  .pointer-opt.sel-wrong { background: #FFCDD2; border-color: #ef5350; }
+  .pointer-fb { font-size: 13px; color: var(--primary); font-weight: 700; margin-top: 8px; display: none; }
+  /* FILL */
+  .fill-list { display: flex; flex-direction: column; gap: 10px; }
+  .fill-item { background: #f8f8f8; border-radius: 14px; padding: 14px 16px; border: 2px solid #eee; }
+  .fill-sentence { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--text); margin-bottom: 8px; line-height: 1.4; }
+  .fill-options { display: flex; gap: 8px; flex-wrap: wrap; }
+  .fill-opt { background: white; border: 2px solid #ddd; border-radius: 10px; padding: 6px 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .fill-opt:hover { border-color: var(--primary-light); }
+  .fill-opt.correct-ans { background: var(--primary-pale); border-color: var(--primary); }
+  .fill-opt.wrong-ans { background: #FFCDD2; border-color: #ef5350; }
+  .fill-feedback { font-size: 12px; margin-top: 6px; font-weight: 700; }
+  .score-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; transition: background 0.3s; }
+  .dot.done { background: var(--primary-light); }
+  .btn { display: block; width: calc(100% - 32px); margin: 0 16px 12px; background: var(--primary); color: white; border: none; border-radius: var(--radius); padding: 16px; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 16px rgba(46,125,50,0.28); }
+  .btn:hover { background: var(--primary-light); transform: translateY(-2px); }
+  .btn:disabled { background: #ccc; box-shadow: none; transform: none; cursor: not-allowed; }
+  .complete-card { background: var(--primary); color: white; border-radius: var(--radius); margin: 0 16px; padding: 30px 20px; text-align: center; box-shadow: var(--shadow); }
+  .complete-card h2 { font-family: 'Fredoka One', cursive; font-size: 28px; margin-bottom: 8px; }
+  .complete-card p { opacity: 0.9; margin-bottom: 20px; font-size: 16px; }
+  .star-big { font-size: 42px; }
+  .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 998; }
+  .confetti-piece { position: absolute; border-radius: 2px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;} }
+  .review-list { display: flex; flex-direction: column; gap: 8px; }
+  .review-item { background: var(--primary-pale); border-radius: 12px; padding: 10px 14px; border-left: 4px solid var(--primary-light); }
+  .r-en { font-family: 'Fredoka One', cursive; font-size: 16px; }
+  .r-zh { font-size: 12px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="nav-title">Lesson 20 · Look at them!</div>
+  <div class="star-row">
+    <span class="star" id="s1">⭐</span><span class="star" id="s2">⭐</span>
+    <span class="star" id="s3">⭐</span><span class="star" id="s4">⭐</span>
+  </div>
+</nav>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- STAGE 1: 朗读练习 -->
+<div class="stage active" id="stage1">
+  <div class="scene-header">
+    <div class="emoji-row">👀📖</div>
+    <h2>读课文</h2>
+    <p>第1关 · 练习课 · this / that / these / those + 形容词</p>
+  </div>
+  <div class="stage-label"><span class="num">1</span><span class="title">逐句点击，听发音！</span></div>
+  <div class="card">
+    <div class="grammar-tip">
+      <h3>🔑 本课语法重点：指示代词</h3>
+      <p>
+        <strong>this / that</strong> → 指一个（单数）<br>
+        <strong>these / those</strong> → 指多个（复数）<br>
+        <strong>this / these</strong> → 近处（这/这些）<br>
+        <strong>that / those</strong> → 远处（那/那些）
+      </p>
+      <div class="eg">Those children are tired. → Their mother is tired, too.</div>
+    </div>
+    <p class="play-hint">👆 点击每句话，全部听完才能过关</p>
+    <div class="read-list" id="readList">
+      <div class="read-item" onclick="playRead(0)"><div class="read-en">Those children are tired.</div><div class="read-zh">那些孩子们累了。</div></div>
+      <div class="read-item" onclick="playRead(1)"><div class="read-en">Their mother is tired, too.</div><div class="read-zh">他们的妈妈也累了。</div></div>
+      <div class="read-item" onclick="playRead(2)"><div class="read-en">That ice cream man is very busy.</div><div class="read-zh">那个卖冰淇淋的人非常忙。</div></div>
+      <div class="read-item" onclick="playRead(3)"><div class="read-en">His ice creams are very nice.</div><div class="read-zh">他的冰淇淋非常好吃。</div></div>
+      <div class="read-item" onclick="playRead(4)"><div class="read-en">What's the matter, children? We are thirsty.</div><div class="read-zh">怎么啦，孩子们？我们渴了。</div></div>
+      <div class="read-item" onclick="playRead(5)"><div class="read-en">What's the matter, Tim? I am tired.</div><div class="read-zh">怎么啦，Tim？我累了。</div></div>
+      <div class="read-item" onclick="playRead(6)"><div class="read-en">Are the children tired or thirsty?</div><div class="read-zh">孩子们是累了还是渴了？</div></div>
+      <div class="read-item" onclick="playRead(7)"><div class="read-en">They are tired and thirsty.</div><div class="read-zh">他们又累又渴。</div></div>
+      <div class="read-item" onclick="playRead(8)"><div class="read-en">Is the ice cream man busy?</div><div class="read-zh">卖冰淇淋的人忙吗？</div></div>
+      <div class="read-item" onclick="playRead(9)"><div class="read-en">Yes, he is. He is very busy.</div><div class="read-zh">是的，他很忙。</div></div>
+      <div class="read-item" onclick="playRead(10)"><div class="read-en">Are these ice creams nice?</div><div class="read-zh">这些冰淇淋好吃吗？</div></div>
+      <div class="read-item" onclick="playRead(11)"><div class="read-en">Yes, they are. They are very nice.</div><div class="read-zh">是的，非常好吃。</div></div>
+    </div>
+  </div>
+  <button class="btn" id="btn1" onclick="nextStage(1)" disabled>下一关 🚀</button>
+</div>
+
+<!-- STAGE 2: 认单词 + 指示代词表 -->
+<div class="stage" id="stage2">
+  <div class="scene-header">
+    <div class="emoji-row">👆✨</div>
+    <h2>认单词</h2>
+    <p>第2关 · 指示代词 + 新形容词！</p>
+  </div>
+  <div class="stage-label"><span class="num">2</span><span class="title">点一点，听一听！</span></div>
+  <div class="card">
+    <table class="dem-table">
+      <tr><th>距离</th><th>单数（一个）</th><th>复数（多个）</th></tr>
+      <tr><td>近处 👉</td><td class="td-en" onclick="speakW('this')" style="cursor:pointer">this 这</td><td class="td-en" onclick="speakW('these')" style="cursor:pointer">these 这些</td></tr>
+      <tr><td>远处 👈</td><td class="td-en" onclick="speakW('that')" style="cursor:pointer">that 那</td><td class="td-en" onclick="speakW('those')" style="cursor:pointer">those 那些</td></tr>
+    </table>
+    <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:8px;">👆 点击表格里的单词可以听发音</p>
+    <div style="margin-top:16px;">
+      <p style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:10px;">🎭 本课形容词</p>
+      <div class="vocab-grid">
+        <div class="vocab-card" onclick="speakW('tired')"><div class="vocab-emoji">😩</div><div class="vocab-en">tired</div><div class="vocab-zh">疲惫的</div></div>
+        <div class="vocab-card" onclick="speakW('thirsty')"><div class="vocab-emoji">🥤</div><div class="vocab-en">thirsty</div><div class="vocab-zh">口渴的</div></div>
+        <div class="vocab-card" onclick="speakW('busy')"><div class="vocab-emoji">⚡</div><div class="vocab-en">busy</div><div class="vocab-zh">忙碌的</div></div>
+        <div class="vocab-card" onclick="speakW('nice')"><div class="vocab-emoji">😋</div><div class="vocab-en">nice</div><div class="vocab-zh">好的，好吃的</div></div>
+      </div>
+    </div>
+  </div>
+  <button class="btn" onclick="nextStage(2)">下一关 🚀</button>
+</div>
+
+<!-- STAGE 3: 指示代词选词游戏 -->
+<div class="stage" id="stage3">
+  <div class="scene-header">
+    <div class="emoji-row">👆🎯</div>
+    <h2>语法游戏</h2>
+    <p>第3关 · 近处还是远处？单数还是复数？</p>
+  </div>
+  <div class="stage-label"><span class="num">3</span><span class="title">选出正确的指示代词！</span></div>
+  <div class="card">
+    <div class="game-instruction">💡 根据括号提示，选出 this / that / these / those 中正确的一个</div>
+    <div class="score-dots" id="scoreDots3">
+      <div class="dot" id="d3-0"></div><div class="dot" id="d3-1"></div><div class="dot" id="d3-2"></div>
+      <div class="dot" id="d3-3"></div><div class="dot" id="d3-4"></div>
+    </div>
+    <div id="pointerGame"></div>
+  </div>
+  <button class="btn" id="btn3" onclick="nextStage(3)" disabled>下一关 🚀</button>
+</div>
+
+<!-- STAGE 4: 填空 -->
+<div class="stage" id="stage4">
+  <div class="scene-header">
+    <div class="emoji-row">✏️🎯</div>
+    <h2>填一填</h2>
+    <p>第4关 · 选词填空！</p>
+  </div>
+  <div class="stage-label"><span class="num">4</span><span class="title">选出正确的词！</span></div>
+  <div class="card">
+    <div class="score-dots" id="scoreDots4">
+      <div class="dot" id="d4-0"></div><div class="dot" id="d4-1"></div><div class="dot" id="d4-2"></div>
+      <div class="dot" id="d4-3"></div><div class="dot" id="d4-4"></div><div class="dot" id="d4-5"></div>
+    </div>
+    <div class="fill-list" id="fillList"></div>
+  </div>
+  <button class="btn" id="btn4" onclick="completeLesson()" disabled>完成本课 🎉</button>
+</div>
+
+<!-- STAGE 5: 完成 -->
+<div class="stage" id="stage5">
+  <div class="scene-header">
+    <div class="emoji-row">🎊👆</div>
+    <h2>太棒了！</h2>
+    <p>Lesson 20 全部完成！</p>
+  </div>
+  <div class="complete-card">
+    <div class="star-big">⭐⭐⭐⭐</div>
+    <h2>你得了4颗星！</h2>
+    <p><strong>this / that / these / those</strong> 全掌握！</p>
+    <button class="btn" style="background:white;color:var(--primary);margin:0 0 12px;" onclick="showReview()">📖 复习要点</button>
+    <button class="btn" style="background:rgba(255,255,255,0.25);color:white;margin:0;" onclick="location.href='../index.html'">回到主页 🏠</button>
+  </div>
+  <div id="reviewSec" style="display:none;margin-top:16px;">
+    <div class="stage-label"><span class="num">📖</span><span class="title">指示代词总结</span></div>
+    <div class="card">
+      <div class="grammar-tip" style="margin-bottom:12px;">
+        <h3>✅ 指示代词速查</h3>
+        <p>
+          <strong>This</strong> child is tired.（这个孩子）<br>
+          <strong>That</strong> ice cream man is busy.（那个人）<br>
+          <strong>These</strong> ice creams are nice.（这些冰淇淋）<br>
+          <strong>Those</strong> children are thirsty.（那些孩子们）
+        </p>
+        <div class="eg">单数：this / that　　复数：these / those</div>
+      </div>
+      <div class="review-list" id="reviewList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+const LESSON = 20;
+
+const readTexts = [
+  'Those children are tired.',
+  'Their mother is tired, too.',
+  'That ice cream man is very busy.',
+  'His ice creams are very nice.',
+  "What's the matter, children? We are thirsty.",
+  "What's the matter, Tim? I am tired.",
+  'Are the children tired or thirsty?',
+  'They are tired and thirsty.',
+  'Is the ice cream man busy?',
+  'Yes, he is. He is very busy.',
+  'Are these ice creams nice?',
+  'Yes, they are. They are very nice.',
+];
+const readZh = [
+  '那些孩子们累了。','他们的妈妈也累了。',
+  '那个卖冰淇淋的人非常忙。','他的冰淇淋非常好吃。',
+  '怎么啦，孩子们？我们渴了。','怎么啦，Tim？我累了。',
+  '孩子们是累了还是渴了？','他们又累又渴。',
+  '卖冰淇淋的人忙吗？','是的，他很忙。',
+  '这些冰淇淋好吃吗？','是的，非常好吃。',
+];
+
+const pointerQuestions = [
+  {
+    emoji:'🍦',
+    q:'___ ice creams are nice.（手里拿着的冰淇淋 · 近 · 多个）',
+    opts:['This','That','These','Those'],
+    ans:2, fb:'These ice creams are nice. ✅（近处 + 复数）',speak:'These ice creams are nice.'
+  },
+  {
+    emoji:'👧👦',
+    q:'___ children are tired.（远处的孩子们 · 远 · 多个）',
+    opts:['This','That','These','Those'],
+    ans:3, fb:'Those children are tired. ✅（远处 + 复数）',speak:'Those children are tired.'
+  },
+  {
+    emoji:'🍦',
+    q:'___ ice cream man is very busy.（远处那个人 · 远 · 单数）',
+    opts:['This','That','These','Those'],
+    ans:1, fb:'That ice cream man is very busy. ✅（远处 + 单数）',speak:'That ice cream man is very busy.'
+  },
+  {
+    emoji:'👧',
+    q:'___ child is thirsty.（眼前这个孩子 · 近 · 单数）',
+    opts:['This','That','These','Those'],
+    ans:0, fb:'This child is thirsty. ✅（近处 + 单数）',speak:'This child is thirsty.'
+  },
+  {
+    emoji:'🧳',
+    q:'___ cases are brown.（我们身边的箱子 · 近 · 多个）',
+    opts:['This','That','These','Those'],
+    ans:2, fb:'These cases are brown. ✅（近处 + 复数）',speak:'These cases are brown.'
+  },
+];
+
+const fillQuestions = [
+  {sentence:'___ children are tired. (那些·远·多个)', answer:'Those', opts:['Those','These','That','This']},
+  {sentence:'___ ice cream man is busy. (那个·远·单数)', answer:'That', opts:['That','This','Those','These']},
+  {sentence:'___ ice creams are nice. (这些·近·多个)', answer:'These', opts:['These','Those','This','That']},
+  {sentence:'___ child is very thirsty. (这个·近·单数)', answer:'This', opts:['This','That','These','Those']},
+  {sentence:'Their mother is tired, ___. (也)', answer:'too', opts:['too','also','very','so']},
+  {sentence:'His ice creams are very ___. (好吃)', answer:'nice', opts:['nice','busy','tired','right']},
+];
+
+let revealedReads = new Set();
+let currentStage = 1;
+let stage3Done = 0, stage4Done = 0;
+
+function speak(text, rate=0.88){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=rate;
+  const v=window.speechSynthesis.getVoices();
+  const pref=v.find(x=>/Samantha|Daniel|Google US|Karen/.test(x.name));
+  if(pref)u.voice=pref;
+  window.speechSynthesis.speak(u);
+}
+function speakW(w){speak(w);}
+
+function playRead(idx){
+  const items=document.querySelectorAll('.read-item');
+  items.forEach(i=>i.classList.remove('playing'));
+  items[idx].classList.add('revealed','playing');
+  speak(readTexts[idx]);
+  revealedReads.add(idx);
+  setTimeout(()=>items[idx].classList.remove('playing'),1800);
+  if(revealedReads.size>=readTexts.length)document.getElementById('btn1').disabled=false;
+}
+
+function nextStage(from){
+  earnStar(from);
+  currentStage=from+1;
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage'+currentStage).classList.add('active');
+  updateProgress();
+  if(currentStage===3)buildPointerGame();
+  if(currentStage===4)buildFillGame();
+  window.scrollTo(0,0);
+}
+
+function earnStar(n){
+  const s=document.getElementById('s'+n);
+  if(s){s.classList.add('earned');s.style.transform='scale(1.4) rotate(10deg)';setTimeout(()=>s.style.transform='',400);}
+}
+
+function updateProgress(){
+  document.getElementById('progressBar').style.width=((currentStage-1)/4*100)+'%';
+}
+
+function buildPointerGame(){
+  const c=document.getElementById('pointerGame');
+  c.innerHTML='';
+  pointerQuestions.forEach((q,i)=>{
+    const div=document.createElement('div');
+    div.className='pointer-item';
+    div.id='pi'+i;
+    div.innerHTML=`<div class="pointer-q"><span class="q-emoji">${q.emoji}</span>${q.q}</div>
+    <div class="pointer-opts">${q.opts.map((o,j)=>`<button class="pointer-opt" onclick="answerPointer(${i},${j},${q.ans})">${o}</button>`).join('')}</div>
+    <div class="pointer-fb" id="pf${i}">${q.fb}</div>`;
+    c.appendChild(div);
+  });
+}
+
+function answerPointer(qi,chosen,correct){
+  const item=document.getElementById('pi'+qi);
+  if(item.dataset.done)return;
+  item.dataset.done='1';
+  const opts=item.querySelectorAll('.pointer-opt');
+  opts.forEach(o=>o.disabled=true);
+  if(chosen===correct){
+    item.classList.add('correct');
+    opts[chosen].classList.add('sel-correct');
+    speak(pointerQuestions[qi].speak);
+  } else {
+    item.classList.add('wrong');
+    opts[chosen].classList.add('sel-wrong');
+    opts[correct].classList.add('sel-correct');
+  }
+  document.getElementById('pf'+qi).style.display='block';
+  stage3Done++;
+  document.getElementById('d3-'+(stage3Done-1)).classList.add('done');
+  if(stage3Done>=pointerQuestions.length)document.getElementById('btn3').disabled=false;
+}
+
+function buildFillGame(){
+  const c=document.getElementById('fillList');
+  c.innerHTML='';
+  fillQuestions.forEach((q,i)=>{
+    const div=document.createElement('div');
+    div.className='fill-item';
+    div.id='fi'+i;
+    const disp=q.sentence.replace('___','<span style="color:var(--primary);font-weight:800">___</span>');
+    div.innerHTML=`<div class="fill-sentence">${disp}</div>
+    <div class="fill-options">${q.opts.map(o=>`<button class="fill-opt" onclick="answerFill(${i},'${o}','${q.answer}')">${o}</button>`).join('')}</div>
+    <div class="fill-feedback" id="ff${i}"></div>`;
+    c.appendChild(div);
+  });
+}
+
+function answerFill(qi,chosen,correct){
+  const item=document.getElementById('fi'+qi);
+  if(item.dataset.done)return;
+  item.dataset.done='1';
+  const opts=item.querySelectorAll('.fill-opt');
+  const fb=document.getElementById('ff'+qi);
+  opts.forEach(o=>{o.disabled=true;if(o.textContent===correct)o.classList.add('correct-ans');});
+  if(chosen===correct){fb.textContent='✅ 正确！';fb.style.color='var(--primary)';speak(correct);}
+  else{opts.forEach(o=>{if(o.textContent===chosen)o.classList.add('wrong-ans');});fb.textContent='💡 正确答案：'+correct;fb.style.color='#e53935';}
+  stage4Done++;
+  document.getElementById('d4-'+(stage4Done-1)).classList.add('done');
+  if(stage4Done>=fillQuestions.length)document.getElementById('btn4').disabled=false;
+}
+
+function completeLesson(){
+  earnStar(4);
+  currentStage=5;
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage5').classList.add('active');
+  document.getElementById('progressBar').style.width='100%';
+  saveProgress();
+  setTimeout(spawnConfetti,300);
+  window.scrollTo(0,0);
+}
+
+function saveProgress(){
+  try{
+    const p=JSON.parse(localStorage.getItem('nce_progress')||'{}');
+    const prev=p[LESSON]?p[LESSON].stars:0;
+    p[LESSON]={stars:Math.max(4,prev),date:new Date().toISOString()};
+    localStorage.setItem('nce_progress',JSON.stringify(p));
+    const streak=JSON.parse(localStorage.getItem('nce_streak')||'{"days":0,"last":""}');
+    const today=new Date().toDateString();
+    if(streak.last!==today){streak.days=(streak.last===new Date(Date.now()-86400000).toDateString())?streak.days+1:1;streak.last=today;}
+    localStorage.setItem('nce_streak',JSON.stringify(streak));
+  }catch(e){}
+}
+
+function showReview(){
+  document.getElementById('reviewSec').style.display='block';
+  document.getElementById('reviewList').innerHTML=readTexts.map((t,i)=>
+    `<div class="review-item"><div class="r-en">${t}</div><div class="r-zh">${readZh[i]}</div></div>`
+  ).join('');
+}
+
+function spawnConfetti(){
+  const colors=['#66BB6A','#FF9800','#2196F3','#E91E63','#FFEB3B','#AB47BC'];
+  const c=document.getElementById('confettiContainer');
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    const sz=(8+Math.random()*8)+'px';p.style.width=sz;p.style.height=sz;
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.animationDelay=Math.random()*1.5+'s';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',5000);
+}
+
+window.speechSynthesis&&window.speechSynthesis.getVoices();
+updateProgress();
+</script>
+</body>
+</html>
