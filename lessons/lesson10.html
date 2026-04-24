@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lesson 10 · Look at him!</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #00838F;
+    --primary-dark: #006064;
+    --primary-light: #E0F7FA;
+    --accent: #F4511E;
+    --accent2: #FFB300;
+    --bg: #F0FAFA;
+    --text: #002D33;
+    --correct: #43A047;
+    --wrong: #E53935;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  .topbar { background: var(--primary); color: white; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,131,143,0.35); }
+  .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .back-btn:hover { background: rgba(255,255,255,0.3); }
+  .topbar-title { font-family: 'Fredoka One', cursive; font-size: 17px; text-align: center; }
+  .stars-bar { display: flex; gap: 4px; }
+  .star { font-size: 20px; }
+  .star.earned { animation: starPop 0.5s ease; }
+  @keyframes starPop { 0%{transform:scale(1)} 50%{transform:scale(1.6) rotate(15deg)} 100%{transform:scale(1)} }
+  .progress-wrap { height: 6px; background: #B2EBF2; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #26C6DA, #F4511E); transition: width 0.5s ease; border-radius: 0 3px 3px 0; }
+  .stage-dots { display: flex; justify-content: center; gap: 8px; padding: 14px 0 6px; }
+  .stage-dot { width: 32px; height: 8px; border-radius: 4px; background: #B2EBF2; transition: background 0.3s, transform 0.2s; }
+  .stage-dot.active { background: var(--primary); transform: scaleY(1.5); }
+  .stage-dot.done { background: var(--accent2); }
+  .screen { display: none; animation: fadeIn 0.4s ease; padding: 12px 16px 40px; max-width: 480px; margin: 0 auto; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 16px; position: relative; overflow: hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(90deg, #26C6DA, #F4511E, #FFB300, #AB47BC, #43A047); }
+  .card-title { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--primary-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .practice-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #F4511E, #FFCA28); color: white; font-family: 'Fredoka One', cursive; font-size: 13px; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px; }
+
+  /* TEXT READER for practice lesson */
+  .text-reader { background: #E0F7FA; border-radius: 16px; padding: 14px; margin-bottom: 12px; border: 2px solid #80DEEA; }
+  .text-line { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px; cursor: pointer; transition: background 0.2s, transform 0.15s; }
+  .text-line:hover { background: var(--primary-light); }
+  .text-line.active { background: var(--primary-light); transform: scale(1.01); }
+  .line-num { font-family: 'Fredoka One', cursive; font-size: 12px; color: white; background: var(--primary); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .line-en { font-size: 15px; font-weight: 700; color: var(--text); }
+  .line-cn { font-size: 12px; color: #888; margin-top: 1px; }
+  .play-btn { margin-left: auto; font-size: 18px; flex-shrink: 0; opacity: 0.4; }
+  .text-line:hover .play-btn, .text-line.active .play-btn { opacity: 1; }
+  .read-all-btn { width: 100%; padding: 12px; border: 2px dashed var(--primary); border-radius: 14px; background: transparent; font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary); cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+  .read-all-btn:hover { background: var(--primary-light); }
+
+  /* VOCAB */
+  .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vocab-card { background: var(--primary-light); border-radius: 14px; padding: 12px 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
+  .vocab-card:active { transform: scale(0.96); }
+  .vocab-card.playing { border-color: var(--primary); background: white; box-shadow: 0 4px 12px rgba(0,131,143,0.2); }
+  .vocab-emoji { font-size: 28px; margin-bottom: 4px; }
+  .vocab-en { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary-dark); }
+  .vocab-cn { font-size: 12px; color: #666; margin-top: 2px; }
+
+  /* HIM/HER PRONOUN GAME */
+  .pronoun-q { background: var(--primary-light); border: 2px solid #80DEEA; border-radius: 18px; padding: 16px; margin-bottom: 14px; transition: border-color 0.3s; }
+  .pronoun-q.correct-anim { border-color: var(--correct); animation: correctPop 0.4s ease; }
+  .pronoun-q.wrong-anim { border-color: var(--wrong); animation: shake 0.4s ease; }
+  @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(4px)} }
+  .pronoun-person { text-align: center; margin-bottom: 10px; }
+  .pronoun-emoji { font-size: 56px; display: inline-block; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+  .pronoun-desc { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary-dark); margin-top: 4px; }
+  .pronoun-sent { font-size: 17px; font-weight: 700; color: var(--text); text-align: center; margin-bottom: 10px; line-height: 1.6; }
+  .pronoun-blank { display: inline-block; min-width: 70px; border-bottom: 3px solid var(--primary); color: var(--primary); font-family: 'Fredoka One', cursive; font-size: 18px; text-align: center; transition: all 0.3s; }
+  .pronoun-blank.filled { background: var(--primary-light); border-radius: 8px; border: 2px solid var(--primary); padding: 0 8px; }
+  .pronoun-choices { display: flex; justify-content: center; gap: 14px; margin-top: 4px; }
+  .pronoun-btn { padding: 12px 32px; border-radius: 50px; border: 3px solid var(--primary); background: white; font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--primary); cursor: pointer; transition: all 0.2s; box-shadow: 0 3px 10px rgba(0,131,143,0.15); }
+  .pronoun-btn:hover { background: var(--primary-light); transform: translateY(-2px); }
+  .pronoun-btn:active { transform: scale(0.94); }
+  .pronoun-btn.correct { background: var(--correct); color: white; border-color: var(--correct); }
+  .pronoun-btn.wrong { background: var(--wrong); color: white; border-color: var(--wrong); }
+  .pronoun-progress { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
+  .pronoun-dot { width: 10px; height: 10px; border-radius: 50%; background: #B2EBF2; transition: background 0.3s; }
+  .pronoun-dot.correct { background: var(--correct); }
+  .pronoun-dot.wrong { background: var(--wrong); }
+  .pronoun-score { text-align: center; font-family: 'Fredoka One', cursive; font-size: 14px; color: #888; margin-bottom: 10px; }
+  .rule-box { background: #FFF8E1; border: 2px solid #FFB300; border-radius: 14px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; font-weight: 700; color: #5D4037; text-align: center; line-height: 1.9; }
+  .rule-tag { display: inline-block; background: white; border-radius: 8px; padding: 1px 8px; margin: 1px 3px; }
+
+  /* FILL */
+  .fill-question { background: white; border: 2px solid #B2EBF2; border-radius: 18px; padding: 16px; margin-bottom: 12px; transition: border-color 0.3s; }
+  .fill-question.correct-anim { border-color: var(--correct); animation: correctPop 0.4s ease; }
+  .fill-question.wrong-anim { border-color: var(--wrong); animation: shake 0.4s ease; }
+  .fill-sent { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.5; }
+  .fill-sent .blank-word { display: inline-block; min-width: 60px; text-align: center; border-bottom: 2px dashed var(--primary); color: var(--primary); font-style: italic; }
+  .fill-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fill-opt { padding: 7px 16px; border-radius: 50px; border: 2px solid #B2EBF2; background: white; font-family: 'Fredoka One', cursive; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+  .fill-opt:hover { border-color: var(--primary); background: var(--primary-light); }
+  .fill-opt.selected-correct { background: #E8F5E9; border-color: var(--correct); color: var(--correct); }
+  .fill-opt.selected-wrong { background: #FFEBEE; border-color: var(--wrong); color: var(--wrong); }
+  .fill-cn { font-size: 13px; color: #999; margin-top: 6px; }
+  .fill-score-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+  .fill-dot { width: 10px; height: 10px; border-radius: 50%; background: #B2EBF2; transition: background 0.3s; }
+  .fill-dot.correct { background: var(--correct); }
+  .fill-dot.wrong { background: var(--wrong); }
+
+  .btn { width: 100%; padding: 16px; border: none; border-radius: 16px; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; margin-top: 8px; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(0,131,143,0.35); }
+  .btn-primary:hover { box-shadow: 0 6px 18px rgba(0,131,143,0.45); }
+  .btn-disabled { background: #B0BEC5; color: white; cursor: not-allowed; box-shadow: none; }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #333; color: white; padding: 12px 24px; border-radius: 50px; font-size: 15px; font-weight: 700; z-index: 999; transition: transform 0.3s ease; white-space: nowrap; pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.green { background: var(--correct); }
+  .toast.red { background: var(--wrong); }
+  .confetti-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 998; }
+  .cf { position: absolute; border-radius: 2px; animation: cfFall linear forwards; }
+  @keyframes cfFall { 0%{top:-20px;transform:rotate(0deg) scale(1);opacity:1} 80%{opacity:1} 100%{top:110vh;transform:rotate(720deg) scale(0.5);opacity:0} }
+  .finish-card { text-align: center; padding: 30px 20px; }
+  .finish-emoji { font-size: 64px; margin-bottom: 12px; }
+  .finish-title { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--primary-dark); margin-bottom: 8px; }
+  .finish-stars { font-size: 36px; letter-spacing: 4px; margin-bottom: 16px; }
+  .finish-review { background: var(--primary-light); border-radius: 16px; padding: 16px; text-align: left; margin-top: 16px; }
+  .finish-review-title { font-family: 'Fredoka One', cursive; color: var(--primary); font-size: 15px; margin-bottom: 10px; }
+  .review-line { font-size: 14px; font-weight: 700; color: var(--text); padding: 6px 0; border-bottom: 1px solid #B2EBF2; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .review-line:last-child { border-bottom: none; }
+  .review-play { color: var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="topbar-title">Lesson 10 · Look at him! 👀</div>
+  <div class="stars-bar">
+    <span class="star" id="star1">☆</span><span class="star" id="star2">☆</span>
+    <span class="star" id="star3">☆</span><span class="star" id="star4">☆</span>
+  </div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div class="stage-dots">
+  <div class="stage-dot active" id="dot0"></div>
+  <div class="stage-dot" id="dot1"></div>
+  <div class="stage-dot" id="dot2"></div>
+  <div class="stage-dot" id="dot3"></div>
+</div>
+
+<!-- SCREEN 1: READ TEXT -->
+<div class="screen active" id="screen1">
+  <div class="card">
+    <div class="practice-badge">📝 练习课</div>
+    <div class="card-title">📖 第一关：读课文</div>
+    <div style="font-size:13px;color:#888;margin-bottom:12px;">点击每一行，听发音并跟读 🔊</div>
+    <div class="text-reader" id="textReader"></div>
+    <button class="read-all-btn" onclick="readAll()">▶️ 连续朗读全文</button>
+  </div>
+  <button class="btn btn-primary" onclick="goStage(2)">去认单词 →</button>
+</div>
+
+<!-- SCREEN 2: VOCAB -->
+<div class="screen" id="screen2">
+  <div class="card">
+    <div class="card-title">📖 第二关：认单词</div>
+    <div style="text-align:center;font-size:13px;color:#888;margin-bottom:14px;">点击卡片，听发音 🔊</div>
+    <div class="vocab-grid" id="vocabGrid"></div>
+  </div>
+  <button class="btn btn-primary" onclick="goStage(3)">下一关 →</button>
+</div>
+
+<!-- SCREEN 3: HIM/HER GAME -->
+<div class="screen" id="screen3">
+  <div class="card">
+    <div class="card-title">🎮 第三关：用 him 还是 her？</div>
+    <div class="rule-box">
+      📌 宾格人称代词：<br>
+      👦 男生/男士 → <span class="rule-tag">Look at <b>him</b>!</span>（him = 他）<br>
+      👧 女生/女士 → <span class="rule-tag">Look at <b>her</b>!</span>（her = 她）
+    </div>
+    <div class="pronoun-progress" id="pronounProgress"></div>
+    <div class="pronoun-score" id="pronounScore">第 1 题 / 共 10 题</div>
+    <div class="pronoun-q" id="pronounQ">
+      <div class="pronoun-person">
+        <div class="pronoun-emoji" id="pronounEmoji"></div>
+        <div class="pronoun-desc" id="pronounDesc"></div>
+      </div>
+      <div class="pronoun-sent">
+        Look at <span class="pronoun-blank" id="pronounBlank">___</span>!<br>
+        <span style="font-size:14px;color:#666;font-family:'Nunito',sans-serif;font-weight:600;" id="pronounCn"></span>
+      </div>
+      <div class="pronoun-choices">
+        <button class="pronoun-btn" onclick="checkPronoun('him')">him</button>
+        <button class="pronoun-btn" onclick="checkPronoun('her')">her</button>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-disabled" id="btn3" onclick="goStage(4)">完成全部题目 🔒</button>
+</div>
+
+<!-- SCREEN 4: FILL -->
+<div class="screen" id="screen4">
+  <div class="card">
+    <div class="card-title">✏️ 第四关：填一填</div>
+    <div class="fill-score-row" id="fillDots"></div>
+    <div id="fillQuestions"></div>
+  </div>
+  <button class="btn btn-disabled" id="btn4" onclick="finishLesson()">完成全部题目 🔒</button>
+</div>
+
+<!-- SCREEN 5: FINISH -->
+<div class="screen" id="screen5">
+  <div class="card finish-card">
+    <div class="finish-emoji">🏆</div>
+    <div class="finish-title">练习课完成！</div>
+    <div class="finish-stars" id="finishStars"></div>
+    <div style="font-size:15px;color:#666;margin-bottom:8px;">第10课完成！<br>你掌握了 <b>him / her</b> 的用法 🎊</div>
+    <div class="finish-review"><div class="finish-review-title">📖 复习课文</div><div id="reviewList"></div></div>
+    <button class="btn btn-primary" style="margin-top:20px;" onclick="location.href='lesson11.html'">去第11课 →</button>
+    <button class="btn" style="background:#E0F7FA;color:var(--primary-dark);margin-top:8px;" onclick="location.href='../index.html'">回主页 🏠</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<script>
+// ★ Lesson 10 是练习课（Look, listen and repeat 形式）
+// 课文内容：描述人物外貌的短句，语法重点：him/her（宾格人称代词）
+// 以及形容词 fat/thin/tall/short/old/young 的用法
+const textLines = [
+  { en: 'Look at that man!', cn: '看那个男人！' },
+  { en: "He's fat.", cn: '他很胖。' },
+  { en: 'Look at that woman!', cn: '看那个女人！' },
+  { en: "She's thin.", cn: '她很瘦。' },
+  { en: 'Look at that boy!', cn: '看那个男孩！' },
+  { en: "He's tall.", cn: '他很高。' },
+  { en: 'Look at that girl!', cn: '看那个女孩！' },
+  { en: "She's short.", cn: '她很矮。' },
+  { en: 'Look at that man!', cn: '看那个男人！' },
+  { en: "He's old.", cn: '他很老。' },
+  { en: 'Look at that woman!', cn: '看那个女人！' },
+  { en: "She's young.", cn: '她很年轻。' },
+];
+
+const vocab = [
+  { emoji: '🔎', en: 'look at', cn: '看；注意看' },
+  { emoji: '👨‍🦲', en: 'fat', cn: '胖的' },
+  { emoji: '🧍', en: 'thin', cn: '瘦的' },
+  { emoji: '🏀', en: 'tall', cn: '高的' },
+  { emoji: '🐱', en: 'short', cn: '矮的' },
+  { emoji: '👴', en: 'old', cn: '老的；年老的' },
+  { emoji: '👶', en: 'young', cn: '年轻的' },
+  { emoji: '👦👧', en: 'him / her', cn: '他（宾格）/ 她（宾格）' },
+];
+
+// him/her 选择题：根据人物性别选正确宾格代词
+const pronounQuestions = [
+  { emoji: '👨', desc: '那个男人很胖', cn: '（看他！他很胖）', answer: 'him' },
+  { emoji: '👩', desc: '那个女人很瘦', cn: '（看她！她很瘦）', answer: 'her' },
+  { emoji: '👦', desc: '那个男孩很高', cn: '（看他！他很高）', answer: 'him' },
+  { emoji: '👧', desc: '那个女孩很矮', cn: '（看她！她很矮）', answer: 'her' },
+  { emoji: '👴', desc: '那个老爷爷', cn: '（看他！他很老）', answer: 'him' },
+  { emoji: '👩‍🦱', desc: '那个年轻的女士', cn: '（看她！她很年轻）', answer: 'her' },
+  { emoji: '👨‍🦰', desc: '那个高个子男士', cn: '（看他！他很高）', answer: 'him' },
+  { emoji: '👧', desc: '那个小女孩', cn: '（看她！她很可爱）', answer: 'her' },
+  { emoji: '👦', desc: '那个胖男孩', cn: '（看他！他很胖）', answer: 'him' },
+  { emoji: '👵', desc: '那个老奶奶', cn: '（看她！她很老）', answer: 'her' },
+];
+
+const fillQuestions = [
+  { sentence: 'Look at ___ man!', blank: 'that', options: ['that', 'this', 'a', 'the'], answer: 'that', cn: '看那个男人！' },
+  { sentence: "He's ___.", blank: 'fat', options: ['fat', 'thin', 'tall', 'short'], answer: 'fat', cn: '他很胖。' },
+  { sentence: 'Look at ___! She\'s thin.', blank: 'her', options: ['her', 'him', 'she', 'he'], answer: 'her', cn: '看她！她很瘦。' },
+  { sentence: 'Look at ___! He\'s tall.', blank: 'him', options: ['him', 'her', 'he', 'she'], answer: 'him', cn: '看他！他很高。' },
+  { sentence: "She's ___.", blank: 'young', options: ['young', 'old', 'tall', 'fat'], answer: 'young', cn: '她很年轻。' },
+  { sentence: "He's ___.", blank: 'old', options: ['old', 'young', 'thin', 'short'], answer: 'old', cn: '他很老。' },
+];
+
+let currentStage=1, starsEarned=0, pronounIndex=0, pronounCorrect=0, fillAnswered=0;
+let readAllTimer=null;
+
+window.onload=()=>{ renderTextReader(); renderVocab(); renderPronounProgress(); renderPronounQuestion(); renderFillQuestions(); updateProgress(0); };
+
+function speak(text,rate=0.88){ if(!('speechSynthesis' in window))return; window.speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='en-US'; u.rate=rate; const voices=window.speechSynthesis.getVoices(); for(const p of ['Samantha','Google US English','Daniel','Karen']){const v=voices.find(v=>v.name.includes(p));if(v){u.voice=v;break;}} window.speechSynthesis.speak(u); }
+
+function renderTextReader(){
+  const wrap=document.getElementById('textReader'); wrap.innerHTML='';
+  textLines.forEach((line,i)=>{ const div=document.createElement('div'); div.className='text-line'; div.id='tl'+i;
+    div.onclick=()=>{ document.querySelectorAll('.text-line').forEach(el=>el.classList.remove('active')); div.classList.add('active'); speak(line.en); setTimeout(()=>div.classList.remove('active'),2500); };
+    div.innerHTML=`<span class="line-num">${i+1}</span><div><div class="line-en">${line.en}</div><div class="line-cn">${line.cn}</div></div><span class="play-btn">▶️</span>`;
+    wrap.appendChild(div); });
+}
+
+function readAll(){
+  if(readAllTimer) clearTimeout(readAllTimer); let delay=0;
+  textLines.forEach((line,i)=>{ readAllTimer=setTimeout(()=>{ document.querySelectorAll('.text-line').forEach(el=>el.classList.remove('active')); document.getElementById('tl'+i).classList.add('active'); speak(line.en); setTimeout(()=>{const el=document.getElementById('tl'+i);if(el)el.classList.remove('active');},2200); },delay); delay+=2400; });
+}
+
+function renderVocab(){ const grid=document.getElementById('vocabGrid'); grid.innerHTML=''; vocab.forEach(v=>{ const div=document.createElement('div'); div.className='vocab-card'; div.onclick=()=>{ speak(v.en); document.querySelectorAll('.vocab-card').forEach(c=>c.classList.remove('playing')); div.classList.add('playing'); setTimeout(()=>div.classList.remove('playing'),1200); }; div.innerHTML=`<div class="vocab-emoji">${v.emoji}</div><div class="vocab-en">${v.en}</div><div class="vocab-cn">${v.cn}</div>`; grid.appendChild(div); }); }
+
+function renderPronounProgress(){ const wrap=document.getElementById('pronounProgress'); wrap.innerHTML=''; for(let i=0;i<pronounQuestions.length;i++){const d=document.createElement('div');d.className='pronoun-dot';d.id='pronoundot'+i;wrap.appendChild(d);} }
+
+function renderPronounQuestion(){
+  if(pronounIndex>=pronounQuestions.length){ document.getElementById('btn3').className='btn btn-primary'; document.getElementById('btn3').textContent='进入下一关 →';
+    document.getElementById('pronounQ').innerHTML=`<div style="font-size:52px;padding:16px;text-align:center">🎊</div><div style="font-family:'Fredoka One',cursive;font-size:20px;color:var(--correct);text-align:center">全部答完！答对 ${pronounCorrect}/${pronounQuestions.length} 题</div>`; return; }
+  const q=pronounQuestions[pronounIndex];
+  document.getElementById('pronounScore').textContent=`第 ${pronounIndex+1} 题 / 共 ${pronounQuestions.length} 题`;
+  document.getElementById('pronounEmoji').textContent=q.emoji;
+  document.getElementById('pronounDesc').textContent=q.desc;
+  document.getElementById('pronounBlank').textContent='___'; document.getElementById('pronounBlank').className='pronoun-blank';
+  document.getElementById('pronounCn').textContent=q.cn;
+  // re-enable buttons
+  document.querySelectorAll('.pronoun-btn').forEach(b=>{ b.classList.remove('correct','wrong'); b.onclick=()=>checkPronoun(b.textContent); });
+}
+
+function checkPronoun(answer){
+  const q=pronounQuestions[pronounIndex]; document.querySelectorAll('.pronoun-btn').forEach(b=>b.onclick=null);
+  const isCorrect=answer===q.answer;
+  document.querySelectorAll('.pronoun-btn').forEach(b=>{ if(b.textContent===q.answer) b.classList.add('correct'); else if(b.textContent===answer&&!isCorrect) b.classList.add('wrong'); });
+  document.getElementById('pronounBlank').textContent=q.answer; document.getElementById('pronounBlank').classList.add('filled');
+  const qEl=document.getElementById('pronounQ'); qEl.classList.add(isCorrect?'correct-anim':'wrong-anim'); setTimeout(()=>qEl.classList.remove('correct-anim','wrong-anim'),500);
+  if(isCorrect){ pronounCorrect++; speak('Look at '+q.answer+'!'); showToast('👍 正确！','green'); }
+  else showToast(`答案是 "${q.answer}"`,'red');
+  document.getElementById('pronoundot'+pronounIndex).classList.add(isCorrect?'correct':'wrong'); pronounIndex++;
+  setTimeout(renderPronounQuestion,1300);
+}
+
+function renderFillQuestions(){
+  const wrap=document.getElementById('fillQuestions'); const dotsWrap=document.getElementById('fillDots'); wrap.innerHTML=''; dotsWrap.innerHTML='';
+  fillQuestions.forEach((q,i)=>{ const dot=document.createElement('div'); dot.className='fill-dot'; dot.id='filldot'+i; dotsWrap.appendChild(dot);
+    const displaySent=q.sentence.replace(q.blank,`<span class="blank-word" id="fillblank${i}">${'_'.repeat(q.blank.length)}</span>`);
+    const div=document.createElement('div'); div.className='fill-question'; div.id='fillq'+i;
+    div.innerHTML=`<div class="fill-sent">${displaySent}</div><div class="fill-cn">${q.cn}</div><div class="fill-options" id="fillopts${i}"></div>`; wrap.appendChild(div);
+    q.options.forEach(opt=>{ const btn=document.createElement('button'); btn.className='fill-opt'; btn.textContent=opt; btn.onclick=()=>checkFill(i,opt,btn); div.querySelector(`#fillopts${i}`).appendChild(btn); }); });
+}
+
+function checkFill(qi,answer,btn){
+  const q=fillQuestions[qi]; document.querySelectorAll(`#fillopts${qi} .fill-opt`).forEach(b=>b.onclick=null);
+  const isCorrect=answer===q.answer; btn.classList.add(isCorrect?'selected-correct':'selected-wrong');
+  if(!isCorrect) document.querySelectorAll(`#fillopts${qi} .fill-opt`).forEach(b=>{if(b.textContent===q.answer)b.classList.add('selected-correct');});
+  const blankEl=document.getElementById('fillblank'+qi); if(blankEl){blankEl.textContent=q.answer;blankEl.style.borderStyle='solid';blankEl.style.borderColor=isCorrect?'var(--correct)':'var(--wrong)';}
+  const qEl=document.getElementById('fillq'+qi); qEl.classList.add(isCorrect?'correct-anim':'wrong-anim'); setTimeout(()=>qEl.classList.remove('correct-anim','wrong-anim'),500);
+  document.getElementById('filldot'+qi).classList.add(isCorrect?'correct':'wrong');
+  if(isCorrect){speak(q.sentence.replace(q.blank,q.answer));showToast('✅ 正确！','green');}else showToast(`答案是 "${q.answer}"`,'red');
+  fillAnswered++; if(fillAnswered>=fillQuestions.length){const b=document.getElementById('btn4');b.className='btn btn-primary';b.textContent='完成本课 🎉';}
+}
+
+function goStage(n){ document.getElementById('screen'+currentStage).classList.remove('active'); document.getElementById('screen'+n).classList.add('active'); ['dot0','dot1','dot2','dot3'].forEach((id,i)=>{const el=document.getElementById(id);if(i<n-1){el.classList.remove('active');el.classList.add('done');}else if(i===n-1){el.classList.add('active');el.classList.remove('done');}else el.classList.remove('active','done');}); currentStage=n; starsEarned=n-1; updateStars(); updateProgress((n-1)/4*100); window.scrollTo(0,0); }
+function finishLesson(){starsEarned=4;updateStars();updateProgress(100);saveProgress();renderFinish();goStage(5);launchConfetti();}
+function renderFinish(){ document.getElementById('finishStars').textContent='⭐'.repeat(starsEarned)+'☆'.repeat(4-starsEarned); const list=document.getElementById('reviewList'); list.innerHTML=''; textLines.forEach(line=>{const div=document.createElement('div');div.className='review-line';div.onclick=()=>speak(line.en);div.innerHTML=`<span>${line.en}</span><span class="review-play">▶️</span>`;list.appendChild(div);}); }
+function updateStars(){['star1','star2','star3','star4'].forEach((id,i)=>{const el=document.getElementById(id);const prev=el.textContent;el.textContent=i<starsEarned?'⭐':'☆';if(i<starsEarned&&prev==='☆'){el.classList.add('earned');setTimeout(()=>el.classList.remove('earned'),600);}});}
+function updateProgress(pct){document.getElementById('progressBar').style.width=pct+'%';}
+function saveProgress(){ try{const data=JSON.parse(localStorage.getItem('nce_progress')||'{}');const prev=data['10'];if(!prev||starsEarned>prev.stars)data['10']={stars:starsEarned,date:new Date().toISOString()};localStorage.setItem('nce_progress',JSON.stringify(data));const sd=JSON.parse(localStorage.getItem('nce_streak')||'{"days":0,"last":""}');const today=new Date().toDateString();if(sd.last!==today){sd.days=sd.last===new Date(Date.now()-86400000).toDateString()?sd.days+1:1;sd.last=today;}localStorage.setItem('nce_streak',JSON.stringify(sd));}catch(e){} }
+function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),1800);}
+function launchConfetti(){ const wrap=document.getElementById('confettiWrap');wrap.innerHTML=''; const colors=['#26C6DA','#F4511E','#FFB300','#AB47BC','#43A047','#1565C0','#EC407A']; for(let i=0;i<55;i++){const el=document.createElement('div');el.className='cf';el.style.left=Math.random()*100+'vw';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.animationDuration=(1.5+Math.random()*2)+'s';el.style.animationDelay=(Math.random()*0.8)+'s';const sz=(7+Math.random()*10)+'px';el.style.width=el.style.height=sz;wrap.appendChild(el);} setTimeout(()=>wrap.innerHTML='',4000); }
+</script>
+</body>
+</html>
