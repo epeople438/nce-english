@@ -1,609 +1,541 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>新概念英语 · Lesson 3 · Sorry!</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lesson 3 · Sorry, sir.</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --purple: #7B1FA2;
-    --purple-light: #AB47BC;
-    --pink: #EC407A;
-    --coral: #FF7043;
-    --sun: #FFD54F;
-    --green: #66BB6A;
-    --sky: #4FC3F7;
-    --bg: #F3E5F5;
-    --text: #1A237E;
+    --primary: #6A1B9A;
+    --primary-dark: #4A148C;
+    --primary-light: #F3E5F5;
+    --accent: #FF6F00;
+    --accent2: #00ACC1;
+    --bg: #FDF5FF;
+    --text: #1A0033;
+    --correct: #43A047;
+    --wrong: #E53935;
   }
-  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-  body { font-family:'Nunito',sans-serif; background:var(--bg); min-height:100vh; overflow-x:hidden; padding-bottom:24px; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-  #header {
-    background:linear-gradient(135deg,#6A1B9A,#8E24AA);
-    padding:12px 16px; padding-top:calc(12px + env(safe-area-inset-top,0px));
-    display:flex; align-items:center; gap:10px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.22);
-    position:sticky; top:0; z-index:50;
+  .topbar {
+    background: var(--primary); color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 8px rgba(106,27,154,0.35);
   }
-  #back-btn { width:36px; height:36px; background:rgba(255,255,255,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.1rem; text-decoration:none; flex-shrink:0; }
-  #back-btn:active { background:rgba(255,255,255,0.3); }
-  #header-title { flex:1; }
-  #header-title h1 { font-family:'Fredoka One',cursive; color:white; font-size:1rem; line-height:1.2; }
-  #header-title .sub { color:rgba(255,255,255,0.6); font-size:0.72rem; font-weight:600; }
-  #star-bar { display:flex; gap:4px; }
-  .star-icon { font-size:1.4rem; filter:grayscale(1) opacity(0.35); transition:all 0.4s; }
-  .star-icon.lit { filter:none; animation:starPop 0.5s ease; }
-  @keyframes starPop { 0%{transform:scale(1)} 50%{transform:scale(1.5) rotate(20deg)} 100%{transform:scale(1)} }
+  .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 36px; height: 36px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; }
+  .back-btn:hover { background: rgba(255,255,255,0.3); }
+  .topbar-title { font-family: 'Fredoka One', cursive; font-size: 17px; text-align: center; }
+  .stars-bar { display: flex; gap: 4px; }
+  .star { font-size: 20px; }
+  .star.earned { animation: starPop 0.5s ease; }
+  @keyframes starPop { 0%{transform:scale(1)} 50%{transform:scale(1.6) rotate(15deg)} 100%{transform:scale(1)} }
 
-  #progress-wrap { background:#E1BEE7; height:7px; }
-  #progress-bar { height:100%; background:linear-gradient(90deg,#FFD54F,#FF7043); width:0%; transition:width 0.6s; border-radius:0 4px 4px 0; }
+  .progress-wrap { height: 6px; background: #E1BEE7; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, #AB47BC, #FF6F00); transition: width 0.5s ease; border-radius: 0 3px 3px 0; }
 
-  .stage { display:none; animation:fadeIn 0.45s ease; padding:16px; max-width:680px; margin:0 auto; }
-  .stage.active { display:block; }
+  .stage-dots { display: flex; justify-content: center; gap: 8px; padding: 14px 0 6px; }
+  .stage-dot { width: 32px; height: 8px; border-radius: 4px; background: #E1BEE7; transition: background 0.3s, transform 0.2s; }
+  .stage-dot.active { background: var(--primary); transform: scaleY(1.5); }
+  .stage-dot.done { background: var(--accent); }
+
+  .screen { display: none; animation: fadeIn 0.4s ease; padding: 12px 16px 40px; max-width: 480px; margin: 0 auto; }
+  .screen.active { display: block; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-  .stage-badge { display:inline-flex; align-items:center; gap:7px; background:var(--pink); color:white; font-family:'Fredoka One',cursive; font-size:1rem; padding:6px 16px; border-radius:999px; margin-bottom:12px; box-shadow:0 3px 8px rgba(236,64,122,0.4); }
+  .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-bottom: 16px; position: relative; overflow: hidden; }
+  .card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(90deg, #AB47BC, #FF6F00, #00ACC1, #43A047, #1565C0); }
+  .card-title { font-family: 'Fredoka One', cursive; font-size: 16px; color: var(--primary-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 
-  .scene-box { background:white; border-radius:22px; padding:20px; box-shadow:0 6px 24px rgba(0,0,0,0.09); position:relative; overflow:hidden; }
-  .scene-box::before { content:''; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,#FF7043,#FFD54F,#66BB6A,#4FC3F7,#AB47BC); }
-
-  .instr { background:linear-gradient(135deg,#F3E5F5,#E1BEE7); border-radius:10px; padding:10px 14px; font-size:0.85rem; color:#6A1B9A; font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:6px; }
-
-  /* STORY */
-  .story-scene {
-    background:linear-gradient(180deg,#CE93D8 0%,#CE93D8 55%,#A5D6A7 55%);
-    border-radius:14px; height:185px;
-    display:flex; align-items:flex-end; justify-content:space-around;
-    padding:0 20px 10px; margin-bottom:16px; position:relative; overflow:hidden;
+  /* SCENE */
+  .scene-banner {
+    background: linear-gradient(135deg, #4A148C, #7B1FA2);
+    border-radius: 16px; padding: 14px 16px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 12px;
   }
-  .story-scene::before { content:'🌦️'; position:absolute; top:10px; left:16px; font-size:2rem; }
-  .story-scene::after  { content:'☂️';  position:absolute; bottom:14px; left:50%; transform:translateX(-50%); font-size:1.8rem; }
-  .character { display:flex; flex-direction:column; align-items:center; gap:4px; transition:transform 0.3s; }
-  .char-body { font-size:3.5rem; line-height:1; }
-  .char-name { background:rgba(255,255,255,0.88); border-radius:7px; padding:2px 7px; font-size:0.65rem; font-weight:700; color:#333; }
-  .bubble-wrap { position:absolute; top:8px; left:50%; transform:translateX(-50%); width:82%; display:none; }
-  .bubble-wrap.show { display:flex; justify-content:center; }
-  .speech-bubble { background:white; border-radius:12px; padding:7px 13px; font-size:0.95rem; font-weight:700; color:#1A237E; box-shadow:0 4px 12px rgba(0,0,0,0.14); border:2px solid #AB47BC; text-align:center; animation:bubblePop 0.3s ease; position:relative; }
-  .speech-bubble::after { content:''; position:absolute; bottom:-11px; left:50%; transform:translateX(-50%); border:6px solid transparent; border-top-color:#AB47BC; }
-  @keyframes bubblePop { from{transform:scale(0.5);opacity:0} to{transform:scale(1);opacity:1} }
+  .scene-icon { font-size: 36px; }
+  .scene-desc { color: white; font-size: 13px; font-weight: 700; line-height: 1.5; }
+  .scene-desc b { font-size: 15px; display: block; margin-bottom: 2px; }
 
-  .dialogue-list { list-style:none; display:flex; flex-direction:column; gap:9px; }
-  .dialogue-item { display:flex; align-items:flex-start; gap:10px; padding:10px 14px; border-radius:12px; cursor:pointer; transition:transform 0.2s; border:2px solid transparent; }
-  .dialogue-item:hover { transform:scale(1.02); }
-  .dialogue-item.mary  { background:#FDE7F3; border-color:#F48FB1; }
-  .dialogue-item.man   { background:#EDE7F6; border-color:#CE93D8; }
-  .dialogue-item.playing { box-shadow:0 4px 14px rgba(0,0,0,0.16); transform:scale(1.03); }
-  .d-emoji { font-size:1.6rem; }
-  .d-text { flex:1; }
-  .d-en { font-size:1rem; font-weight:800; color:#1A237E; }
-  .d-zh { font-size:0.8rem; color:#666; margin-top:2px; }
-  .play-hint { font-size:0.7rem; color:#bbb; margin-top:2px; }
-  .d-speaker-icon { width:32px; height:32px; background:var(--purple-light); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.9rem; box-shadow:0 2px 6px rgba(0,0,0,0.12); flex-shrink:0; }
-  .dialogue-item.playing .d-speaker-icon { background:var(--coral); animation:pulse 0.6s infinite alternate; }
-  @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.2)} }
+  /* DIALOGUE */
+  .dlg-item {
+    display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px;
+    border-radius: 14px; cursor: pointer; transition: background 0.2s, transform 0.15s; opacity: 0.5;
+  }
+  .dlg-item.active { opacity: 1; background: var(--primary-light); transform: scale(1.01); }
+  .dlg-item.done { opacity: 0.85; }
+  .dlg-who { font-family: 'Fredoka One', cursive; font-size: 12px; color: white; background: var(--primary); padding: 2px 8px; border-radius: 10px; white-space: nowrap; margin-top: 2px; flex-shrink: 0; }
+  .dlg-who.b { background: #1565C0; }
+  .dlg-text { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.4; }
+  .dlg-cn { font-size: 12px; color: #888; margin-top: 2px; }
+  .dlg-play { margin-left: auto; font-size: 18px; opacity: 0.4; flex-shrink: 0; }
+  .dlg-item.active .dlg-play { opacity: 1; }
 
   /* VOCAB */
-  .vocab-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-  .vocab-card { background:white; border-radius:18px; padding:16px 12px; text-align:center; cursor:pointer; border:3px solid #E0E0E0; transition:all 0.22s; box-shadow:0 3px 10px rgba(0,0,0,0.05); }
-  .vocab-card:hover { transform:translateY(-3px); box-shadow:0 7px 18px rgba(0,0,0,0.1); }
-  .vocab-card.playing { border-color:var(--purple-light); background:#F3E5F5; }
-  .vocab-emoji { font-size:2.8rem; margin-bottom:7px; display:block; }
-  .vocab-en { font-family:'Fredoka One',cursive; font-size:1.1rem; color:var(--text); margin-bottom:3px; }
-  .vocab-zh { font-size:0.8rem; color:#888; }
-  .vocab-pron { font-size:0.75rem; color:var(--coral); font-style:italic; margin-top:2px; }
+  .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vocab-card { background: var(--primary-light); border-radius: 14px; padding: 12px 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
+  .vocab-card:active { transform: scale(0.96); }
+  .vocab-card.playing { border-color: var(--primary); background: white; box-shadow: 0 4px 12px rgba(106,27,154,0.2); }
+  .vocab-emoji { font-size: 28px; margin-bottom: 4px; }
+  .vocab-en { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary-dark); }
+  .vocab-cn { font-size: 12px; color: #666; margin-top: 2px; }
 
-  /* SORRY GAME */
+  /* SORRY GAME — 情景选词 */
   .sorry-scene {
-    background:linear-gradient(160deg,#F8F0FB,#EDE7F6);
-    border-radius:16px; padding:16px; margin-bottom:14px;
-    border:2px dashed #CE93D8; min-height:200px;
+    background: var(--primary-light); border-radius: 18px; padding: 16px;
+    text-align: center; margin-bottom: 14px;
+    border: 2px solid #CE93D8; transition: border-color 0.3s;
   }
-  .sorry-progress { text-align:center; font-family:'Fredoka One',cursive; font-size:0.95rem; color:#7B1FA2; margin-bottom:12px; }
-
-  .situation-card {
-    background:white; border-radius:16px; padding:16px;
-    text-align:center; box-shadow:0 4px 16px rgba(0,0,0,0.09);
-    border:2px solid #E1BEE7; animation:dropIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  .sorry-scene.correct-anim { border-color: var(--correct); animation: correctPop 0.4s ease; }
+  .sorry-scene.wrong-anim { border-color: var(--wrong); animation: shake 0.4s ease; }
+  @keyframes correctPop { 0%{transform:scale(1)} 40%{transform:scale(1.04)} 100%{transform:scale(1)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(4px)} }
+  .sorry-emoji { font-size: 52px; margin-bottom: 8px; }
+  .sorry-situation { font-family: 'Fredoka One', cursive; font-size: 15px; color: var(--primary-dark); margin-bottom: 6px; }
+  .sorry-context { font-size: 13px; color: #888; margin-bottom: 12px; }
+  .sorry-role-tag {
+    display: inline-block; padding: 3px 12px; border-radius: 20px;
+    font-family: 'Fredoka One', cursive; font-size: 12px; color: white;
+    margin-bottom: 10px;
   }
-  @keyframes dropIn { from{transform:translateY(-30px) scale(0.8);opacity:0} to{transform:translateY(0) scale(1);opacity:1} }
-
-  .situation-emoji { font-size:3.5rem; margin-bottom:10px; display:block; }
-  .situation-title { font-family:'Fredoka One',cursive; font-size:1.2rem; color:#6A1B9A; margin-bottom:4px; }
-  .situation-zh { font-size:0.85rem; color:#888; margin-bottom:12px; }
-  .situation-role { display:inline-block; background:#F3E5F5; border-radius:999px; padding:4px 12px; font-size:0.8rem; font-weight:700; color:#7B1FA2; margin-bottom:4px; }
-
-  .phrase-choices { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
-  .phrase-btn {
-    padding:13px 16px; border-radius:14px;
-    font-family:'Fredoka One',cursive; font-size:1.05rem;
-    border:3px solid transparent; cursor:pointer;
-    transition:all 0.2s; text-align:center;
-    background:#EDE7F6; color:#4527A0;
-    border-color:#D1C4E9;
-    box-shadow:0 3px 10px rgba(0,0,0,0.07);
-    display:flex; flex-direction:column; gap:3px;
+  .sorry-role-tag.responder { background: #1565C0; }
+  .sorry-role-tag.apologizer { background: var(--primary); }
+  .sorry-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sorry-opt {
+    padding: 13px 8px; border-radius: 14px; border: 2px solid #CE93D8;
+    background: white; font-family: 'Fredoka One', cursive; font-size: 14px;
+    cursor: pointer; transition: all 0.2s; text-align: center; line-height: 1.4;
   }
-  .phrase-btn:active { transform:scale(0.97); }
-  .phrase-btn:hover { transform:translateY(-2px); box-shadow:0 5px 14px rgba(0,0,0,0.12); }
-  .phrase-zh { font-size:0.75rem; color:#888; font-family:'Nunito',sans-serif; font-weight:700; }
-
-  .phrase-btn.correct { background:#C8E6C9; border-color:#66BB6A; animation:correctPop 0.4s ease; }
-  .phrase-btn.wrong   { background:#FFCDD2; border-color:#EF9A9A; animation:shake 0.4s ease; }
-  @keyframes correctPop { 0%{transform:scale(1)} 50%{transform:scale(1.05)} 100%{transform:scale(1)} }
-  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
-
-  .score-dots { display:flex; justify-content:center; gap:6px; margin-bottom:12px; }
-  .score-dot { width:18px; height:18px; border-radius:50%; background:#E0E0E0; transition:all 0.3s; }
-  .score-dot.correct { background:#66BB6A; }
-  .score-dot.wrong   { background:#EF5350; }
-
-  .game-complete { text-align:center; padding:16px; }
-  .game-complete-emoji { font-size:3.5rem; display:block; animation:bounce 1s infinite; }
-  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  .sorry-opt:hover { background: var(--primary-light); border-color: var(--primary); transform: translateY(-2px); }
+  .sorry-opt:active { transform: scale(0.95); }
+  .sorry-opt.correct { background: #E8F5E9; border-color: var(--correct); color: var(--correct); }
+  .sorry-opt.wrong { background: #FFEBEE; border-color: var(--wrong); color: var(--wrong); }
+  .sorry-progress { display: flex; justify-content: center; gap: 6px; margin-bottom: 12px; }
+  .sorry-dot { width: 10px; height: 10px; border-radius: 50%; background: #E1BEE7; transition: background 0.3s; }
+  .sorry-dot.correct { background: var(--correct); }
+  .sorry-dot.wrong { background: var(--wrong); }
+  .sorry-score { text-align: center; font-family: 'Fredoka One', cursive; font-size: 14px; color: #888; margin-bottom: 12px; }
+  .rule-box { background: #FFF8E1; border: 2px solid #FFB300; border-radius: 14px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; font-weight: 700; color: #5D4037; text-align: center; line-height: 1.9; }
+  .rule-tag { display: inline-block; background: white; border-radius: 8px; padding: 1px 8px; margin: 1px 3px; font-size: 13px; }
 
   /* FILL */
-  .dialogue-fill { display:flex; flex-direction:column; gap:12px; }
-  .fill-line { display:flex; align-items:center; gap:8px; padding:10px 14px; background:white; border-radius:12px; border:2px solid #E0E0E0; flex-wrap:wrap; }
-  .fill-speaker-tag { font-size:1.3rem; }
-  .fill-text { font-size:0.95rem; font-weight:700; color:#333; }
-  .fill-blank { display:inline-block; min-width:80px; border-bottom:3px solid var(--coral); text-align:center; font-weight:800; font-size:0.95rem; color:var(--coral); cursor:pointer; padding:2px 6px; border-radius:4px; transition:background 0.2s; }
-  .fill-blank:hover { background:#FFF3E0; }
-  .fill-blank.filled { color:#2E7D32; border-color:#66BB6A; background:#E8F5E9; }
-  .fill-blank.wrong-fill { animation:shake 0.4s ease; background:#FFCDD2; border-color:#EF9A9A; color:#C62828; }
-  .word-bank { display:flex; flex-wrap:wrap; gap:9px; padding:14px; background:#F3E5F5; border-radius:14px; margin-top:10px; }
-  .word-chip { padding:7px 14px; background:white; border-radius:999px; font-weight:700; font-size:0.88rem; color:#6A1B9A; border:2px solid #CE93D8; cursor:pointer; transition:all 0.2s; user-select:none; }
-  .word-chip:hover { background:#F3E5F5; transform:translateY(-2px); }
-  .word-chip.used { opacity:0.32; pointer-events:none; }
-  .word-chip.selected { outline:3px solid #FF7043; background:#FFF3E0; }
+  .fill-question { background: white; border: 2px solid #E1BEE7; border-radius: 18px; padding: 16px; margin-bottom: 12px; transition: border-color 0.3s; }
+  .fill-question.correct-anim { border-color: var(--correct); animation: correctPop 0.4s ease; }
+  .fill-question.wrong-anim { border-color: var(--wrong); animation: shake 0.4s ease; }
+  .fill-sent { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.5; }
+  .fill-sent .blank-word { display: inline-block; min-width: 60px; text-align: center; border-bottom: 2px dashed var(--primary); color: var(--primary); font-style: italic; }
+  .fill-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .fill-opt { padding: 7px 16px; border-radius: 50px; border: 2px solid #E1BEE7; background: white; font-family: 'Fredoka One', cursive; font-size: 15px; cursor: pointer; transition: all 0.2s; }
+  .fill-opt:hover { border-color: var(--primary); background: var(--primary-light); }
+  .fill-opt.selected-correct { background: #E8F5E9; border-color: var(--correct); color: var(--correct); }
+  .fill-opt.selected-wrong { background: #FFEBEE; border-color: var(--wrong); color: var(--wrong); }
+  .fill-cn { font-size: 13px; color: #999; margin-top: 6px; }
+  .fill-score-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+  .fill-dot { width: 10px; height: 10px; border-radius: 50%; background: #E1BEE7; transition: background 0.3s; }
+  .fill-dot.correct { background: var(--correct); }
+  .fill-dot.wrong { background: var(--wrong); }
 
-  /* BUTTONS */
-  .btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:12px 24px; border-radius:999px; font-family:'Fredoka One',cursive; font-size:1rem; cursor:pointer; border:none; transition:all 0.2s; box-shadow:0 4px 12px rgba(0,0,0,0.14); }
-  .btn:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.18); }
-  .btn:active { transform:translateY(0); }
-  .btn-primary { background:linear-gradient(135deg,#FF7043,#FF5252); color:white; }
-  .btn-next { background:linear-gradient(135deg,#66BB6A,#43A047); color:white; }
-  .btn-check { background:linear-gradient(135deg,#42A5F5,#1E88E5); color:white; }
-  .btn-wrap { margin-top:18px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .btn { width: 100%; padding: 16px; border: none; border-radius: 16px; font-family: 'Fredoka One', cursive; font-size: 18px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; margin-top: 8px; }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(106,27,154,0.35); }
+  .btn-primary:hover { box-shadow: 0 6px 18px rgba(106,27,154,0.45); }
+  .btn-disabled { background: #B0BEC5; color: white; cursor: not-allowed; box-shadow: none; }
 
-  /* FINISH */
-  #stage-finish { text-align:center; }
-  .trophy-box { background:white; border-radius:22px; padding:30px 20px; box-shadow:0 8px 28px rgba(0,0,0,0.1); }
-  .trophy-emoji { font-size:4.5rem; animation:bounce 1s infinite; display:block; }
-  .finish-title { font-family:'Fredoka One',cursive; font-size:1.8rem; color:var(--coral); margin:12px 0 5px; }
-  .finish-subtitle { font-size:0.9rem; color:#888; }
-  .stars-display { font-size:2.2rem; margin:14px 0; letter-spacing:6px; }
+  .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #333; color: white; padding: 12px 24px; border-radius: 50px; font-size: 15px; font-weight: 700; z-index: 999; transition: transform 0.3s ease; white-space: nowrap; pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.green { background: var(--correct); }
+  .toast.red { background: var(--wrong); }
 
-  .grammar-tip { background:linear-gradient(135deg,#FFF9C4,#FFF59D); border-radius:14px; padding:14px 16px; margin:14px 0; border:2px solid #FFD54F; }
-  .grammar-tip-title { font-weight:800; color:#F57F17; font-size:0.9rem; margin-bottom:8px; }
-  .grammar-row { font-size:0.88rem; color:#333; font-weight:600; margin-bottom:5px; line-height:1.6; }
-  .grammar-en { color:#1A237E; font-weight:800; }
-  .grammar-zh { color:#888; font-weight:600; }
+  .confetti-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 998; }
+  .cf { position: absolute; width: 10px; height: 10px; border-radius: 2px; animation: cfFall linear forwards; }
+  @keyframes cfFall { 0%{top:-20px;transform:rotate(0deg) scale(1);opacity:1} 80%{opacity:1} 100%{top:110vh;transform:rotate(720deg) scale(0.5);opacity:0} }
 
-  #toast { position:fixed; top:70px; left:50%; transform:translateX(-50%) translateY(-16px); background:#1A237E; color:white; padding:10px 22px; border-radius:999px; font-weight:700; font-size:0.95rem; opacity:0; transition:all 0.3s; z-index:100; pointer-events:none; white-space:nowrap; }
-  #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-  .confetti-item { position:fixed; border-radius:2px; animation:confettiFall linear forwards; pointer-events:none; z-index:999; }
-  @keyframes confettiFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+  .finish-card { text-align: center; padding: 30px 20px; }
+  .finish-emoji { font-size: 64px; margin-bottom: 12px; }
+  .finish-title { font-family: 'Fredoka One', cursive; font-size: 28px; color: var(--primary-dark); margin-bottom: 8px; }
+  .finish-stars { font-size: 36px; letter-spacing: 4px; margin-bottom: 16px; }
+  .finish-review { background: var(--primary-light); border-radius: 16px; padding: 16px; text-align: left; margin-top: 16px; }
+  .finish-review-title { font-family: 'Fredoka One', cursive; color: var(--primary); font-size: 15px; margin-bottom: 10px; }
+  .review-line { font-size: 14px; font-weight: 700; color: var(--text); padding: 6px 0; border-bottom: 1px solid #CE93D8; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+  .review-line:last-child { border-bottom: none; }
+  .review-play { color: var(--primary); }
 </style>
 </head>
 <body>
 
-<div id="header">
-  <a id="back-btn" href="../index.html">←</a>
-  <div id="header-title">
-    <h1>Lesson 3 · Sorry!</h1>
-    <div class="sub">新概念英语第一册 · 主课</div>
-  </div>
-  <div id="star-bar">
-    <span class="star-icon" id="star1">⭐</span>
-    <span class="star-icon" id="star2">⭐</span>
-    <span class="star-icon" id="star3">⭐</span>
-    <span class="star-icon" id="star4">⭐</span>
+<div class="topbar">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="topbar-title">Lesson 3 · Sorry, sir.</div>
+  <div class="stars-bar">
+    <span class="star" id="star1">☆</span><span class="star" id="star2">☆</span>
+    <span class="star" id="star3">☆</span><span class="star" id="star4">☆</span>
   </div>
 </div>
-<div id="progress-wrap"><div id="progress-bar"></div></div>
-<div id="toast"></div>
-
-<!-- INTRO -->
-<div class="stage active" id="stage-intro">
-  <div style="text-align:center;padding:24px 0;">
-    <div style="font-size:4.5rem;margin-bottom:10px;animation:bounce 1.2s infinite;">☂️</div>
-    <div style="font-family:'Fredoka One',cursive;font-size:1.8rem;color:#6A1B9A;margin-bottom:6px;">Sorry!</div>
-    <div style="color:#888;font-size:0.9rem;margin-bottom:6px;">对不起！</div>
-    <div style="color:#666;font-size:0.85rem;margin-bottom:20px;line-height:1.7;">
-      下雨天，有人拿错了别人的雨伞！☂️<br>
-      怎么道歉？怎么回应道歉？<br>
-      今天来学这些超有用的句子！
-    </div>
-    <div class="grammar-tip" style="text-align:left;margin:0 0 20px;">
-      <div class="grammar-tip-title">📌 今天的语法公式</div>
-      <div class="grammar-row"><span class="grammar-en">Sorry! / I'm sorry!</span><span class="grammar-zh"> 对不起！</span></div>
-      <div class="grammar-row"><span class="grammar-en">That's all right.</span><span class="grammar-zh"> 没关系。</span></div>
-      <div class="grammar-row"><span class="grammar-en">It doesn't matter.</span><span class="grammar-zh"> 不要紧。</span></div>
-      <div class="grammar-row"><span class="grammar-en">Never mind.</span><span class="grammar-zh"> 别介意。</span></div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:22px;">
-      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">🎧 听对话</div>
-      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">📚 认单词</div>
-      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">🎭 道歉游戏</div>
-      <div style="background:white;border-radius:14px;padding:10px 14px;font-size:0.8rem;font-weight:700;color:#555;box-shadow:0 3px 8px rgba(0,0,0,0.07);">✏️ 填一填</div>
-    </div>
-    <button class="btn btn-primary" onclick="goStage(1)">🚀 开始冒险！</button>
-  </div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+<div class="stage-dots">
+  <div class="stage-dot active" id="dot0"></div>
+  <div class="stage-dot" id="dot1"></div>
+  <div class="stage-dot" id="dot2"></div>
+  <div class="stage-dot" id="dot3"></div>
 </div>
 
-<!-- STAGE 1 -->
-<div class="stage" id="stage-story">
-  <div class="stage-badge">🎧 第1关 · 听对话</div>
-  <div class="scene-box">
-    <div class="story-scene">
-      <div class="bubble-wrap" id="story-bubble"><div class="speech-bubble" id="bubble-text">…</div></div>
-      <div class="character" id="char-mary"><div class="char-body">👩</div><div class="char-name">Mary</div></div>
-      <div class="character" id="char-man"><div class="char-body">👨</div><div class="char-name">Man</div></div>
+<!-- SCREEN 1: DIALOGUE -->
+<div class="screen active" id="screen1">
+  <div class="card">
+    <div class="scene-banner">
+      <div class="scene-icon">🧥</div>
+      <div class="scene-desc">
+        <b>场景：衣帽存放处</b>
+        一位男士凭票来取他的外套和雨伞，但领到的雨伞不是他的！
+      </div>
     </div>
-    <div class="instr">💡 雨天故事 · 点每句话听听发生了什么！</div>
-    <ul class="dialogue-list" id="dialogue-list"></ul>
-    <div class="btn-wrap">
-      <button class="btn btn-primary" onclick="playAll()">▶ 全部朗读</button>
-      <button class="btn btn-next" id="btn-story-next" onclick="finishStage(1)" style="display:none">下一关 →</button>
-    </div>
+    <div class="card-title">🎬 第一关：听故事</div>
+    <div style="text-align:center;font-size:13px;color:#888;margin-bottom:12px;">点击每一句，听对话朗读 👂</div>
+    <div id="dialogueList"></div>
   </div>
+  <button class="btn btn-disabled" id="btn1" onclick="goStage(2)">全部听完才能继续 🔒</button>
 </div>
 
-<!-- STAGE 2 -->
-<div class="stage" id="stage-vocab">
-  <div class="stage-badge">📚 第2关 · 认单词</div>
-  <div class="scene-box">
-    <div class="instr">💡 点卡片听发音！</div>
-    <div class="vocab-grid" id="vocab-grid"></div>
-    <div class="btn-wrap"><button class="btn btn-next" onclick="finishStage(2)">下一关 →</button></div>
+<!-- SCREEN 2: VOCAB -->
+<div class="screen" id="screen2">
+  <div class="card">
+    <div class="card-title">📖 第二关：认单词</div>
+    <div style="text-align:center;font-size:13px;color:#888;margin-bottom:14px;">点击卡片，听发音 🔊</div>
+    <div class="vocab-grid" id="vocabGrid"></div>
   </div>
+  <button class="btn btn-primary" onclick="goStage(3)">下一关 →</button>
 </div>
 
-<!-- STAGE 3: SORRY GAME -->
-<div class="stage" id="stage-game">
-  <div class="stage-badge">🎭 第3关 · 道歉游戏</div>
-  <div class="scene-box">
-    <div class="instr">💡 看情景，选正确的英语！角色不同，说的话也不同！</div>
-    <div class="score-dots" id="score-strip"></div>
-    <div class="sorry-scene" id="sorry-scene"></div>
-    <div class="btn-wrap">
-      <button class="btn btn-next" id="btn-game-next" onclick="finishStage(3)" style="display:none">下一关 →</button>
+<!-- SCREEN 3: SORRY GAME -->
+<div class="screen" id="screen3">
+  <div class="card">
+    <div class="card-title">🎮 第三关：道歉情景选词</div>
+    <div class="rule-box">
+      📌 道歉时说：<span class="rule-tag">Sorry!</span> <span class="rule-tag">I'm sorry.</span><br>
+      回应道歉时说：<span class="rule-tag">That's all right.</span> <span class="rule-tag">Never mind.</span>
+    </div>
+    <div class="sorry-progress" id="sorryProgress"></div>
+    <div class="sorry-score" id="sorryScore">第 1 题 / 共 6 题</div>
+    <div class="sorry-scene" id="sorryScene">
+      <div class="sorry-emoji" id="sorryEmoji"></div>
+      <div class="sorry-situation" id="sorrySituation"></div>
+      <div class="sorry-context" id="sorryContext"></div>
+      <div id="sorryRoleTag"></div>
+      <div class="sorry-options" id="sorryOptions"></div>
     </div>
   </div>
+  <button class="btn btn-disabled" id="btn3" onclick="goStage(4)">完成全部题目 🔒</button>
 </div>
 
-<!-- STAGE 4 -->
-<div class="stage" id="stage-fill">
-  <div class="stage-badge">✏️ 第4关 · 填一填</div>
-  <div class="scene-box">
-    <div class="instr">💡 从词库选词，点空白处填入！</div>
-    <div class="dialogue-fill" id="fill-lines"></div>
-    <div style="margin-top:14px;font-weight:800;color:#6A1B9A;font-size:0.85rem;">📦 词库</div>
-    <div class="word-bank" id="word-bank"></div>
-    <div class="btn-wrap">
-      <button class="btn btn-check" onclick="checkFill()">✔ 检查答案</button>
-      <button class="btn btn-next" id="btn-fill-next" onclick="finishStage(4)" style="display:none">完成！🎉</button>
-    </div>
+<!-- SCREEN 4: FILL -->
+<div class="screen" id="screen4">
+  <div class="card">
+    <div class="card-title">✏️ 第四关：填一填</div>
+    <div class="fill-score-row" id="fillDots"></div>
+    <div id="fillQuestions"></div>
   </div>
+  <button class="btn btn-disabled" id="btn4" onclick="finishLesson()">完成全部题目 🔒</button>
 </div>
 
-<!-- FINISH -->
-<div class="stage" id="stage-finish">
-  <div class="trophy-box">
-    <span class="trophy-emoji">🏆</span>
+<!-- SCREEN 5: FINISH -->
+<div class="screen" id="screen5">
+  <div class="card finish-card">
+    <div class="finish-emoji">🎉</div>
     <div class="finish-title">太棒了！</div>
-    <div class="finish-subtitle">Lesson 3 全部通关！</div>
-    <div class="stars-display" id="finish-stars">⭐⭐⭐⭐</div>
-    <div class="grammar-tip" style="text-align:left;">
-      <div class="grammar-tip-title">🧠 今天记住了吗？</div>
-      <div class="grammar-row"><span class="grammar-en">Sorry!</span><span class="grammar-zh"> 对不起！</span></div>
-      <div class="grammar-row"><span class="grammar-en">That's all right.</span><span class="grammar-zh"> 没关系。</span></div>
-      <div class="grammar-row"><span class="grammar-en">It doesn't matter.</span><span class="grammar-zh"> 不要紧。</span></div>
+    <div class="finish-stars" id="finishStars"></div>
+    <div style="font-size:15px;color:#666;margin-bottom:8px;">第3课完成！<br>你学会了道歉与回应 😊</div>
+    <div class="finish-review">
+      <div class="finish-review-title">📖 复习本课对话</div>
+      <div id="reviewList"></div>
     </div>
-    <div style="background:#F3E5F5;border-radius:14px;padding:14px;margin:14px 0;text-align:left;">
-      <div style="font-weight:800;color:#6A1B9A;margin-bottom:8px;font-size:0.9rem;">📖 今天的对话</div>
-      <div id="review-dialogue" style="font-size:0.85rem;line-height:2.1;color:#333;"></div>
-    </div>
-    <div class="btn-wrap">
-      <a class="btn btn-next" href="../index.html">🏠 回主页</a>
-      <button class="btn btn-primary" onclick="restartAll()">🔄 再玩一次</button>
-    </div>
+    <button class="btn btn-primary" style="margin-top:20px;" onclick="location.href='lesson4.html'">去第4课 →</button>
+    <button class="btn" style="background:#F3E5F5;color:var(--primary-dark);margin-top:8px;" onclick="location.href='../index.html'">回主页 🏠</button>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
+<div class="confetti-wrap" id="confettiWrap"></div>
 
 <script>
+// ★ 真实课文原文（新概念第一册 Lesson 3）
 const dialogue = [
-  { speaker:'mary', emoji:'👩', en:"Oh! Is this my umbrella?",          zh:"哦！这是我的雨伞吗？" },
-  { speaker:'man',  emoji:'👨', en:"Sorry! That's my umbrella.",         zh:"对不起！那是我的雨伞。" },
-  { speaker:'mary', emoji:'👩', en:"I'm sorry!",                         zh:"对不起！" },
-  { speaker:'man',  emoji:'👨', en:"That's all right.",                  zh:"没关系。" },
-  { speaker:'mary', emoji:'👩', en:"Is this your umbrella?",             zh:"这是您的雨伞吗？" },
-  { speaker:'man',  emoji:'👨', en:"Yes, it is. Thank you very much.",   zh:"是的，是我的。非常感谢！" },
+  { who: 'Man', cls: 'b', en: 'My coat and my umbrella please.', cn: '请把我的大衣和雨伞给我。' },
+  { who: 'Attendant', cls: '', en: 'Here is my ticket.', cn: '（男士）这是我的号牌。' },
+  { who: 'Attendant', cls: '', en: 'Thank you, sir. Number five.', cn: '谢谢您，先生。5号。' },
+  { who: 'Attendant', cls: '', en: "Here's your umbrella and your coat.", cn: '这是您的雨伞和大衣。' },
+  { who: 'Man', cls: 'b', en: 'This is not my umbrella.', cn: '这不是我的雨伞。' },
+  { who: 'Attendant', cls: '', en: 'Sorry, sir.', cn: '对不起，先生。' },
+  { who: 'Attendant', cls: '', en: 'Is this your umbrella?', cn: '这把是您的雨伞吗？' },
+  { who: 'Man', cls: 'b', en: "No, it isn't.", cn: '不，不是。' },
+  { who: 'Attendant', cls: '', en: 'Is this it?', cn: '这把呢？' },
+  { who: 'Man', cls: 'b', en: 'Yes, it is. Thank you very much.', cn: '是的，就是这把。非常感谢。' },
 ];
 
 const vocab = [
-  { en:'sorry',        zh:'对不起',   emoji:'🙇', pron:"/ˈsɒri/"          },
-  { en:'umbrella',     zh:'雨伞',     emoji:'☂️',  pron:"/ʌmˈbrelə/"      },
-  { en:"that's all right", zh:'没关系',emoji:'👌', pron:"/ðæts ɔːl raɪt/" },
-  { en:"it doesn't matter",zh:'不要紧',emoji:'😌', pron:"/ɪt ˈdʌznt ˈmætər/" },
-  { en:'never mind',   zh:'别介意',   emoji:'🤷', pron:"/ˈnevər maɪnd/"   },
-  { en:'my',           zh:'我的',     emoji:'👤', pron:"/maɪ/"            },
+  { emoji: '🧥', en: 'coat', cn: '大衣' },
+  { emoji: '☂️', en: 'umbrella', cn: '雨伞' },
+  { emoji: '🎫', en: 'ticket', cn: '（寄存）票牌' },
+  { emoji: '5️⃣', en: 'number', cn: '号码' },
+  { emoji: '🙏', en: 'please', cn: '请' },
+  { emoji: '🗂️', en: 'cloakroom', cn: '衣帽存放处' },
+  { emoji: '🙇', en: 'sorry', cn: '对不起' },
+  { emoji: '🎩', en: 'sir', cn: '先生（尊称）' },
 ];
 
-// Sorry game situations
-// role: 'apologiser' (need to say sorry) or 'responder' (need to respond to sorry)
-const situations = [
+// 情景选词游戏：区分"道歉方"和"回应方"
+const sorryQuestions = [
   {
-    emoji:'👟',
-    title:'踩到别人的脚了！',
-    zh:'你不小心踩了别人的脚',
-    role:'apologiser',
-    choices:["Sorry!", "That's all right.", "Never mind.", "Thank you."],
-    correct:"Sorry!",
-    hint:'你需要道歉！'
+    emoji: '😟', situation: '服务员给错了雨伞',
+    context: '是服务员说……', role: 'apologizer', roleLabel: '说道歉的一方',
+    options: ['Sorry, sir.', "That's all right.", 'Thank you.', 'Never mind.'],
+    answer: 'Sorry, sir.',
   },
   {
-    emoji:'☕',
-    title:'别人打翻了你的咖啡！',
-    zh:'别人说了Sorry，现在轮到你回应',
-    role:'responder',
-    choices:["I'm sorry!", "That's all right.", "Excuse me.", "Yes, it is."],
-    correct:"That's all right.",
-    hint:'别人道歉了，你要接受道歉！'
+    emoji: '😮', situation: '顾客说"这不是我的雨伞"',
+    context: '这时服务员应该说……', role: 'apologizer', roleLabel: '道歉方',
+    options: ['Sorry, sir.', 'Thank you very much.', "That's all right.", 'Here you are.'],
+    answer: 'Sorry, sir.',
   },
   {
-    emoji:'📱',
-    title:'不小心碰掉了别人的手机！',
-    zh:'你碰掉了别人的东西',
-    role:'apologiser',
-    choices:["Never mind.", "I'm sorry!", "That's all right.", "Pardon?"],
-    correct:"I'm sorry!",
-    hint:'你需要道歉！'
+    emoji: '😊', situation: '有人不小心踩了你的脚，跟你道歉',
+    context: '你会怎么回应？', role: 'responder', roleLabel: '回应道歉',
+    options: ["That's all right.", 'Sorry!', "I'm sorry.", 'Excuse me.'],
+    answer: "That's all right.",
   },
   {
-    emoji:'🚪',
-    title:'别人撞了你！',
-    zh:'别人撞了你并说Sorry',
-    role:'responder',
-    choices:["Sorry!", "It doesn't matter.", "Excuse me!", "Is this yours?"],
-    correct:"It doesn't matter.",
-    hint:'别人道歉了，用"不要紧"回应！'
+    emoji: '🤦', situation: '你不小心把朋友的书弄湿了',
+    context: '你该说……', role: 'apologizer', roleLabel: '道歉方',
+    options: ["I'm sorry.", "That's all right.", 'Never mind.', 'Thank you.'],
+    answer: "I'm sorry.",
   },
   {
-    emoji:'📚',
-    title:'拿错了同学的书！',
-    zh:'你拿错了别人的书',
-    role:'apologiser',
-    choices:["That's all right.", "Sorry!", "Never mind.", "Pardon?"],
-    correct:"Sorry!",
-    hint:'你需要道歉！'
+    emoji: '🙆', situation: '朋友向你道歉，你想告诉他没关系',
+    context: '你可以说……', role: 'responder', roleLabel: '回应道歉',
+    options: ['Never mind.', "I'm sorry.", 'Sorry, sir.', 'Excuse me.'],
+    answer: 'Never mind.',
   },
   {
-    emoji:'🎒',
-    title:'同学踩了你的包，他说对不起',
-    zh:'同学已经道歉了',
-    role:'responder',
-    choices:["I'm sorry!", "Never mind.", "Is this your bag?", "Yes, it is."],
-    correct:"Never mind.",
-    hint:'接受道歉，说"别介意"！'
+    emoji: '😌', situation: '你把同学的铅笔弄断了，对方说没关系',
+    context: '对方说的是……', role: 'responder', roleLabel: '回应道歉',
+    options: ["That's all right.", 'Sorry!', "I'm sorry.", 'Thank you.'],
+    answer: "That's all right.",
   },
 ];
 
-const fillTemplate = [
-  { speaker:'👩', before:'', blank:"I'm sorry", after:'!',               answer:"I'm sorry"      },
-  { speaker:'👨', before:"", blank:"That's all right", after:'.',        answer:"That's all right" },
-  { speaker:'👩', before:'Is this your ', blank:'umbrella', after:'?',   answer:'umbrella'        },
-  { speaker:'👨', before:'Yes, it ', blank:'is', after:'. Thank you.',   answer:'is'              },
-  { speaker:'👩', before:'', blank:"Sorry", after:'!',                   answer:'Sorry'           },
-  { speaker:'👨', before:"It doesn't ", blank:'matter', after:'.',       answer:'matter'          },
+const fillQuestions = [
+  { sentence: 'My coat and my ___ please.', blank: 'umbrella', options: ['umbrella', 'coat', 'bag', 'ticket'], answer: 'umbrella', cn: '请把我的大衣和雨伞给我。' },
+  { sentence: 'Here is my ___.', blank: 'ticket', options: ['ticket', 'coat', 'number', 'bag'], answer: 'ticket', cn: '这是我的票牌。' },
+  { sentence: 'This is ___ my umbrella.', blank: 'not', options: ['not', 'no', "isn't", 'never'], answer: 'not', cn: '这不是我的雨伞。' },
+  { sentence: '___, sir.', blank: 'Sorry', options: ['Sorry', 'Pardon', 'Please', 'Thank'], answer: 'Sorry', cn: '对不起，先生。' },
+  { sentence: 'Is this ___?', blank: 'it', options: ['it', 'your', 'my', 'his'], answer: 'it', cn: '这把是（您要找的那个）吗？' },
+  { sentence: 'Yes, ___ is. Thank you very much.', blank: 'it', options: ['it', 'this', 'that', 'he'], answer: 'it', cn: '是的，就是这把。非常感谢。' },
 ];
-const wordBank = ["I'm sorry","That's all right",'umbrella','is','Sorry','matter','never','mind'];
 
-let heardSet=new Set(), starsEarned=0, sgIndex=0, sgResults=[];
-let fillAnswers={}, selectedChipWord=null, selectedChipEl=null;
+let currentStage = 1, starsEarned = 0;
+let dlgDone = new Set();
+let sorryIndex = 0, sorryCorrect = 0;
+let fillAnswered = 0;
 
-function speak(text,rate=0.88){
-  return new Promise(resolve=>{
-    if(!window.speechSynthesis){resolve();return;}
-    speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text);
-    u.lang='en-US';u.rate=rate;u.pitch=1.05;u.onend=resolve;u.onerror=resolve;
-    const v=speechSynthesis.getVoices();
-    const pref=v.find(x=>x.lang.startsWith('en')&&(x.name.includes('Samantha')||x.name.includes('Daniel')||x.name.includes('Google')));
-    if(pref)u.voice=pref;
-    speechSynthesis.speak(u);
+window.onload = () => { renderDialogue(); renderVocab(); renderSorryProgress(); renderSorryQuestion(); renderFillQuestions(); updateProgress(0); };
+
+function speak(text, rate=0.88) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = rate;
+  const voices = window.speechSynthesis.getVoices();
+  for (const p of ['Samantha','Google US English','Daniel','Karen']) {
+    const v = voices.find(v => v.name.includes(p));
+    if (v) { u.voice = v; break; }
+  }
+  window.speechSynthesis.speak(u);
+}
+
+function renderDialogue() {
+  const list = document.getElementById('dialogueList');
+  list.innerHTML = '';
+  dialogue.forEach((d, i) => {
+    const div = document.createElement('div');
+    div.className = 'dlg-item' + (i === 0 ? ' active' : '');
+    div.id = 'dlg' + i;
+    div.onclick = () => {
+      document.querySelectorAll('.dlg-item').forEach(el => el.classList.remove('active'));
+      div.classList.add('active', 'done');
+      speak(d.en); dlgDone.add(i);
+      if (dlgDone.size >= dialogue.length) {
+        const btn = document.getElementById('btn1');
+        btn.className = 'btn btn-primary';
+        btn.textContent = '太棒了！下一关 →';
+      }
+    };
+    div.innerHTML = `<span class="dlg-who ${d.cls}">${d.who}</span><div><div class="dlg-text">${d.en}</div><div class="dlg-cn">${d.cn}</div></div><span class="dlg-play">▶️</span>`;
+    list.appendChild(div);
   });
 }
 
-const stageIds=['intro','story','vocab','game','fill','finish'];
-function goStage(n){
-  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
-  document.getElementById('stage-'+stageIds[n]).classList.add('active');
-  document.getElementById('progress-bar').style.width=['0','20','40','60','80','100'][n]+'%';
-  window.scrollTo(0,0);
-}
-function earnStar(n){document.getElementById('star'+n).classList.add('lit');starsEarned=Math.max(starsEarned,n);}
-function finishStage(n){
-  earnStar(n);
-  showToast(['','🌟 第1关完成！','🌟 第2关完成！','🌟 第3关完成！','🎉 全部完成！'][n]);
-  if(n<4)setTimeout(()=>goStage(n+1),600);
-  else setTimeout(showFinish,600);
-}
-function showFinish(){
-  goStage(5);saveProgress(starsEarned);launchConfetti();
-  let html='';
-  dialogue.forEach(d=>{html+=`<div style="margin-bottom:3px;"><b style="color:#AB47BC;">${d.emoji}</b> <b>${d.en}</b> <span style="color:#999;font-size:0.8em;">${d.zh}</span></div>`;});
-  document.getElementById('review-dialogue').innerHTML=html;
-  document.getElementById('finish-stars').textContent='⭐'.repeat(starsEarned);
-}
-function saveProgress(stars){
-  try{const p=JSON.parse(localStorage.getItem('nce_progress')||'{}');p[3]={stars:Math.max(stars,(p[3]||{}).stars||0),date:new Date().toISOString()};localStorage.setItem('nce_progress',JSON.stringify(p));}catch(e){}
-}
-function restartAll(){
-  heardSet.clear();starsEarned=0;sgIndex=0;sgResults=[];fillAnswers={};
-  document.querySelectorAll('.star-icon').forEach(s=>s.classList.remove('lit'));
-  buildStory();buildVocab();buildSorryGame();buildFill();goStage(0);
-}
-function showToast(msg,dur=2000){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
-
-// STAGE 1
-function buildStory(){
-  const list=document.getElementById('dialogue-list');list.innerHTML='';
-  dialogue.forEach((d,i)=>{
-    const li=document.createElement('li');
-    li.className=`dialogue-item ${d.speaker}`;li.id=`dl-${i}`;
-    li.innerHTML=`<div class="d-emoji">${d.emoji}</div><div class="d-text"><div class="d-en">${d.en}</div><div class="d-zh">${d.zh}</div><div class="play-hint">👆 点击朗读</div></div><div class="d-speaker-icon">🔊</div>`;
-    li.onclick=()=>playLine(i);list.appendChild(li);
-  });
-  document.getElementById('btn-story-next').style.display='none';
-}
-async function playLine(i){
-  const el=document.getElementById(`dl-${i}`);el.classList.add('playing');
-  document.getElementById('bubble-text').textContent=dialogue[i].en;
-  document.getElementById('story-bubble').classList.add('show');
-  const charMap={mary:'char-mary',man:'char-man'};
-  const c=document.getElementById(charMap[dialogue[i].speaker]);
-  if(c)c.style.transform='translateY(-8px)';
-  await speak(dialogue[i].en);
-  if(c)c.style.transform='';
-  el.classList.remove('playing');
-  document.getElementById('story-bubble').classList.remove('show');
-  heardSet.add(i);
-  if(heardSet.size>=dialogue.length){document.getElementById('btn-story-next').style.display='inline-flex';showToast('👏 全部听完！');}
-}
-async function playAll(){for(let i=0;i<dialogue.length;i++){await playLine(i);await new Promise(r=>setTimeout(r,280));}}
-
-// STAGE 2
-function buildVocab(){
-  const g=document.getElementById('vocab-grid');g.innerHTML='';
-  vocab.forEach(v=>{
-    const c=document.createElement('div');c.className='vocab-card';
-    c.innerHTML=`<span class="vocab-emoji">${v.emoji}</span><div class="vocab-en">${v.en}</div><div class="vocab-pron">${v.pron}</div><div class="vocab-zh">${v.zh}</div>`;
-    c.onclick=async()=>{c.classList.add('playing');await speak(v.en,0.8);c.classList.remove('playing');};
-    g.appendChild(c);
+function renderVocab() {
+  const grid = document.getElementById('vocabGrid');
+  grid.innerHTML = '';
+  vocab.forEach(v => {
+    const div = document.createElement('div');
+    div.className = 'vocab-card';
+    div.onclick = () => { speak(v.en); document.querySelectorAll('.vocab-card').forEach(c => c.classList.remove('playing')); div.classList.add('playing'); setTimeout(() => div.classList.remove('playing'), 1200); };
+    div.innerHTML = `<div class="vocab-emoji">${v.emoji}</div><div class="vocab-en">${v.en}</div><div class="vocab-cn">${v.cn}</div>`;
+    grid.appendChild(div);
   });
 }
 
-// STAGE 3
-function buildSorryGame(){
-  sgIndex=0;sgResults=[];
-  document.getElementById('btn-game-next').style.display='none';
-  const strip=document.getElementById('score-strip');strip.innerHTML='';
-  situations.forEach((_,i)=>{const d=document.createElement('div');d.className='score-dot';d.id=`sdot-${i}`;strip.appendChild(d);});
-  showSituation(0);
+function renderSorryProgress() {
+  const wrap = document.getElementById('sorryProgress');
+  wrap.innerHTML = '';
+  for (let i = 0; i < sorryQuestions.length; i++) {
+    const d = document.createElement('div'); d.className = 'sorry-dot'; d.id = 'sorrydot' + i; wrap.appendChild(d);
+  }
 }
 
-function showSituation(idx){
-  if(idx>=situations.length){showGameComplete();return;}
-  const s=situations[idx];
-  const scene=document.getElementById('sorry-scene');scene.innerHTML='';
-  const div=document.createElement('div');div.className='situation-card';
-  div.innerHTML=`
-    <span class="situation-emoji">${s.emoji}</span>
-    <div class="situation-role">${s.role==='apologiser'?'😰 你需要道歉':'😅 接受对方的道歉'}</div>
-    <div class="situation-title">${s.title}</div>
-    <div class="situation-zh">${s.zh}</div>
-    <div class="phrase-choices" id="choices-${idx}"></div>`;
-  scene.appendChild(div);
+function renderSorryQuestion() {
+  if (sorryIndex >= sorryQuestions.length) {
+    document.getElementById('btn3').className = 'btn btn-primary';
+    document.getElementById('btn3').textContent = '进入下一关 →';
+    document.getElementById('sorryScene').innerHTML = `<div style="font-size:52px;padding:16px">🎊</div><div style="font-family:'Fredoka One',cursive;font-size:20px;color:var(--correct)">全部答完！答对 ${sorryCorrect}/${sorryQuestions.length} 题</div>`;
+    return;
+  }
+  const q = sorryQuestions[sorryIndex];
+  document.getElementById('sorryScore').textContent = `第 ${sorryIndex + 1} 题 / 共 ${sorryQuestions.length} 题`;
+  document.getElementById('sorryEmoji').textContent = q.emoji;
+  document.getElementById('sorrySituation').textContent = q.situation;
+  document.getElementById('sorryContext').textContent = q.context;
+  document.getElementById('sorryRoleTag').innerHTML = `<span class="sorry-role-tag ${q.role}">${q.roleLabel}</span>`;
 
-  const prog=document.createElement('div');
-  prog.className='sorry-progress';
-  prog.textContent=`第 ${idx+1} / ${situations.length} 题`;
-  scene.insertBefore(prog,div);
-
-  const choicesEl=document.getElementById(`choices-${idx}`);
-  shuffle(s.choices).forEach(c=>{
-    const btn=document.createElement('button');btn.className='phrase-btn';
-    btn.innerHTML=`${c}<span class="phrase-zh">${translatePhrase(c)}</span>`;
-    btn.onclick=()=>answerSorry(idx,c,s.correct,btn);
-    choicesEl.appendChild(btn);
+  const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+  const optsDiv = document.getElementById('sorryOptions');
+  optsDiv.innerHTML = '';
+  shuffled.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'sorry-opt'; btn.textContent = opt;
+    btn.onclick = () => checkSorry(opt, btn);
+    optsDiv.appendChild(btn);
   });
 }
 
-function translatePhrase(p){
-  const map={"Sorry!":"对不起！","I'm sorry!":"对不起！","That's all right.":"没关系。","It doesn't matter.":"不要紧。","Never mind.":"别介意。","Excuse me.":"打扰一下。","Pardon?":"请再说一遍？","Thank you.":"谢谢。","Yes, it is.":"是的。","Is this yours?":"这是你的吗？","Excuse me!":"打扰一下！"};
-  return map[p]||'';
+function checkSorry(answer, btn) {
+  const q = sorryQuestions[sorryIndex];
+  document.querySelectorAll('.sorry-opt').forEach(b => b.onclick = null);
+  const isCorrect = answer === q.answer;
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) document.querySelectorAll('.sorry-opt').forEach(b => { if (b.textContent === q.answer) b.classList.add('correct'); });
+  const scene = document.getElementById('sorryScene');
+  scene.classList.add(isCorrect ? 'correct-anim' : 'wrong-anim');
+  setTimeout(() => scene.classList.remove('correct-anim', 'wrong-anim'), 500);
+  if (isCorrect) { sorryCorrect++; speak(q.answer); showToast('👍 正确！', 'green'); }
+  else { showToast(`答案是 "${q.answer}"`, 'red'); }
+  document.getElementById('sorrydot' + sorryIndex).classList.add(isCorrect ? 'correct' : 'wrong');
+  sorryIndex++;
+  setTimeout(renderSorryQuestion, 1400);
 }
 
-async function answerSorry(idx,chosen,correct,btn){
-  const allBtns=document.querySelectorAll(`#choices-${idx} .phrase-btn`);
-  allBtns.forEach(b=>b.style.pointerEvents='none');
-  const isCorrect=(chosen===correct);
-  sgResults.push(isCorrect);
-  btn.classList.add(isCorrect?'correct':'wrong');
-  const dot=document.getElementById(`sdot-${idx}`);
-  if(dot)dot.className='score-dot '+(isCorrect?'correct':'wrong');
-  await speak(correct,0.85);
-  if(isCorrect)showToast(['👍 对！','🌟 棒！','✨ 太厉害！'][idx%3]);
-  else showToast(`✅ 正确是：${correct}`);
-  sgIndex++;
-  setTimeout(()=>showSituation(sgIndex),1400);
-}
-
-function showGameComplete(){
-  const scene=document.getElementById('sorry-scene');scene.innerHTML='';
-  const c=sgResults.filter(Boolean).length;
-  scene.innerHTML=`<div class="game-complete"><span class="game-complete-emoji">${c>=situations.length*0.8?'🏆':'💪'}</span><div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:#6A1B9A;margin:10px 0 4px;">${c}/${situations.length} 答对了！</div><div style="font-size:0.9rem;color:#888;">${c>=situations.length*0.8?'道歉高手！👑':'继续练习加油！'}</div></div>`;
-  document.getElementById('btn-game-next').style.display='inline-flex';
-  showToast(`🎭 游戏通关！${c}/${situations.length}正确`);
-}
-
-// STAGE 4
-function buildFill(){
-  const container=document.getElementById('fill-lines');container.innerHTML='';fillAnswers={};
-  fillTemplate.forEach((line,li)=>{
-    const div=document.createElement('div');div.className='fill-line';
-    let inner=`<span class="fill-speaker-tag">${line.speaker}</span> `;
-    if(line.blank!==null&&line.blank!==undefined){
-      inner+=`<span class="fill-text">${line.before}</span><span class="fill-blank" id="blank-${li}" onclick="fillBlank(${li})">　　　</span><span class="fill-text">${line.after}</span>`;
-    }else{
-      inner+=`<span class="fill-text">${line.before}${line.after}</span>`;
-    }
-    div.innerHTML=inner;container.appendChild(div);
+function renderFillQuestions() {
+  const wrap = document.getElementById('fillQuestions');
+  const dotsWrap = document.getElementById('fillDots');
+  wrap.innerHTML = ''; dotsWrap.innerHTML = '';
+  fillQuestions.forEach((q, i) => {
+    const dot = document.createElement('div'); dot.className = 'fill-dot'; dot.id = 'filldot' + i; dotsWrap.appendChild(dot);
+    const displaySent = q.sentence.replace(q.blank, `<span class="blank-word" id="fillblank${i}">${'_'.repeat(q.blank.length)}</span>`);
+    const div = document.createElement('div');
+    div.className = 'fill-question'; div.id = 'fillq' + i;
+    div.innerHTML = `<div class="fill-sent">${displaySent}</div><div class="fill-cn">${q.cn}</div><div class="fill-options" id="fillopts${i}"></div>`;
+    wrap.appendChild(div);
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'fill-opt'; btn.textContent = opt;
+      btn.onclick = () => checkFill(i, opt, btn);
+      div.querySelector(`#fillopts${i}`).appendChild(btn);
+    });
   });
-  const wb=document.getElementById('word-bank');wb.innerHTML='';
-  shuffle(wordBank).forEach(w=>{
-    const chip=document.createElement('div');chip.className='word-chip';chip.textContent=w;
-    chip.id=`chip-${w.replace(/[\s']/g,'_')}`;
-    chip.onclick=()=>selectChip(w,chip);wb.appendChild(chip);
-  });
-  selectedChipWord=null;selectedChipEl=null;
-  document.getElementById('btn-fill-next').style.display='none';
-}
-function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function selectChip(w,el){document.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('selected'));selectedChipWord=w;selectedChipEl=el;el.classList.add('selected');speak(w,0.85);}
-function fillBlank(li){
-  if(!selectedChipWord){showToast('👆 先从词库选一个词！');return;}
-  const b=document.getElementById(`blank-${li}`);
-  if(b.classList.contains('filled')){const ow=b.dataset.word;const oc=document.getElementById(`chip-${ow.replace(/[\s']/g,'_')}`);if(oc)oc.classList.remove('used');delete fillAnswers[li];b.classList.remove('filled');}
-  fillAnswers[li]=selectedChipWord;b.textContent=selectedChipWord;b.classList.add('filled');b.dataset.word=selectedChipWord;
-  if(selectedChipEl)selectedChipEl.classList.add('used');
-  selectedChipWord=null;selectedChipEl=null;document.querySelectorAll('.word-chip').forEach(c=>c.classList.remove('selected'));
-}
-function checkFill(){
-  let allCorrect=true,allFilled=true;
-  fillTemplate.forEach((line,li)=>{
-    if(line.blank===null||line.blank===undefined)return;
-    const b=document.getElementById(`blank-${li}`);
-    if(!fillAnswers[li]){allFilled=false;return;}
-    if(fillAnswers[li].toLowerCase()===line.answer.toLowerCase()){b.classList.remove('wrong-fill');}
-    else{b.classList.add('wrong-fill');setTimeout(()=>b.classList.remove('wrong-fill'),600);allCorrect=false;}
-  });
-  if(!allFilled){showToast('📝 还有空没填哦！');return;}
-  if(allCorrect){showToast('🎉 全对！太厉害了！');document.getElementById('btn-fill-next').style.display='inline-flex';}
-  else showToast('❌ 有一些不对，再试试！');
-}
-function launchConfetti(){
-  const colors=['#FF7043','#FFD54F','#66BB6A','#4FC3F7','#AB47BC','#EC407A'];
-  for(let i=0;i<55;i++){const el=document.createElement('div');el.className='confetti-item';el.style.cssText=`left:${Math.random()*100}vw;top:-10px;background:${colors[Math.floor(Math.random()*colors.length)]};width:${5+Math.random()*8}px;height:${5+Math.random()*8}px;animation-duration:${2+Math.random()*2.5}s;animation-delay:${Math.random()*1.5}s;`;document.body.appendChild(el);setTimeout(()=>el.remove(),5000);}
 }
 
-if(window.speechSynthesis){speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();}
-buildStory();buildVocab();buildSorryGame();buildFill();
+function checkFill(qi, answer, btn) {
+  const q = fillQuestions[qi];
+  document.querySelectorAll(`#fillopts${qi} .fill-opt`).forEach(b => b.onclick = null);
+  const isCorrect = answer === q.answer;
+  btn.classList.add(isCorrect ? 'selected-correct' : 'selected-wrong');
+  if (!isCorrect) document.querySelectorAll(`#fillopts${qi} .fill-opt`).forEach(b => { if (b.textContent === q.answer) b.classList.add('selected-correct'); });
+  const blankEl = document.getElementById('fillblank' + qi);
+  if (blankEl) { blankEl.textContent = q.answer; blankEl.style.borderStyle = 'solid'; blankEl.style.borderColor = isCorrect ? 'var(--correct)' : 'var(--wrong)'; }
+  const qEl = document.getElementById('fillq' + qi);
+  qEl.classList.add(isCorrect ? 'correct-anim' : 'wrong-anim');
+  setTimeout(() => qEl.classList.remove('correct-anim', 'wrong-anim'), 500);
+  document.getElementById('filldot' + qi).classList.add(isCorrect ? 'correct' : 'wrong');
+  if (isCorrect) { speak(q.sentence.replace(q.blank, q.answer)); showToast('✅ 正确！', 'green'); }
+  else showToast(`答案是 "${q.answer}"`, 'red');
+  fillAnswered++;
+  if (fillAnswered >= fillQuestions.length) { const b = document.getElementById('btn4'); b.className = 'btn btn-primary'; b.textContent = '完成本课 🎉'; }
+}
+
+function goStage(n) {
+  document.getElementById('screen' + currentStage).classList.remove('active');
+  document.getElementById('screen' + n).classList.add('active');
+  ['dot0','dot1','dot2','dot3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (i < n-1) { el.classList.remove('active'); el.classList.add('done'); }
+    else if (i === n-1) { el.classList.add('active'); el.classList.remove('done'); }
+    else el.classList.remove('active','done');
+  });
+  currentStage = n; starsEarned = n - 1; updateStars(); updateProgress((n-1)/4*100); window.scrollTo(0,0);
+}
+
+function finishLesson() {
+  starsEarned = 4; updateStars(); updateProgress(100); saveProgress(); renderFinish(); goStage(5); launchConfetti();
+}
+
+function renderFinish() {
+  document.getElementById('finishStars').textContent = '⭐'.repeat(starsEarned) + '☆'.repeat(4-starsEarned);
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  dialogue.forEach(d => {
+    const div = document.createElement('div'); div.className = 'review-line'; div.onclick = () => speak(d.en);
+    div.innerHTML = `<span>${d.en}</span><span class="review-play">▶️</span>`; list.appendChild(div);
+  });
+}
+
+function updateStars() {
+  ['star1','star2','star3','star4'].forEach((id, i) => {
+    const el = document.getElementById(id); const prev = el.textContent;
+    el.textContent = i < starsEarned ? '⭐' : '☆';
+    if (i < starsEarned && prev === '☆') { el.classList.add('earned'); setTimeout(() => el.classList.remove('earned'), 600); }
+  });
+}
+function updateProgress(pct) { document.getElementById('progressBar').style.width = pct + '%'; }
+function saveProgress() {
+  try {
+    const data = JSON.parse(localStorage.getItem('nce_progress') || '{}');
+    const prev = data['3'];
+    if (!prev || starsEarned > prev.stars) data['3'] = { stars: starsEarned, date: new Date().toISOString() };
+    localStorage.setItem('nce_progress', JSON.stringify(data));
+    const sd = JSON.parse(localStorage.getItem('nce_streak') || '{"days":0,"last":""}');
+    const today = new Date().toDateString();
+    if (sd.last !== today) { sd.days = sd.last === new Date(Date.now()-86400000).toDateString() ? sd.days+1 : 1; sd.last = today; }
+    localStorage.setItem('nce_streak', JSON.stringify(sd));
+  } catch(e) {}
+}
+function showToast(msg, type='') {
+  const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + type;
+  clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function launchConfetti() {
+  const wrap = document.getElementById('confettiWrap'); wrap.innerHTML = '';
+  const colors = ['#AB47BC','#FF6F00','#00ACC1','#43A047','#EC407A','#1565C0','#FFD600'];
+  for (let i = 0; i < 55; i++) {
+    const el = document.createElement('div'); el.className = 'cf';
+    el.style.left = Math.random()*100+'vw'; el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDuration = (1.5+Math.random()*2)+'s'; el.style.animationDelay = (Math.random()*0.8)+'s';
+    el.style.width = el.style.height = (7+Math.random()*10)+'px'; wrap.appendChild(el);
+  }
+  setTimeout(() => wrap.innerHTML = '', 4000);
+}
 </script>
 </body>
 </html>
