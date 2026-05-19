@@ -1,0 +1,153 @@
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+}
+
+button,
+a,
+[onclick] {
+  touch-action: manipulation;
+}
+
+.stage,
+.screen {
+  width: min(100% - 32px, 760px) !important;
+  max-width: 760px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.scene-box,
+.card,
+.panel,
+.trophy-box,
+.quiz-card {
+  max-width: 100%;
+}
+
+.btn,
+.yn-btn,
+.option-btn,
+.choice-btn {
+  min-height: 48px;
+}
+
+.yn-wrap {
+  position: sticky;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  z-index: 20;
+  padding-top: 4px;
+}
+
+.lf-scene {
+  min-height: clamp(170px, 28vh, 240px) !important;
+}
+
+.lf-item-emoji {
+  font-size: clamp(2.8rem, 7vw, 4rem) !important;
+}
+
+@media (min-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .content {
+    width: min(100% - 40px, 980px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .lesson-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+
+  .lesson-card {
+    min-height: 118px;
+    border-radius: 16px !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lesson-name {
+    min-height: 2.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stage,
+  .screen {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  .vocab-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .match-grid,
+  .qa-grid {
+    gap: 14px !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .stage,
+  .screen {
+    width: min(100% - 56px, 820px) !important;
+    max-width: 820px !important;
+  }
+
+  .content {
+    width: min(100% - 56px, 1040px);
+  }
+}
+
+@media (max-height: 820px) and (min-width: 700px) {
+  .stage,
+  .screen {
+    padding-top: 12px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .scene-box {
+    padding: 16px !important;
+  }
+
+  .instr {
+    margin-bottom: 10px !important;
+  }
+
+  .lf-score-strip {
+    margin-bottom: 10px !important;
+  }
+
+  .lf-question {
+    margin: 10px 0 !important;
+    padding: 12px 14px !important;
+  }
+
+  .yn-btn {
+    padding: 12px 10px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .stage,
+  .screen {
+    width: 100% !important;
+  }
+
+  .yn-wrap {
+    grid-template-columns: 1fr !important;
+  }
+}

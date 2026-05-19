@@ -1,10 +1,14 @@
-const CACHE_NAME = 'nce-english-v1';
+const CACHE_NAME = 'nce-english-v6';
 
 // All files to cache for offline use
 const CACHE_FILES = [
   './',
   './index.html',
   './manifest.json',
+  './styles/nce-ipad.css',
+  './styles/nce-lesson-shell.css',
+  './scripts/lesson-data-1-144.js',
+  './scripts/nce-lesson-shell.js',
   './icon-192.png',
   './icon-512.png',
   './lessons/lesson1.html',

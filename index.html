@@ -198,6 +198,13 @@
     box-shadow: 0 6px 20px rgba(255,112,67,0.5);
     animation: currentPulse 2s ease-in-out infinite;
   }
+  .lesson-card.available {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  }
+  .lesson-card.available .lesson-num { color: white; }
+  .lesson-card.available .lesson-name { color: rgba(255,255,255,0.85); }
   @keyframes currentPulse {
     0%, 100% { box-shadow: 0 6px 20px rgba(255,112,67,0.5); }
     50% { box-shadow: 0 8px 28px rgba(255,112,67,0.8); }
@@ -244,6 +251,24 @@
     top: 6px; right: 6px;
     font-size: 0.7rem;
     opacity: 0.3;
+  }
+  .done-badge,
+  .upload-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    border-radius: 999px;
+    padding: 2px 6px;
+    font-size: 0.52rem;
+    font-weight: 900;
+    line-height: 1.2;
+  }
+  .done-badge {
+    background: rgba(255,255,255,0.22);
+    color: white;
+  }
+  .upload-badge {
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.45);
   }
 
   /* NEW badge */
@@ -305,6 +330,7 @@
     .hero { padding-top: calc(50px + env(safe-area-inset-top)); }
   }
 </style>
+<link rel="stylesheet" href="./styles/nce-ipad.css">
 </head>
 <body>
 
@@ -363,7 +389,7 @@
   <div class="unit-section">
     <div class="unit-header">
       <div class="unit-pill">Unit 1</div>
-      <div class="unit-title">打招呼 · 问路 · 认物品</div>
+      <div class="unit-title">基础会话 · 物品 · 身份</div>
     </div>
     <div class="lesson-grid" id="grid-unit1"></div>
   </div>
@@ -372,7 +398,7 @@
   <div class="unit-section">
     <div class="unit-header">
       <div class="unit-pill">Unit 2</div>
-      <div class="unit-title">职业 · 家庭 · 颜色</div>
+      <div class="unit-title">动作 · 地点 · 职业</div>
     </div>
     <div class="lesson-grid" id="grid-unit2"></div>
   </div>
@@ -381,7 +407,7 @@
   <div class="unit-section">
     <div class="unit-header">
       <div class="unit-pill">Unit 3</div>
-      <div class="unit-title">房间 · 物品 · 地点</div>
+      <div class="unit-title">家庭 · 气候 · 日常</div>
     </div>
     <div class="lesson-grid" id="grid-unit3"></div>
   </div>
@@ -390,9 +416,27 @@
   <div class="unit-section">
     <div class="unit-header">
       <div class="unit-pill">Unit 4</div>
-      <div class="unit-title">时间 · 日常 · 购物</div>
+      <div class="unit-title">过去 · 周末 · 方向</div>
     </div>
     <div class="lesson-grid" id="grid-unit4"></div>
+  </div>
+
+  <!-- UNIT 5 -->
+  <div class="unit-section">
+    <div class="unit-header">
+      <div class="unit-pill">Unit 5</div>
+      <div class="unit-title">经历 · 比较 · 购物</div>
+    </div>
+    <div class="lesson-grid" id="grid-unit5"></div>
+  </div>
+
+  <!-- UNIT 6 -->
+  <div class="unit-section">
+    <div class="unit-header">
+      <div class="unit-pill">Unit 6</div>
+      <div class="unit-title">归属 · 历史 · 综合</div>
+    </div>
+    <div class="lesson-grid" id="grid-unit6"></div>
   </div>
 
 </div>
@@ -406,121 +450,889 @@
 <script>
 // ===== LESSON DATA =====
 const lessons = [
-  // Unit 1: L1-24
-  { id:1,  name:'Excuse me!',        icon:'👜', unit:1 },
-  { id:2,  name:'Is this...?',       icon:'👔', unit:1 },
-  { id:3,  name:'Sorry!',            icon:'🙏', unit:1 },
-  { id:4,  name:'An umbrella',       icon:'☂️',  unit:1 },
-  { id:5,  name:'Nice to meet you',  icon:'🤝', unit:1 },
-  { id:6,  name:'What make?',        icon:'🚗', unit:1 },
-  { id:7,  name:'Are you...?',       icon:'❓', unit:1 },
-  { id:8,  name:'Open your book',    icon:'📖', unit:1 },
-  { id:9,  name:'How are you?',      icon:'😊', unit:1 },
-  { id:10, name:'Look at him!',      icon:'👀', unit:1 },
-  { id:11, name:'Is this...?',       icon:'🏠', unit:1 },
-  { id:12, name:'What color?',       icon:'🎨', unit:1 },
-  { id:13, name:'A new dress',       icon:'👗', unit:1 },
-  { id:14, name:'I\'m hungry!',      icon:'🍎', unit:1 },
-  { id:15, name:'Your passports',    icon:'🛂', unit:1 },
-  { id:16, name:'Are they?',         icon:'👨‍👩‍👧', unit:1 },
-  { id:17, name:'How do you do?',    icon:'👋', unit:1 },
-  { id:18, name:'What\'s your job?', icon:'👩‍💼', unit:1 },
-  { id:19, name:'Tired and hot',     icon:'😓', unit:1 },
-  { id:20, name:'Look at her!',      icon:'👩', unit:1 },
-  { id:21, name:'Which book?',       icon:'📚', unit:1 },
-  { id:22, name:'Which glasses?',    icon:'👓', unit:1 },
-  { id:23, name:'A new house',       icon:'🏡', unit:1 },
-  { id:24, name:'Give me...',        icon:'🎁', unit:1 },
-
-  // Unit 2: L25-48
-  { id:25, name:'Mrs. Smith',        icon:'👩‍🦳', unit:2 },
-  { id:26, name:'The Jones\'s',      icon:'👨‍👩‍👦', unit:2 },
-  { id:27, name:'A new house',       icon:'🏘️', unit:2 },
-  { id:28, name:'He\'s/she\'s',      icon:'👤', unit:2 },
-  { id:29, name:'Come in, Amy!',     icon:'🚪', unit:2 },
-  { id:30, name:'I\'m busy',         icon:'⏰', unit:2 },
-  { id:31, name:'Don\'t do that!',   icon:'🚫', unit:2 },
-  { id:32, name:'Shut that window!', icon:'🪟', unit:2 },
-  { id:33, name:'A fine day',        icon:'☀️',  unit:2 },
-  { id:34, name:'What time is it?',  icon:'🕐', unit:2 },
-  { id:35, name:'Our school',        icon:'🏫', unit:2 },
-  { id:36, name:'Where\'s...?',      icon:'🗺️', unit:2 },
-  { id:37, name:'Making a bookcase', icon:'🔨', unit:2 },
-  { id:38, name:'What\'s next?',     icon:'📋', unit:2 },
-  { id:39, name:'Don\'t drop it!',   icon:'⚠️', unit:2 },
-  { id:40, name:'What do you do?',   icon:'💼', unit:2 },
-  { id:41, name:'Penny\'s bag',      icon:'👛', unit:2 },
-  { id:42, name:'Is there...?',      icon:'🔍', unit:2 },
-  { id:43, name:'Hurry up!',         icon:'🏃', unit:2 },
-  { id:44, name:'What\'s the matter?',icon:'🤒',unit:2 },
-  { id:45, name:'The boss\'s letter',icon:'📧', unit:2 },
-  { id:46, name:'Can you...?',       icon:'💡', unit:2 },
-  { id:47, name:'A cup of coffee',   icon:'☕', unit:2 },
-  { id:48, name:'Do you like...?',   icon:'❤️',  unit:2 },
-
-  // Unit 3: L49-72
-  { id:49, name:'At the airport',    icon:'✈️',  unit:3 },
-  { id:50, name:'Who\'s...?',        icon:'🙋', unit:3 },
-  { id:51, name:'A pleasant climate',icon:'🌤️', unit:3 },
-  { id:52, name:'What nationality?', icon:'🌍', unit:3 },
-  { id:53, name:'An interesting job',icon:'🔬', unit:3 },
-  { id:54, name:'Are you free?',     icon:'📅', unit:3 },
-  { id:55, name:'The Sawyer family', icon:'👨‍👩‍👧‍👦',unit:3 },
-  { id:56, name:'What do they do?',  icon:'🏋️', unit:3 },
-  { id:57, name:'An old cap',        icon:'🧢', unit:3 },
-  { id:58, name:'What\'s happened?', icon:'😮', unit:3 },
-  { id:59, name:'Is that right?',    icon:'✅', unit:3 },
-  { id:60, name:'What\'s the time?', icon:'⌚', unit:3 },
-  { id:61, name:'A bad cold',        icon:'🤧', unit:3 },
-  { id:62, name:'How do you feel?',  icon:'💊', unit:3 },
-  { id:63, name:'Thank you, doctor', icon:'👨‍⚕️', unit:3 },
-  { id:64, name:'Not much!',         icon:'😏', unit:3 },
-  { id:65, name:'Not a baby',        icon:'👶', unit:3 },
-  { id:66, name:'What\'s for...?',   icon:'🍽️', unit:3 },
-  { id:67, name:'The weekend',       icon:'🎉', unit:3 },
-  { id:68, name:'Calling the fire brigade',icon:'🚒',unit:3 },
-  { id:69, name:'The car race',      icon:'🏎️', unit:3 },
-  { id:70, name:'When were you born?',icon:'🎂',unit:3 },
-  { id:71, name:'In the country',    icon:'🌾', unit:3 },
-  { id:72, name:'Not yet!',          icon:'😴', unit:3 },
-
-  // Unit 4: L73-96
-  { id:73, name:'The way to King St.',icon:'🗺️',unit:4 },
-  { id:74, name:'I agree',           icon:'🤝', unit:4 },
-  { id:75, name:'Uncomfortable!',    icon:'😣', unit:4 },
-  { id:76, name:'Make up your mind', icon:'🤔', unit:4 },
-  { id:77, name:'Terrible toothache',icon:'🦷', unit:4 },
-  { id:78, name:'Have you...?',      icon:'🎤', unit:4 },
-  { id:79, name:'Carol\'s shopping', icon:'🛍️', unit:4 },
-  { id:80, name:'I\'m on a diet',    icon:'🥗', unit:4 },
-  { id:81, name:'Roast beef',        icon:'🥩', unit:4 },
-  { id:82, name:'Whose is it?',      icon:'🏷️', unit:4 },
-  { id:83, name:'Going on holiday',  icon:'🏖️', unit:4 },
-  { id:84, name:'Have you been?',    icon:'🌍', unit:4 },
-  { id:85, name:'Paris in spring',   icon:'🗼', unit:4 },
-  { id:86, name:'It\'s cooler here', icon:'🌬️', unit:4 },
-  { id:87, name:'A car crash',       icon:'🚗', unit:4 },
-  { id:88, name:'Have you found...?',icon:'🔎', unit:4 },
-  { id:89, name:'For sale',          icon:'🏷️', unit:4 },
-  { id:90, name:'The race',          icon:'🏁', unit:4 },
-  { id:91, name:'Poor Ian!',         icon:'😢', unit:4 },
-  { id:92, name:'Whose is it?',      icon:'💎', unit:4 },
-  { id:93, name:'Our village',       icon:'🏘️', unit:4 },
-  { id:94, name:'A history lesson',  icon:'📜', unit:4 },
-  { id:95, name:'Forgotten!',        icon:'🤦', unit:4 },
-  { id:96, name:'The prize',         icon:'🏆', unit:4 },
+  {
+    id: 1,
+    name: "Excuse Me!",
+    icon: "👜",
+    unit: 1
+  },
+  {
+    id: 2,
+    name: "Practice: Excuse Me!",
+    icon: "👔",
+    unit: 1
+  },
+  {
+    id: 3,
+    name: "Sorry, Sir.",
+    icon: "🙏",
+    unit: 1
+  },
+  {
+    id: 4,
+    name: "Practice: Sorry, Sir.",
+    icon: "☂️",
+    unit: 1
+  },
+  {
+    id: 5,
+    name: "Nice to Meet You.",
+    icon: "🤝",
+    unit: 1
+  },
+  {
+    id: 6,
+    name: "Practice: Nice to Meet You.",
+    icon: "🚗",
+    unit: 1
+  },
+  {
+    id: 7,
+    name: "Are You a Teacher?",
+    icon: "❓",
+    unit: 1
+  },
+  {
+    id: 8,
+    name: "Practice: Are You a Teacher?",
+    icon: "📖",
+    unit: 1
+  },
+  {
+    id: 9,
+    name: "How Are You Today?",
+    icon: "😊",
+    unit: 1
+  },
+  {
+    id: 10,
+    name: "Practice: How Are You Today?",
+    icon: "👀",
+    unit: 1
+  },
+  {
+    id: 11,
+    name: "Is This Your Shirt?",
+    icon: "🏠",
+    unit: 1
+  },
+  {
+    id: 12,
+    name: "Practice: Is This Your Shirt?",
+    icon: "🎨",
+    unit: 1
+  },
+  {
+    id: 13,
+    name: "A New Dress",
+    icon: "👗",
+    unit: 1
+  },
+  {
+    id: 14,
+    name: "Practice: A New Dress",
+    icon: "🍎",
+    unit: 1
+  },
+  {
+    id: 15,
+    name: "Your Passports, Please.",
+    icon: "🛂",
+    unit: 1
+  },
+  {
+    id: 16,
+    name: "Practice: Your Passports, Please.",
+    icon: "👨‍👩‍👧",
+    unit: 1
+  },
+  {
+    id: 17,
+    name: "How do you do?",
+    icon: "👋",
+    unit: 1
+  },
+  {
+    id: 18,
+    name: "Practice: How do you do?",
+    icon: "👩‍💼",
+    unit: 1
+  },
+  {
+    id: 19,
+    name: "Tired and Thirsty",
+    icon: "😓",
+    unit: 1
+  },
+  {
+    id: 20,
+    name: "Practice: Tired and Thirsty",
+    icon: "👩",
+    unit: 1
+  },
+  {
+    id: 21,
+    name: "Which Book?",
+    icon: "📚",
+    unit: 1
+  },
+  {
+    id: 22,
+    name: "Practice: Which Book?",
+    icon: "👓",
+    unit: 1
+  },
+  {
+    id: 23,
+    name: "Which Glasses?",
+    icon: "🏡",
+    unit: 1
+  },
+  {
+    id: 24,
+    name: "Practice: Which Glasses?",
+    icon: "🎁",
+    unit: 1
+  },
+  {
+    id: 25,
+    name: "Mrs. Smith's Kitchen",
+    icon: "👩‍🦳",
+    unit: 2
+  },
+  {
+    id: 26,
+    name: "Practice: Mrs. Smith's Kitchen",
+    icon: "👨‍👩‍👦",
+    unit: 2
+  },
+  {
+    id: 27,
+    name: "Mrs. Smith's Living Room",
+    icon: "🏘️",
+    unit: 2
+  },
+  {
+    id: 28,
+    name: "Practice: Mrs. Smith's Living Room",
+    icon: "👤",
+    unit: 2
+  },
+  {
+    id: 29,
+    name: "Come In, Amy.",
+    icon: "🚪",
+    unit: 2
+  },
+  {
+    id: 30,
+    name: "Practice: Come In, Amy.",
+    icon: "⏰",
+    unit: 2
+  },
+  {
+    id: 31,
+    name: "Where's Sally?",
+    icon: "🚫",
+    unit: 2
+  },
+  {
+    id: 32,
+    name: "Practice: Where's Sally?",
+    icon: "🪟",
+    unit: 2
+  },
+  {
+    id: 33,
+    name: "A Fine day",
+    icon: "☀️",
+    unit: 2
+  },
+  {
+    id: 34,
+    name: "Practice: A Fine day",
+    icon: "🕐",
+    unit: 2
+  },
+  {
+    id: 35,
+    name: "Our Village",
+    icon: "🏫",
+    unit: 2
+  },
+  {
+    id: 36,
+    name: "Practice: Our Village",
+    icon: "🗺️",
+    unit: 2
+  },
+  {
+    id: 37,
+    name: "Making a Bookcase",
+    icon: "🔨",
+    unit: 2
+  },
+  {
+    id: 38,
+    name: "Practice: Making a Bookcase",
+    icon: "📋",
+    unit: 2
+  },
+  {
+    id: 39,
+    name: "Don't Drop It!",
+    icon: "⚠️",
+    unit: 2
+  },
+  {
+    id: 40,
+    name: "Practice: Don't Drop It!",
+    icon: "💼",
+    unit: 2
+  },
+  {
+    id: 41,
+    name: "Penny's Bag",
+    icon: "👛",
+    unit: 2
+  },
+  {
+    id: 42,
+    name: "Practice: Penny's Bag",
+    icon: "🔍",
+    unit: 2
+  },
+  {
+    id: 43,
+    name: "Hurry Up!",
+    icon: "🏃",
+    unit: 2
+  },
+  {
+    id: 44,
+    name: "Practice: Hurry Up!",
+    icon: "🤒",
+    unit: 2
+  },
+  {
+    id: 45,
+    name: "The Boss's Letter",
+    icon: "📧",
+    unit: 2
+  },
+  {
+    id: 46,
+    name: "Practice: The Boss's Letter",
+    icon: "💡",
+    unit: 2
+  },
+  {
+    id: 47,
+    name: "A Cup of Coffee",
+    icon: "☕",
+    unit: 2
+  },
+  {
+    id: 48,
+    name: "Practice: A Cup of Coffee",
+    icon: "❤️",
+    unit: 2
+  },
+  {
+    id: 49,
+    name: "At the Butcher's",
+    icon: "✈️",
+    unit: 3
+  },
+  {
+    id: 50,
+    name: "Practice: At the Butcher's",
+    icon: "🙋",
+    unit: 3
+  },
+  {
+    id: 51,
+    name: "A Pleasant Climate",
+    icon: "🌤️",
+    unit: 3
+  },
+  {
+    id: 52,
+    name: "Practice: A Pleasant Climate",
+    icon: "🌍",
+    unit: 3
+  },
+  {
+    id: 53,
+    name: "An Interesting Climate",
+    icon: "🔬",
+    unit: 3
+  },
+  {
+    id: 54,
+    name: "Practice: An Interesting Climate",
+    icon: "📅",
+    unit: 3
+  },
+  {
+    id: 55,
+    name: "The Sawyer Family",
+    icon: "👨‍👩‍👧‍👦",
+    unit: 3
+  },
+  {
+    id: 56,
+    name: "Practice: The Sawyer Family",
+    icon: "🏋️",
+    unit: 3
+  },
+  {
+    id: 57,
+    name: "An Unusual Day",
+    icon: "🧢",
+    unit: 3
+  },
+  {
+    id: 58,
+    name: "Practice: An Unusual Day",
+    icon: "😮",
+    unit: 3
+  },
+  {
+    id: 59,
+    name: "Is That All?",
+    icon: "✅",
+    unit: 3
+  },
+  {
+    id: 60,
+    name: "Practice: Is That All?",
+    icon: "⌚",
+    unit: 3
+  },
+  {
+    id: 61,
+    name: "A Bad Cold",
+    icon: "🤧",
+    unit: 3
+  },
+  {
+    id: 62,
+    name: "Practice: A Bad Cold",
+    icon: "💊",
+    unit: 3
+  },
+  {
+    id: 63,
+    name: "Thank You, Doctor.",
+    icon: "👨‍⚕️",
+    unit: 3
+  },
+  {
+    id: 64,
+    name: "Practice: Thank You, Doctor.",
+    icon: "😏",
+    unit: 3
+  },
+  {
+    id: 65,
+    name: "Not a Baby",
+    icon: "👶",
+    unit: 3
+  },
+  {
+    id: 66,
+    name: "Practice: Not a Baby",
+    icon: "🍽️",
+    unit: 3
+  },
+  {
+    id: 67,
+    name: "The Weekend",
+    icon: "🎉",
+    unit: 3
+  },
+  {
+    id: 68,
+    name: "Practice: The Weekend",
+    icon: "🚒",
+    unit: 3
+  },
+  {
+    id: 69,
+    name: "The Car Race",
+    icon: "🏎️",
+    unit: 3
+  },
+  {
+    id: 70,
+    name: "Practice: The Car Race",
+    icon: "🎂",
+    unit: 3
+  },
+  {
+    id: 71,
+    name: "He's Awful!",
+    icon: "🌾",
+    unit: 3
+  },
+  {
+    id: 72,
+    name: "Practice: He's Awful!",
+    icon: "😴",
+    unit: 3
+  },
+  {
+    id: 73,
+    name: "The Way to King Street",
+    icon: "🗺️",
+    unit: 4
+  },
+  {
+    id: 74,
+    name: "Practice: The Way to King Street",
+    icon: "🤝",
+    unit: 4
+  },
+  {
+    id: 75,
+    name: "Uncomfortable Shoes",
+    icon: "😣",
+    unit: 4
+  },
+  {
+    id: 76,
+    name: "Practice: Uncomfortable Shoes",
+    icon: "🤔",
+    unit: 4
+  },
+  {
+    id: 77,
+    name: "Terrible Toothache",
+    icon: "🦷",
+    unit: 4
+  },
+  {
+    id: 78,
+    name: "Practice: Terrible Toothache",
+    icon: "🎤",
+    unit: 4
+  },
+  {
+    id: 79,
+    name: "Carol's Shopping List",
+    icon: "🛍️",
+    unit: 4
+  },
+  {
+    id: 80,
+    name: "Practice: Carol's Shopping List",
+    icon: "🥗",
+    unit: 4
+  },
+  {
+    id: 81,
+    name: "Roast Beef and Potatoes",
+    icon: "🥩",
+    unit: 4
+  },
+  {
+    id: 82,
+    name: "Practice: Roast Beef and Potatoes",
+    icon: "🏷️",
+    unit: 4
+  },
+  {
+    id: 83,
+    name: "Going on Holiday",
+    icon: "🏖️",
+    unit: 4
+  },
+  {
+    id: 84,
+    name: "Practice: Going on Holiday",
+    icon: "🌍",
+    unit: 4
+  },
+  {
+    id: 85,
+    name: "\"Paris in the Spring\"",
+    icon: "🗼",
+    unit: 4
+  },
+  {
+    id: 86,
+    name: "Practice: \"Paris in the Spring\"",
+    icon: "🌬️",
+    unit: 4
+  },
+  {
+    id: 87,
+    name: "A Car Crash",
+    icon: "🚗",
+    unit: 4
+  },
+  {
+    id: 88,
+    name: "Practice: A Car Crash",
+    icon: "🔎",
+    unit: 4
+  },
+  {
+    id: 89,
+    name: "For Sale",
+    icon: "🏷️",
+    unit: 4
+  },
+  {
+    id: 90,
+    name: "Practice: For Sale",
+    icon: "🏁",
+    unit: 4
+  },
+  {
+    id: 91,
+    name: "Poor Ian!",
+    icon: "😢",
+    unit: 4
+  },
+  {
+    id: 92,
+    name: "Practice: Poor Ian!",
+    icon: "💎",
+    unit: 4
+  },
+  {
+    id: 93,
+    name: "Our New Neighbour",
+    icon: "🏘️",
+    unit: 4
+  },
+  {
+    id: 94,
+    name: "Practice: Our New Neighbour",
+    icon: "📜",
+    unit: 4
+  },
+  {
+    id: 95,
+    name: "Tickets, Please.",
+    icon: "🤦",
+    unit: 4
+  },
+  {
+    id: 96,
+    name: "Practice: Tickets, Please.",
+    icon: "🏆",
+    unit: 4
+  },
+  {
+    id: 97,
+    name: "A Small Blue Case",
+    icon: "🎧",
+    unit: 5
+  },
+  {
+    id: 98,
+    name: "Practice: A Small Blue Case",
+    icon: "✏️",
+    unit: 5
+  },
+  {
+    id: 99,
+    name: "Ow!",
+    icon: "🎯",
+    unit: 5
+  },
+  {
+    id: 100,
+    name: "Practice: Ow!",
+    icon: "🔤",
+    unit: 5
+  },
+  {
+    id: 101,
+    name: "A Card From Jimmy",
+    icon: "⭐",
+    unit: 5
+  },
+  {
+    id: 102,
+    name: "Practice: A Card From Jimmy",
+    icon: "📘",
+    unit: 5
+  },
+  {
+    id: 103,
+    name: "The French Test",
+    icon: "🎧",
+    unit: 5
+  },
+  {
+    id: 104,
+    name: "Practice: The French Test",
+    icon: "✏️",
+    unit: 5
+  },
+  {
+    id: 105,
+    name: "Full of Mistakes",
+    icon: "🎯",
+    unit: 5
+  },
+  {
+    id: 106,
+    name: "Practice: Full of Mistakes",
+    icon: "🔤",
+    unit: 5
+  },
+  {
+    id: 107,
+    name: "It's Too Small.",
+    icon: "⭐",
+    unit: 5
+  },
+  {
+    id: 108,
+    name: "Practice: It's Too Small.",
+    icon: "📘",
+    unit: 5
+  },
+  {
+    id: 109,
+    name: "A Good Idea",
+    icon: "🎧",
+    unit: 5
+  },
+  {
+    id: 110,
+    name: "Practice: A Good Idea",
+    icon: "✏️",
+    unit: 5
+  },
+  {
+    id: 111,
+    name: "The Most Expensive Model",
+    icon: "🎯",
+    unit: 5
+  },
+  {
+    id: 112,
+    name: "Practice: The Most Expensive Model",
+    icon: "🔤",
+    unit: 5
+  },
+  {
+    id: 113,
+    name: "Small Change",
+    icon: "⭐",
+    unit: 5
+  },
+  {
+    id: 114,
+    name: "Practice: Small Change",
+    icon: "📘",
+    unit: 5
+  },
+  {
+    id: 115,
+    name: "Knock, Knock!",
+    icon: "🎧",
+    unit: 5
+  },
+  {
+    id: 116,
+    name: "Practice: Knock, Knock!",
+    icon: "✏️",
+    unit: 5
+  },
+  {
+    id: 117,
+    name: "Tommy's Breakfast",
+    icon: "🎯",
+    unit: 5
+  },
+  {
+    id: 118,
+    name: "Practice: Tommy's Breakfast",
+    icon: "🔤",
+    unit: 5
+  },
+  {
+    id: 119,
+    name: "A True Story",
+    icon: "⭐",
+    unit: 5
+  },
+  {
+    id: 120,
+    name: "Practice: A True Story",
+    icon: "📘",
+    unit: 5
+  },
+  {
+    id: 121,
+    name: "The Man in a Hat",
+    icon: "🎧",
+    unit: 6
+  },
+  {
+    id: 122,
+    name: "Practice: The Man in a Hat",
+    icon: "✏️",
+    unit: 6
+  },
+  {
+    id: 123,
+    name: "A Trip to Australia",
+    icon: "🎯",
+    unit: 6
+  },
+  {
+    id: 124,
+    name: "Practice: A Trip to Australia",
+    icon: "🔤",
+    unit: 6
+  },
+  {
+    id: 125,
+    name: "Tea for Two",
+    icon: "⭐",
+    unit: 6
+  },
+  {
+    id: 126,
+    name: "Practice: Tea for Two",
+    icon: "📘",
+    unit: 6
+  },
+  {
+    id: 127,
+    name: "A Famous Actress",
+    icon: "🎧",
+    unit: 6
+  },
+  {
+    id: 128,
+    name: "Practice: A Famous Actress",
+    icon: "✏️",
+    unit: 6
+  },
+  {
+    id: 129,
+    name: "Seventy Miles an Hour",
+    icon: "🎯",
+    unit: 6
+  },
+  {
+    id: 130,
+    name: "Practice: Seventy Miles an Hour",
+    icon: "🔤",
+    unit: 6
+  },
+  {
+    id: 131,
+    name: "Don't be So Sure!",
+    icon: "⭐",
+    unit: 6
+  },
+  {
+    id: 132,
+    name: "Practice: Don't be So Sure!",
+    icon: "📘",
+    unit: 6
+  },
+  {
+    id: 133,
+    name: "Sensational News!",
+    icon: "🎧",
+    unit: 6
+  },
+  {
+    id: 134,
+    name: "Practice: Sensational News!",
+    icon: "✏️",
+    unit: 6
+  },
+  {
+    id: 135,
+    name: "The Latest Report",
+    icon: "🎯",
+    unit: 6
+  },
+  {
+    id: 136,
+    name: "Practice: The Latest Report",
+    icon: "🔤",
+    unit: 6
+  },
+  {
+    id: 137,
+    name: "A Pleasant Dream",
+    icon: "⭐",
+    unit: 6
+  },
+  {
+    id: 138,
+    name: "Practice: A Pleasant Dream",
+    icon: "📘",
+    unit: 6
+  },
+  {
+    id: 139,
+    name: "Is That You, John?",
+    icon: "🎧",
+    unit: 6
+  },
+  {
+    id: 140,
+    name: "Practice: Is That You, John?",
+    icon: "✏️",
+    unit: 6
+  },
+  {
+    id: 141,
+    name: "Sally's First Train Ride",
+    icon: "🎯",
+    unit: 6
+  },
+  {
+    id: 142,
+    name: "Practice: Sally's First Train Ride",
+    icon: "🔤",
+    unit: 6
+  },
+  {
+    id: 143,
+    name: "A Walk Through the Woods",
+    icon: "⭐",
+    unit: 6
+  },
+  {
+    id: 144,
+    name: "Practice: A Walk Through the Woods",
+    icon: "📘",
+    unit: 6
+  }
 ];
 
 // ===== PROGRESS from localStorage =====
+const availableLessonIds = new Set(Array.from({ length: 144 }, (_, i) => i + 1));
+
 function getProgress() {
   try {
     return JSON.parse(localStorage.getItem('nce_progress') || '{}');
   } catch { return {}; }
 }
 
+function isLessonDone(progress, lessonId) {
+  const p = progress[lessonId] || progress[String(lessonId)] || {};
+  return !!p.completed || (p.stars || 0) > 0;
+}
+
 function getTotalDone() {
   const p = getProgress();
-  return Object.keys(p).filter(k => p[k] && p[k].stars > 0).length;
+  return Array.from(availableLessonIds).filter(id => isLessonDone(p, id)).length;
 }
 
 function getTotalStars() {
@@ -547,30 +1359,29 @@ function buildGrid(unitNum, containerId) {
   const container = document.getElementById(containerId);
   const progress = getProgress();
   const unitLessons = lessons.filter(l => l.unit === unitNum);
-  const totalDone = getTotalDone();
 
   unitLessons.forEach(lesson => {
     const p = progress[lesson.id] || {};
-    const isDone = p.stars > 0;
-    const isCurrent = !isDone && (lesson.id === 1 || progress[lesson.id - 1]?.stars > 0 || (lesson.id === totalDone + 1));
-    const isFirst = lesson.id === 1;
-    const isLocked = !isDone && !isCurrent && !isFirst;
+    const isAvailable = availableLessonIds.has(lesson.id);
+    const isDone = isLessonDone(progress, lesson.id);
+    const isLocked = !isAvailable;
 
     const card = document.createElement('a');
-    card.className = 'lesson-card ' + (isDone ? 'done' : isCurrent || isFirst ? 'current' : 'locked');
+    card.className = 'lesson-card ' + (isDone ? 'done' : isAvailable ? 'available' : 'locked');
 
-    if(!isLocked) {
+    if(isAvailable) {
       card.href = `./lessons/lesson${lesson.id}.html`;
     } else {
-      card.onclick = (e) => { e.preventDefault(); showLockedHint(); };
+      card.onclick = (e) => { e.preventDefault(); showUnavailableHint(); };
       card.href = '#';
+      card.setAttribute('aria-disabled', 'true');
     }
 
     const starsStr = isDone ? '⭐'.repeat(p.stars) : '';
 
     card.innerHTML = `
-      ${!isDone && !isFirst && (isCurrent) ? '<div class="new-badge">NEW</div>' : ''}
-      ${isLocked ? '<div class="lock-icon">🔒</div>' : ''}
+      ${isDone ? '<div class="done-badge">已完成</div>' : ''}
+      ${isLocked ? '<div class="upload-badge">待上传</div>' : ''}
       <div class="lesson-num">${lesson.id}</div>
       <span class="lesson-icon">${lesson.icon}</span>
       <div class="lesson-name">${lesson.name}</div>
@@ -580,7 +1391,7 @@ function buildGrid(unitNum, containerId) {
   });
 }
 
-function showLockedHint() {
+function showUnavailableHint() {
   const hint = document.createElement('div');
   hint.style.cssText = `
     position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
@@ -589,7 +1400,7 @@ function showLockedHint() {
     box-shadow:0 4px 20px rgba(0,0,0,0.3); white-space:nowrap;
     animation: fadeInUp 0.3s ease;
   `;
-  hint.textContent = '🔒 先完成前一课，才能解锁这课！';
+  hint.textContent = '这一课还没有上传';
   document.body.appendChild(hint);
   setTimeout(() => hint.remove(), 2500);
 }
@@ -608,18 +1419,21 @@ buildGrid(1, 'grid-unit1');
 buildGrid(2, 'grid-unit2');
 buildGrid(3, 'grid-unit3');
 buildGrid(4, 'grid-unit4');
+buildGrid(5, 'grid-unit5');
+buildGrid(6, 'grid-unit6');
 
 // Update continue button
 const progress = getProgress();
-let nextLesson = 1;
-for(let i = 1; i <= 96; i++) {
-  if(!progress[i] || !progress[i].stars) { nextLesson = i; break; }
-}
+const nextLesson = Array.from(availableLessonIds).find(id => !isLessonDone(progress, id)) || 1;
 const cta = document.querySelector('.bottom-cta');
 const ctaSub = cta.querySelector('.cta-sub');
+const ctaText = cta.querySelector('.cta-text');
 const lessonData = lessons.find(l => l.id === nextLesson);
 cta.href = `./lessons/lesson${nextLesson}.html`;
 if(lessonData) ctaSub.textContent = `Lesson ${nextLesson} · ${lessonData.name}`;
+if(getTotalDone() === availableLessonIds.size) {
+  ctaText.textContent = '全部已完成，开始复习';
+}
 
 // Register service worker
 if('serviceWorker' in navigator) {
