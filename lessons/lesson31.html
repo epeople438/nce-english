@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 31 · Where's Sally?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2E7D32;
+  --primary-light: #388E3C;
+  --primary-pale: #E8F5E9;
+  --accent: #1565C0;
+  --accent-light: #E3F2FD;
+  --bg: #F4FBF4;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #6c757d;
+  --radius: 20px;
+  --shadow: 0 8px 32px rgba(46,125,50,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+.top-nav{position:sticky;top:0;z-index:100;background:var(--primary);color:#fff;display:flex;align-items:center;padding:10px 16px;gap:12px;box-shadow:0 2px 12px rgba(46,125,50,0.22);}
+.back-btn{color:#fff;text-decoration:none;font-size:1.4rem;line-height:1;padding:4px 8px;border-radius:10px;transition:background .2s;}
+.back-btn:hover{background:rgba(255,255,255,0.2);}
+.nav-title{flex:1;font-family:'Fredoka One',cursive;font-size:1.05rem;letter-spacing:.5px;}
+.star-row{display:flex;gap:4px;font-size:1.3rem;}
+.star-icon{filter:grayscale(1);transition:filter .4s;}
+.star-icon.lit{filter:grayscale(0);}
+
+.progress-wrap{height:6px;background:#c8e6c9;}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#2E7D32,#1565C0,#FFCA28,#880E4F);transition:width .5s;}
+
+.stage{display:none;padding:20px 16px 40px;max-width:600px;margin:0 auto;animation:fadeUp .4s ease;}
+.stage.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+.scene-header{text-align:center;margin-bottom:22px;}
+.scene-header .emoji{font-size:2.6rem;margin-bottom:6px;}
+.scene-header h2{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--primary);margin-bottom:4px;}
+.scene-header p{color:var(--text-muted);font-size:.95rem;}
+
+.stage-label{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.stage-num{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;font-family:'Fredoka One',cursive;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.stage-title{font-weight:800;font-size:1rem;color:var(--primary);}
+
+/* 对话 */
+.dialogue-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.dialogue-line{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:1px solid var(--primary-pale);cursor:pointer;transition:background .2s;}
+.dialogue-line:last-child{border-bottom:none;}
+.dialogue-line:hover{background:var(--primary-pale);}
+.dialogue-line.revealed{background:var(--primary-pale);}
+.speaker-tag{font-family:'Fredoka One',cursive;font-size:.75rem;padding:3px 9px;border-radius:20px;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.tag-jean{background:var(--accent);}
+.tag-jack{background:var(--primary);}
+.line-text{flex:1;}
+.line-en{font-weight:700;font-size:.98rem;color:var(--text);}
+.line-zh{font-size:.83rem;color:var(--text-muted);margin-top:2px;display:none;}
+.dialogue-line.revealed .line-zh{display:block;}
+.tap-hint{text-align:center;color:var(--text-muted);font-size:.85rem;margin-bottom:14px;}
+
+/* 词汇 */
+.vocab-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.vocab-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;}
+.vocab-card:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(46,125,50,0.15);}
+.vocab-card.playing{border-color:var(--accent);}
+.vocab-word{font-family:'Fredoka One',cursive;font-size:1.15rem;color:var(--primary);}
+.vocab-zh{font-size:.85rem;color:var(--text-muted);margin-top:4px;}
+.vocab-emoji{font-size:1.8rem;margin-bottom:6px;}
+
+/* 花园场景游戏 */
+.grammar-intro{background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:14px;font-size:.9rem;line-height:1.8;color:var(--text);}
+.grammar-intro strong{color:var(--primary);}
+.grammar-intro code{background:#fff;padding:2px 6px;border-radius:6px;font-family:monospace;color:var(--accent);}
+
+/* 花园 SVG 场景 */
+.garden-scene{background:linear-gradient(180deg,#e3f2fd 0%,#c8e6c9 60%,#a5d6a7 100%);border-radius:16px;padding:20px 16px 12px;margin-bottom:14px;position:relative;overflow:hidden;}
+.garden-title{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--primary);text-align:center;margin-bottom:12px;}
+.garden-chars{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.char-card{background:rgba(255,255,255,0.85);border:2px solid transparent;border-radius:14px;padding:12px;text-align:center;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px);}
+.char-card:hover{border-color:var(--primary);transform:translateY(-2px);}
+.char-card.active{border-color:var(--primary);background:#fff;}
+.char-card.done{border-color:#4CAF50;background:#E8F5E9;}
+.char-emoji{font-size:2.2rem;display:block;margin-bottom:5px;}
+.char-name{font-weight:800;font-size:.9rem;color:var(--primary);}
+.char-card.done .char-name::after{content:' ✓';}
+
+.char-panel{background:var(--accent-light);border:2px solid var(--accent);border-radius:14px;padding:16px;display:none;margin-bottom:8px;animation:fadeUp .3s;}
+.char-panel.visible{display:block;}
+.panel-line{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+.panel-line-en{font-weight:700;font-size:.95rem;color:var(--accent);}
+.panel-line-zh{font-size:.83rem;color:var(--text-muted);}
+.panel-speak{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:7px 16px;font-family:'Fredoka One',cursive;cursor:pointer;font-size:.9rem;margin-top:4px;}
+
+.panel-quiz{margin-top:12px;}
+.panel-quiz-q{font-weight:700;font-size:.9rem;color:var(--text);margin-bottom:8px;}
+.panel-quiz-opts{display:flex;flex-wrap:wrap;gap:8px;}
+.pqopt{background:#fff;border:2px solid #c8e6c9;border-radius:10px;padding:7px 14px;cursor:pointer;font-size:.85rem;font-weight:700;font-family:'Nunito',sans-serif;transition:all .2s;color:var(--text);}
+.pqopt:hover:not(:disabled){border-color:var(--primary);}
+.pqopt.ok{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;}
+.pqopt.no{border-color:#f44336;background:#FFEBEE;color:#c62828;}
+
+.score-dots{display:flex;gap:6px;justify-content:center;margin-bottom:16px;}
+.score-dot{width:10px;height:10px;border-radius:50%;background:#c8e6c9;transition:background .3s;}
+.score-dot.active{background:var(--accent);}
+
+/* 填空 */
+.fill-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:12px;}
+.fill-q{font-size:1rem;font-weight:700;margin-bottom:14px;color:var(--text);line-height:1.6;}
+.fill-blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--primary);color:var(--primary);font-weight:800;}
+.fill-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fill-opt{background:var(--primary-pale);border:2px solid transparent;border-radius:12px;padding:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.93rem;color:var(--text);transition:all .2s;}
+.fill-opt:hover{border-color:var(--primary);background:#fff;}
+.fill-opt.correct{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;}
+.fill-opt.wrong{border-color:#f44336;background:#FFEBEE;color:#c62828;}
+.fill-opt:disabled{cursor:default;}
+
+/* 完成 */
+.complete-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px;text-align:center;margin-bottom:20px;}
+.complete-emoji{font-size:4rem;margin-bottom:10px;}
+.complete-title{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--primary);margin-bottom:8px;}
+.complete-sub{color:var(--text-muted);font-size:.95rem;margin-bottom:20px;}
+.summary-row{display:flex;justify-content:center;gap:24px;margin-bottom:24px;}
+.summary-item{text-align:center;}
+.summary-num{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);}
+.summary-label{font-size:.8rem;color:var(--text-muted);}
+
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:var(--radius);font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 16px rgba(46,125,50,0.25);}
+.btn-primary:hover:not(:disabled){background:var(--primary-light);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-outline{background:#fff;color:var(--primary);border:2px solid var(--primary);}
+.btn-outline:hover{background:var(--primary-pale);}
+
+.confetti-piece{position:fixed;top:-10px;border-radius:3px;animation:confettiFall linear forwards;z-index:9999;pointer-events:none;}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="nav-title">Lesson 31 · Where's Sally?</div>
+  <div class="star-row">
+    <span class="star-icon" id="s1">⭐</span>
+    <span class="star-icon" id="s2">⭐</span>
+    <span class="star-icon" id="s3">⭐</span>
+    <span class="star-icon" id="s4">⭐</span>
+  </div>
+</nav>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- STAGE 1 听对话 -->
+<div class="stage active" id="stage1">
+  <div class="scene-header">
+    <div class="emoji">🌳</div>
+    <h2>Listen to the Dialogue</h2>
+    <p>点击每一句，听发音、看翻译</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">1</div>
+    <div class="stage-title">听对话</div>
+  </div>
+  <p class="tap-hint">👆 点击每一句来朗读</p>
+  <div class="dialogue-box" id="dialogueBox"></div>
+  <button class="btn btn-primary" id="btn1" disabled onclick="goStage(2)">下一关 →</button>
+</div>
+
+<!-- STAGE 2 认单词 -->
+<div class="stage" id="stage2">
+  <div class="scene-header">
+    <div class="emoji">🔤</div>
+    <h2>Learn the Words</h2>
+    <p>点击卡片，听发音</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">2</div>
+    <div class="stage-title">认单词</div>
+  </div>
+  <div class="vocab-grid" id="vocabGrid"></div>
+  <button class="btn btn-primary" onclick="goStage(3)">下一关 →</button>
+</div>
+
+<!-- STAGE 3 花园场景游戏 -->
+<div class="stage" id="stage3">
+  <div class="scene-header">
+    <div class="emoji">🏡</div>
+    <h2>Garden Scene! 花园里</h2>
+    <p>点击每个角色，学习现在进行时！</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">3</div>
+    <div class="stage-title">花园探索游戏</div>
+  </div>
+  <div class="score-dots" id="scoreDots3"></div>
+  <div class="grammar-intro">
+    💡 <strong>现在进行时</strong> = <code>be (am/is/are)</code> + <strong>动词-ing</strong><br>
+    She <strong>is sitting</strong>. &nbsp;|&nbsp; He <strong>is climbing</strong>. &nbsp;|&nbsp; It <strong>is running</strong>.
+  </div>
+  <div class="garden-scene">
+    <div class="garden-title">🌳 花园里有谁？点击角色探索！</div>
+    <div class="garden-chars" id="gardenChars"></div>
+  </div>
+  <div id="charPanel" class="char-panel"></div>
+  <button class="btn btn-primary" id="btn3" disabled onclick="goStage(4)">下一关 →</button>
+</div>
+
+<!-- STAGE 4 填空 -->
+<div class="stage" id="stage4">
+  <div class="scene-header">
+    <div class="emoji">✏️</div>
+    <h2>Fill in the Blanks</h2>
+    <p>选出最合适的词</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">4</div>
+    <div class="stage-title">填空挑战</div>
+  </div>
+  <div class="score-dots" id="scoreDots4"></div>
+  <div id="fillArea"></div>
+  <button class="btn btn-primary" id="btn4" disabled onclick="finishLesson()">🎉 完成本课！</button>
+</div>
+
+<!-- STAGE 5 完成 -->
+<div class="stage" id="stage5">
+  <div class="complete-card">
+    <div class="complete-emoji">🏆</div>
+    <div class="complete-title">太棒了！</div>
+    <div class="complete-sub">Lesson 31 全部完成！现在进行时已掌握！</div>
+    <div class="summary-row">
+      <div class="summary-item"><div class="summary-num">4</div><div class="summary-label">关卡完成</div></div>
+      <div class="summary-item"><div class="summary-num">⭐⭐⭐⭐</div><div class="summary-label">满星！</div></div>
+    </div>
+    <div style="background:var(--primary-pale);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left;">
+      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">📖 本课要点</div>
+      <p style="font-size:.9rem;color:var(--text);line-height:1.9;">
+        ✅ <b>What's she doing?</b> → <b>She's sitting under the tree.</b><br>
+        ✅ <b>What's he doing?</b> → <b>He's climbing the tree.</b><br>
+        ✅ <b>What's it doing?</b> → <b>It's running across the grass.</b><br>
+        ✅ <b>I beg your pardon?</b> 请再说一遍？（礼貌询问）<br>
+        ✅ <b>run after</b> 追赶 &nbsp;|&nbsp; <b>run across</b> 跑过
+      </p>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="goStage(1)">🔄 再来一次</button>
+  <button class="btn btn-outline" onclick="location.href='../index.html'">🏠 回到主页</button>
+</div>
+
+<div id="confettiContainer"></div>
+
+<script>
+const LESSON = 31;
+
+// 原文对话（完整照搬）
+const dialogueData = [
+  { speaker:'Jean', tag:'jean', en:"Where's Sally, Jack?", zh:'杰克，萨莉在哪里？' },
+  { speaker:'Jack', tag:'jack', en:"She's in the garden, Jean.", zh:'她在花园里，简。' },
+  { speaker:'Jean', tag:'jean', en:"What's she doing?", zh:'她在做什么？' },
+  { speaker:'Jack', tag:'jack', en:"She's sitting under the tree.", zh:'她正坐在树下。' },
+  { speaker:'Jean', tag:'jean', en:'Is Tim in the garden, too?', zh:'蒂姆也在花园里吗？' },
+  { speaker:'Jack', tag:'jack', en:'Yes, he is. He\'s climbing the tree.', zh:'是的。他正在爬树。' },
+  { speaker:'Jean', tag:'jean', en:'I beg your pardon? Who\'s climbing the tree?', zh:'请再说一遍？谁在爬树？' },
+  { speaker:'Jack', tag:'jack', en:'Tim is.', zh:'蒂姆。' },
+  { speaker:'Jean', tag:'jean', en:'What about the dog?', zh:'那狗呢？' },
+  { speaker:'Jack', tag:'jack', en:"The dog's in the garden, too.", zh:'狗也在花园里。' },
+  { speaker:'Jack', tag:'jack', en:"It's running across the grass.", zh:'它正在草地上跑。' },
+  { speaker:'Jack', tag:'jack', en:"It's running after a cat.", zh:'它正在追一只猫。' },
+];
+
+const vocabData = [
+  { word:'garden', zh:'花园', emoji:'🌷' },
+  { word:'sitting', zh:'坐着', emoji:'🧘' },
+  { word:'climbing', zh:'爬', emoji:'🧗' },
+  { word:'running', zh:'跑', emoji:'🏃' },
+  { word:'grass', zh:'草地', emoji:'🌿' },
+  { word:'across', zh:'穿过', emoji:'➡️' },
+  { word:'run after', zh:'追赶', emoji:'🐕' },
+  { word:'I beg your pardon?', zh:'请再说一遍？', emoji:'🙏' },
+];
+
+// 花园角色探索
+const characters = [
+  {
+    id: 'sally',
+    emoji: '👧',
+    name: 'Sally',
+    zh: '萨莉',
+    lines: [
+      { en:"She's in the garden.", zh:'她在花园里。' },
+      { en:"She's sitting under the tree.", zh:'她正坐在树下。' },
+    ],
+    quiz: { q:"What is Sally doing?", answer:"She's sitting under the tree.", opts:["She's climbing the tree.","She's sitting under the tree.","She's running across the grass.","She's in the house."] },
+  },
+  {
+    id: 'tim',
+    emoji: '👦',
+    name: 'Tim',
+    zh: '蒂姆',
+    lines: [
+      { en:'Yes, he is. He\'s in the garden, too.', zh:'是的，他也在花园里。' },
+      { en:"He's climbing the tree.", zh:'他正在爬树。' },
+    ],
+    quiz: { q:"What is Tim doing?", answer:"He's climbing the tree.", opts:["He's sitting under the tree.","He's running after a cat.","He's climbing the tree.","He's in the house."] },
+  },
+  {
+    id: 'dog',
+    emoji: '🐕',
+    name: 'The dog',
+    zh: '狗',
+    lines: [
+      { en:"The dog's in the garden, too.", zh:'狗也在花园里。' },
+      { en:"It's running across the grass.", zh:'它正在草地上跑。' },
+      { en:"It's running after a cat.", zh:'它正在追一只猫。' },
+    ],
+    quiz: { q:"What is the dog doing?", answer:"It's running after a cat.", opts:["It's sitting under the tree.","It's climbing the tree.","It's running after a cat.","It's eating its food."] },
+  },
+  {
+    id: 'cat',
+    emoji: '🐱',
+    name: 'The cat',
+    zh: '猫',
+    lines: [
+      { en:"The dog is running after a cat.", zh:'狗正在追一只猫。' },
+    ],
+    quiz: { q:"What is the cat doing? (inferred)", answer:"It's running away from the dog.", opts:["It's running away from the dog.","It's climbing the tree.","It's sitting in the garden.","It's eating."] },
+  },
+];
+
+const fillQuestions = [
+  { q:"Where's Sally, Jack? — She's in the _____, Jean.", answer:'garden', opts:['garden','kitchen','bedroom','living room'] },
+  { q:"She's _____ under the tree.", answer:'sitting', opts:['sitting','standing','climbing','running'] },
+  { q:"He's _____ the tree.", answer:'climbing', opts:['climbing','sitting','running','dusting'] },
+  { q:'I beg your _____? Who\'s climbing the tree?', answer:'pardon', opts:['pardon','sorry','please','question'] },
+  { q:"It's running _____ the grass.", answer:'across', opts:['across','under','over','beside'] },
+  { q:"It's running _____ a cat.", answer:'after', opts:['after','across','under','before'] },
+  { q:'Is Tim in the garden, _____?', answer:'too', opts:['too','also','either','as well'] },
+  { q:"The dog's in the garden, _____. It's running across the grass.", answer:'too', opts:['too','also','either','yet'] },
+];
+
+let revealedLines = new Set();
+let charsDone = new Set();
+let fillDone = 0;
+let starsEarned = 0;
+
+function speak(text, rate=0.88){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = rate;
+  const v = window.speechSynthesis.getVoices();
+  const pref = v.find(x => /Samantha|Daniel|Google US|Karen/.test(x.name));
+  if(pref) u.voice = pref;
+  window.speechSynthesis.speak(u);
+}
+
+function saveProgress(){
+  try{
+    const p = JSON.parse(localStorage.getItem('nce_progress') || '{}');
+    const prev = p[LESSON] ? p[LESSON].stars : 0;
+    p[LESSON] = { stars: Math.max(4, prev), date: new Date().toISOString() };
+    localStorage.setItem('nce_progress', JSON.stringify(p));
+    const streak = JSON.parse(localStorage.getItem('nce_streak') || '{"days":0,"last":""}');
+    const today = new Date().toDateString();
+    if(streak.last !== today){
+      streak.days = (streak.last === new Date(Date.now()-86400000).toDateString()) ? streak.days+1 : 1;
+      streak.last = today;
+    }
+    localStorage.setItem('nce_streak', JSON.stringify(streak));
+  } catch(e){}
+}
+
+function spawnConfetti(){
+  const colors = ['#2E7D32','#1565C0','#FFCA28','#880E4F','#FFEB3B','#E65100'];
+  const c = document.getElementById('confettiContainer');
+  for(let i=0;i<55;i++){
+    const p = document.createElement('div'); p.className = 'confetti-piece';
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    const sz = (8+Math.random()*8)+'px'; p.style.width = sz; p.style.height = sz;
+    p.style.animationDuration = (2+Math.random()*2)+'s';
+    p.style.animationDelay = Math.random()*1.5+'s';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 5000);
+}
+
+function updateProgress(){
+  document.getElementById('progressBar').style.width = (starsEarned*25)+'%';
+  for(let i=1;i<=4;i++) document.getElementById('s'+i).classList.toggle('lit', i<=starsEarned);
+}
+
+function goStage(n){
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  document.getElementById('stage'+n).classList.add('active');
+  window.scrollTo(0,0);
+  if(n===2){ starsEarned=Math.max(starsEarned,1); updateProgress(); }
+  if(n===3){ starsEarned=Math.max(starsEarned,2); updateProgress(); initGarden(); }
+  if(n===4){ starsEarned=Math.max(starsEarned,3); updateProgress(); initFill(); }
+}
+
+function buildDialogue(){
+  const box = document.getElementById('dialogueBox');
+  dialogueData.forEach((line, idx) => {
+    const div = document.createElement('div');
+    div.className = 'dialogue-line';
+    div.innerHTML = `
+      <span class="speaker-tag tag-${line.tag}">${line.speaker}</span>
+      <div class="line-text">
+        <div class="line-en">🔊 ${line.en}</div>
+        <div class="line-zh">${line.zh}</div>
+      </div>`;
+    div.onclick = () => {
+      speak(line.en);
+      div.classList.add('revealed');
+      revealedLines.add(idx);
+      if(revealedLines.size >= dialogueData.length) document.getElementById('btn1').disabled = false;
+    };
+    box.appendChild(div);
+  });
+}
+
+function buildVocab(){
+  const grid = document.getElementById('vocabGrid');
+  vocabData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.innerHTML = `<div class="vocab-emoji">${v.emoji}</div><div class="vocab-word">${v.word}</div><div class="vocab-zh">${v.zh}</div>`;
+    card.onclick = () => {
+      speak(v.word);
+      card.classList.add('playing');
+      setTimeout(() => card.classList.remove('playing'), 1000);
+    };
+    grid.appendChild(card);
+  });
+}
+
+function initGarden(){
+  charsDone.clear();
+  const dots = document.getElementById('scoreDots3');
+  dots.innerHTML = characters.map((_,i) => `<div class="score-dot" id="dot3_${i}"></div>`).join('');
+  const grid = document.getElementById('gardenChars');
+  grid.innerHTML = characters.map((ch,i) => `
+    <div class="char-card" id="ccard_${ch.id}" onclick="openChar('${ch.id}',${i})">
+      <span class="char-emoji">${ch.emoji}</span>
+      <div class="char-name">${ch.name}</div>
+      <div style="font-size:.75rem;color:var(--text-muted)">${ch.zh}</div>
+    </div>`).join('');
+  document.getElementById('charPanel').classList.remove('visible');
+  document.getElementById('charPanel').innerHTML = '';
+}
+
+function openChar(id, idx){
+  characters.forEach(ch => {
+    const b = document.getElementById('ccard_'+ch.id);
+    if(b) b.classList.remove('active');
+  });
+  document.getElementById('ccard_'+id).classList.add('active');
+  const ch = characters[idx];
+  speak(ch.lines[0].en);
+  const done = charsDone.has(id);
+  const panel = document.getElementById('charPanel');
+  panel.innerHTML = `
+    <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:var(--accent);margin-bottom:10px;">${ch.emoji} ${ch.name} · ${ch.zh}</div>
+    ${ch.lines.map(l => `
+      <div class="panel-line" style="flex-direction:column;margin-bottom:8px;">
+        <div class="panel-line-en">🔊 ${l.en}</div>
+        <div class="panel-line-zh">${l.zh}</div>
+      </div>`).join('')}
+    <button class="panel-speak" onclick="speak('${ch.lines.map(l=>l.en).join(' ')}')">🔊 全部朗读</button>
+    <div class="panel-quiz" style="margin-top:12px;">
+      <div class="panel-quiz-q">❓ ${ch.quiz.q}</div>
+      <div class="panel-quiz-opts">
+        ${ch.quiz.opts.map(o => `
+          <button class="pqopt" id="pq_${id}_${o.replace(/\W/g,'_').substring(0,20)}"
+            onclick="answerChar('${id}',${idx},\`${o.replace(/`/g,"'")}\`,\`${ch.quiz.answer.replace(/`/g,"'")}\`)"
+            ${done?'disabled':''}>
+            ${o}
+          </button>`).join('')}
+      </div>
+      ${done ? `<div style="color:#4CAF50;font-weight:700;margin-top:8px;">✅ 已完成！</div>` : ''}
+    </div>`;
+  if(done){
+    panel.querySelectorAll('.pqopt').forEach(b => {
+      if(b.textContent.trim() === ch.quiz.answer) b.classList.add('ok');
+    });
+  }
+  panel.classList.add('visible');
+}
+
+function answerChar(id, idx, chosen, answer){
+  charsDone.add(id);
+  const panel = document.getElementById('charPanel');
+  panel.querySelectorAll('.pqopt').forEach(b => {
+    b.disabled = true;
+    if(b.textContent.trim() === answer) b.classList.add('ok');
+    else if(b.textContent.trim() === chosen) b.classList.add('no');
+  });
+  speak(answer);
+  document.getElementById('dot3_'+idx).classList.add('active');
+  const btn = document.getElementById('ccard_'+id);
+  btn.classList.remove('active');
+  btn.classList.add('done');
+  if(charsDone.size >= characters.length) document.getElementById('btn3').disabled = false;
+}
+
+function initFill(){
+  fillDone = 0;
+  const dots = document.getElementById('scoreDots4');
+  dots.innerHTML = fillQuestions.map((_,i) => `<div class="score-dot" id="dot4_${i}"></div>`).join('');
+  const area = document.getElementById('fillArea');
+  area.innerHTML = fillQuestions.map((q,i) => `
+    <div class="fill-card" id="fcard${i}">
+      <div class="fill-q">${q.q.replace('_____', `<span class="fill-blank" id="blank${i}">_____</span>`)}</div>
+      <div class="fill-opts">
+        ${q.opts.map(o => `<button class="fill-opt" onclick="answerFill(${i},\`${o}\`,\`${q.answer}\`)">${o}</button>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function answerFill(idx, chosen, answer){
+  const card = document.getElementById('fcard'+idx);
+  card.querySelectorAll('.fill-opt').forEach(b => b.disabled = true);
+  card.querySelectorAll('.fill-opt').forEach(b => {
+    if(b.textContent === answer) b.classList.add('correct');
+    else if(b.textContent === chosen) b.classList.add('wrong');
+  });
+  document.getElementById('blank'+idx).textContent = answer;
+  document.getElementById('dot4_'+idx).classList.add('active');
+  speak(answer);
+  fillDone++;
+  if(fillDone >= fillQuestions.length) document.getElementById('btn4').disabled = false;
+}
+
+function finishLesson(){
+  starsEarned = 4; updateProgress(); saveProgress(); spawnConfetti(); goStage(5);
+}
+
+window.speechSynthesis && window.speechSynthesis.getVoices();
+buildDialogue();
+buildVocab();
+updateProgress();
+</script>
+</body>
+</html>

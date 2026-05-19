@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 28 · Where are they?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #00695C;
+  --primary-light: #00796B;
+  --primary-pale: #E0F2F1;
+  --accent: #E65100;
+  --accent-light: #FBE9E7;
+  --bg: #F0FAFA;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #6c757d;
+  --radius: 20px;
+  --shadow: 0 8px 32px rgba(0,105,92,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+.top-nav{position:sticky;top:0;z-index:100;background:var(--primary);color:#fff;display:flex;align-items:center;padding:10px 16px;gap:12px;box-shadow:0 2px 12px rgba(0,105,92,0.22);}
+.back-btn{color:#fff;text-decoration:none;font-size:1.4rem;line-height:1;padding:4px 8px;border-radius:10px;transition:background .2s;}
+.back-btn:hover{background:rgba(255,255,255,0.2);}
+.nav-title{flex:1;font-family:'Fredoka One',cursive;font-size:1.1rem;letter-spacing:.5px;}
+.star-row{display:flex;gap:4px;font-size:1.3rem;}
+.star-icon{filter:grayscale(1);transition:filter .4s;}
+.star-icon.lit{filter:grayscale(0);}
+
+.progress-wrap{height:6px;background:#b2dfdb;}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#00695C,#E65100,#FFCA28,#4A148C);transition:width .5s;}
+
+.stage{display:none;padding:20px 16px 40px;max-width:600px;margin:0 auto;animation:fadeUp .4s ease;}
+.stage.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+.scene-header{text-align:center;margin-bottom:22px;}
+.scene-header .emoji{font-size:2.6rem;margin-bottom:6px;}
+.scene-header h2{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--primary);margin-bottom:4px;}
+.scene-header p{color:var(--text-muted);font-size:.95rem;}
+
+.stage-label{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.stage-num{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;font-family:'Fredoka One',cursive;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.stage-title{font-weight:800;font-size:1rem;color:var(--primary);}
+
+/* 课文 */
+.read-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.read-pair{border-bottom:1px solid var(--primary-pale);}
+.read-pair:last-child{border-bottom:none;}
+.read-line{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;cursor:pointer;transition:background .2s;}
+.read-line:hover{background:var(--primary-pale);}
+.read-line.revealed{background:var(--primary-pale);}
+.read-line.q-line{border-bottom:1px dashed var(--primary-pale);}
+.speaker-tag{font-family:'Fredoka One',cursive;font-size:.78rem;padding:3px 8px;border-radius:20px;color:#fff;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.tag-q{background:var(--primary);}
+.tag-a{background:var(--accent);}
+.line-text{flex:1;}
+.line-en{font-weight:700;font-size:.98rem;color:var(--text);}
+.line-zh{font-size:.83rem;color:var(--text-muted);margin-top:2px;display:none;}
+.read-line.revealed .line-zh{display:block;}
+.tap-hint{text-align:center;color:var(--text-muted);font-size:.85rem;margin-bottom:14px;}
+
+/* 词汇 */
+.vocab-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.vocab-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;}
+.vocab-card:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,105,92,0.15);}
+.vocab-card.playing{border-color:var(--accent);}
+.vocab-word{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--primary);}
+.vocab-zh{font-size:.88rem;color:var(--text-muted);margin-top:4px;}
+.vocab-emoji{font-size:1.8rem;margin-bottom:6px;}
+
+/* Where are they? 问答游戏 */
+.qa-intro{background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:14px;font-size:.9rem;line-height:1.8;color:var(--text);}
+.qa-intro strong{color:var(--primary);}
+
+.qa-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:10px;}
+.qa-scene{font-size:2.4rem;text-align:center;margin-bottom:8px;}
+.qa-question{background:var(--primary-pale);border-radius:12px;padding:12px 16px;margin-bottom:14px;}
+.qa-question-label{font-size:.78rem;font-weight:800;color:var(--primary);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.qa-question-text{font-weight:800;font-size:1.05rem;color:var(--text);}
+.qa-opts{display:grid;grid-template-columns:1fr;gap:8px;}
+.qa-opt{background:var(--primary-pale);border:2px solid transparent;border-radius:12px;padding:12px 16px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);text-align:left;transition:all .2s;}
+.qa-opt:hover:not(:disabled){border-color:var(--primary);background:#fff;}
+.qa-opt.correct{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;}
+.qa-opt.wrong{border-color:#f44336;background:#FFEBEE;color:#c62828;}
+.qa-opt:disabled{cursor:default;}
+.qa-feedback{text-align:center;margin-top:8px;font-weight:700;font-size:1rem;min-height:22px;}
+.qa-feedback.ok{color:#4CAF50;}
+.qa-feedback.no{color:#f44336;}
+
+.score-dots{display:flex;gap:6px;justify-content:center;margin-bottom:16px;}
+.score-dot{width:10px;height:10px;border-radius:50%;background:#b2dfdb;transition:background .3s;}
+.score-dot.active{background:var(--accent);}
+
+/* 填空 */
+.fill-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:12px;}
+.fill-q{font-size:1rem;font-weight:700;margin-bottom:14px;color:var(--text);line-height:1.6;}
+.fill-blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--primary);color:var(--primary);font-weight:800;}
+.fill-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fill-opt{background:var(--primary-pale);border:2px solid transparent;border-radius:12px;padding:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);transition:all .2s;}
+.fill-opt:hover{border-color:var(--primary);background:#fff;}
+.fill-opt.correct{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;}
+.fill-opt.wrong{border-color:#f44336;background:#FFEBEE;color:#c62828;}
+.fill-opt:disabled{cursor:default;}
+
+/* 完成 */
+.complete-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px;text-align:center;margin-bottom:20px;}
+.complete-emoji{font-size:4rem;margin-bottom:10px;}
+.complete-title{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--primary);margin-bottom:8px;}
+.complete-sub{color:var(--text-muted);font-size:.95rem;margin-bottom:20px;}
+.summary-row{display:flex;justify-content:center;gap:24px;margin-bottom:24px;}
+.summary-item{text-align:center;}
+.summary-num{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);}
+.summary-label{font-size:.8rem;color:var(--text-muted);}
+
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:var(--radius);font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 16px rgba(0,105,92,0.25);}
+.btn-primary:hover:not(:disabled){background:var(--primary-light);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-outline{background:#fff;color:var(--primary);border:2px solid var(--primary);}
+.btn-outline:hover{background:var(--primary-pale);}
+
+.confetti-piece{position:fixed;top:-10px;border-radius:3px;animation:confettiFall linear forwards;z-index:9999;pointer-events:none;}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="nav-title">Lesson 28 · Where are they?</div>
+  <div class="star-row">
+    <span class="star-icon" id="s1">⭐</span>
+    <span class="star-icon" id="s2">⭐</span>
+    <span class="star-icon" id="s3">⭐</span>
+    <span class="star-icon" id="s4">⭐</span>
+  </div>
+</nav>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- STAGE 1 读课文 -->
+<div class="stage active" id="stage1">
+  <div class="scene-header">
+    <div class="emoji">📍</div>
+    <h2>Read the Text</h2>
+    <p>点击每一句，听发音、看翻译</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">1</div>
+    <div class="stage-title">读课文</div>
+  </div>
+  <p class="tap-hint">👆 点击每一句来朗读</p>
+  <div class="read-box" id="readBox"></div>
+  <button class="btn btn-primary" id="btn1" disabled onclick="goStage(2)">下一关 →</button>
+</div>
+
+<!-- STAGE 2 认单词 -->
+<div class="stage" id="stage2">
+  <div class="scene-header">
+    <div class="emoji">🔤</div>
+    <h2>Learn the Words</h2>
+    <p>点击卡片，听发音</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">2</div>
+    <div class="stage-title">认单词</div>
+  </div>
+  <div class="vocab-grid" id="vocabGrid"></div>
+  <button class="btn btn-primary" onclick="goStage(3)">下一关 →</button>
+</div>
+
+<!-- STAGE 3 Where are they? 问答游戏 -->
+<div class="stage" id="stage3">
+  <div class="scene-header">
+    <div class="emoji">❓</div>
+    <h2>Where are they? 问答游戏</h2>
+    <p>看问句，选出课文中的正确回答</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">3</div>
+    <div class="stage-title">Where are they 问答</div>
+  </div>
+  <div class="score-dots" id="scoreDots3"></div>
+  <div class="qa-intro">
+    💡 <strong>Where is it?</strong> 问单数物品在哪里 → <strong>It is…</strong><br>
+    💡 <strong>Where are they?</strong> 问复数物品在哪里 → <strong>They are…</strong>
+  </div>
+  <div id="qaArea"></div>
+  <div id="qaFeedback" class="qa-feedback"></div>
+  <button class="btn btn-primary" id="btn3" disabled onclick="goStage(4)">下一关 →</button>
+</div>
+
+<!-- STAGE 4 填空 -->
+<div class="stage" id="stage4">
+  <div class="scene-header">
+    <div class="emoji">✏️</div>
+    <h2>Fill in the Blanks</h2>
+    <p>选出最合适的词</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">4</div>
+    <div class="stage-title">填空挑战</div>
+  </div>
+  <div class="score-dots" id="scoreDots4"></div>
+  <div id="fillArea"></div>
+  <button class="btn btn-primary" id="btn4" disabled onclick="finishLesson()">🎉 完成本课！</button>
+</div>
+
+<!-- STAGE 5 完成 -->
+<div class="stage" id="stage5">
+  <div class="complete-card">
+    <div class="complete-emoji">🏆</div>
+    <div class="complete-title">太棒了！</div>
+    <div class="complete-sub">Lesson 28 全部完成！Where are they? 彻底掌握！</div>
+    <div class="summary-row">
+      <div class="summary-item"><div class="summary-num">4</div><div class="summary-label">关卡完成</div></div>
+      <div class="summary-item"><div class="summary-num">⭐⭐⭐⭐</div><div class="summary-label">满星！</div></div>
+    </div>
+    <div style="background:var(--primary-pale);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left;">
+      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">📖 本课要点复习</div>
+      <p style="font-size:.9rem;color:var(--text);line-height:1.9;">
+        ✅ <b>Where is it?</b> → <b>It is near / on…</b>（单数）<br>
+        ✅ <b>Where are they?</b> → <b>They are on / near…</b>（复数）<br>
+        ✅ magazines → on the television<br>
+        ✅ newspapers → on the table<br>
+        ✅ armchairs → near the table<br>
+        ✅ books → on the stereo<br>
+        ✅ pictures → on the wall
+      </p>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="goStage(1)">🔄 再来一次</button>
+  <button class="btn btn-outline" onclick="location.href='../index.html'">🏠 回到主页</button>
+</div>
+
+<div id="confettiContainer"></div>
+
+<script>
+const LESSON = 28;
+
+// 练习课课文：Where are they? 一问一答形式
+const readPairs = [
+  {
+    q: { en:'Where is the television?', zh:'电视在哪里？' },
+    a: { en:'It is near the window.', zh:'它在窗户旁边。' },
+  },
+  {
+    q: { en:'Where are the magazines?', zh:'杂志在哪里？' },
+    a: { en:'They are on the television.', zh:'它们在电视上。' },
+  },
+  {
+    q: { en:'Where is the table?', zh:'桌子在哪里？' },
+    a: { en:'It is in the room.', zh:'它在房间里。' },
+  },
+  {
+    q: { en:'Where are the newspapers?', zh:'报纸在哪里？' },
+    a: { en:'They are on the table.', zh:'它们在桌子上。' },
+  },
+  {
+    q: { en:'Where are the armchairs?', zh:'扶手椅在哪里？' },
+    a: { en:'They are near the table.', zh:'它们在桌子旁边。' },
+  },
+  {
+    q: { en:'Where is the stereo?', zh:'音响在哪里？' },
+    a: { en:'It is near the door.', zh:'它在门旁边。' },
+  },
+  {
+    q: { en:'Where are the books?', zh:'书在哪里？' },
+    a: { en:'They are on the stereo.', zh:'它们在音响上。' },
+  },
+  {
+    q: { en:'Where are the pictures?', zh:'图画在哪里？' },
+    a: { en:'They are on the wall.', zh:'它们在墙上。' },
+  },
+];
+
+const vocabData = [
+  { word:'where', zh:'在哪里', emoji:'📍' },
+  { word:'they', zh:'它们', emoji:'👥' },
+  { word:'near', zh:'在……旁边', emoji:'↔️' },
+  { word:'on', zh:'在……上面', emoji:'⬆️' },
+  { word:'window', zh:'窗户', emoji:'🪟' },
+  { word:'door', zh:'门', emoji:'🚪' },
+  { word:'wall', zh:'墙', emoji:'🧱' },
+  { word:'large', zh:'大的', emoji:'🔲' },
+];
+
+// Where are they 问答游戏（逐题翻页）
+const qaQuestions = [
+  {
+    scene: '📰',
+    question: 'Where are the magazines?',
+    answer: 'They are on the television.',
+    opts: [
+      'They are on the television.',
+      'They are on the table.',
+      'They are on the stereo.',
+      'They are on the wall.',
+    ]
+  },
+  {
+    scene: '🗞️',
+    question: 'Where are the newspapers?',
+    answer: 'They are on the table.',
+    opts: [
+      'They are on the television.',
+      'They are on the wall.',
+      'They are on the table.',
+      'They are near the door.',
+    ]
+  },
+  {
+    scene: '💺',
+    question: 'Where are the armchairs?',
+    answer: 'They are near the table.',
+    opts: [
+      'They are near the door.',
+      'They are near the window.',
+      'They are near the table.',
+      'They are on the wall.',
+    ]
+  },
+  {
+    scene: '📚',
+    question: 'Where are the books?',
+    answer: 'They are on the stereo.',
+    opts: [
+      'They are on the table.',
+      'They are on the television.',
+      'They are on the stereo.',
+      'They are near the door.',
+    ]
+  },
+  {
+    scene: '🖼️',
+    question: 'Where are the pictures?',
+    answer: 'They are on the wall.',
+    opts: [
+      'They are on the stereo.',
+      'They are on the wall.',
+      'They are near the window.',
+      'They are on the table.',
+    ]
+  },
+  {
+    scene: '📺',
+    question: 'Where is the television?',
+    answer: 'It is near the window.',
+    opts: [
+      'It is near the door.',
+      'It is on the wall.',
+      'It is near the window.',
+      'It is in the middle.',
+    ]
+  },
+  {
+    scene: '🎵',
+    question: 'Where is the stereo?',
+    answer: 'It is near the door.',
+    opts: [
+      'It is near the window.',
+      'It is near the table.',
+      'It is near the door.',
+      'It is on the wall.',
+    ]
+  },
+];
+
+const fillQuestions = [
+  { q:'Where _____ the magazines?', answer:'are', opts:['are','is','am','be'] },
+  { q:'They _____ on the television.', answer:'are', opts:['are','is','am','be'] },
+  { q:'Where are the pictures? — They are on the _____.', answer:'wall', opts:['wall','table','stereo','television'] },
+  { q:'Where are the armchairs? — They are _____ the table.', answer:'near', opts:['near','on','in','under'] },
+  { q:'Where _____ the stereo? — It is near the door.', answer:'is', opts:['is','are','am','be'] },
+  { q:'Where are the books? — They are on the _____.', answer:'stereo', opts:['stereo','table','wall','television'] },
+  { q:'Where are the newspapers? — They are on the _____.', answer:'table', opts:['table','wall','stereo','television'] },
+];
+
+let revealedLines = new Set();
+let qaDone = 0;
+let fillDone = 0;
+let starsEarned = 0;
+
+function speak(text, rate=0.88){
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-US'; u.rate = rate;
+  const v = window.speechSynthesis.getVoices();
+  const pref = v.find(x => /Samantha|Daniel|Google US|Karen/.test(x.name));
+  if(pref) u.voice = pref;
+  window.speechSynthesis.speak(u);
+}
+
+function saveProgress(){
+  try{
+    const p = JSON.parse(localStorage.getItem('nce_progress') || '{}');
+    const prev = p[LESSON] ? p[LESSON].stars : 0;
+    p[LESSON] = { stars: Math.max(4, prev), date: new Date().toISOString() };
+    localStorage.setItem('nce_progress', JSON.stringify(p));
+    const streak = JSON.parse(localStorage.getItem('nce_streak') || '{"days":0,"last":""}');
+    const today = new Date().toDateString();
+    if(streak.last !== today){
+      streak.days = (streak.last === new Date(Date.now()-86400000).toDateString()) ? streak.days+1 : 1;
+      streak.last = today;
+    }
+    localStorage.setItem('nce_streak', JSON.stringify(streak));
+  } catch(e){}
+}
+
+function spawnConfetti(){
+  const colors = ['#00695C','#E65100','#FFCA28','#4A148C','#FFEB3B','#1565C0'];
+  const c = document.getElementById('confettiContainer');
+  for(let i=0;i<55;i++){
+    const p = document.createElement('div'); p.className = 'confetti-piece';
+    p.style.left = Math.random()*100+'vw';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    const sz = (8+Math.random()*8)+'px'; p.style.width = sz; p.style.height = sz;
+    p.style.animationDuration = (2+Math.random()*2)+'s';
+    p.style.animationDelay = Math.random()*1.5+'s';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 5000);
+}
+
+function updateProgress(){
+  document.getElementById('progressBar').style.width = (starsEarned*25)+'%';
+  for(let i=1;i<=4;i++) document.getElementById('s'+i).classList.toggle('lit', i<=starsEarned);
+}
+
+function goStage(n){
+  document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+  document.getElementById('stage'+n).classList.add('active');
+  window.scrollTo(0,0);
+  if(n===2){ starsEarned=Math.max(starsEarned,1); updateProgress(); }
+  if(n===3){ starsEarned=Math.max(starsEarned,2); updateProgress(); initQA(); }
+  if(n===4){ starsEarned=Math.max(starsEarned,3); updateProgress(); initFill(); }
+}
+
+function buildReadText(){
+  const box = document.getElementById('readBox');
+  readPairs.forEach((pair, idx) => {
+    const pairDiv = document.createElement('div');
+    pairDiv.className = 'read-pair';
+
+    // Q line
+    const qDiv = document.createElement('div');
+    qDiv.className = 'read-line q-line';
+    qDiv.innerHTML = `
+      <span class="speaker-tag tag-q">Q</span>
+      <div class="line-text">
+        <div class="line-en">🔊 ${pair.q.en}</div>
+        <div class="line-zh">${pair.q.zh}</div>
+      </div>`;
+    qDiv.onclick = () => {
+      speak(pair.q.en);
+      qDiv.classList.add('revealed');
+      revealedLines.add('q'+idx);
+      checkAllRevealed();
+    };
+
+    // A line
+    const aDiv = document.createElement('div');
+    aDiv.className = 'read-line';
+    aDiv.innerHTML = `
+      <span class="speaker-tag tag-a">A</span>
+      <div class="line-text">
+        <div class="line-en">🔊 ${pair.a.en}</div>
+        <div class="line-zh">${pair.a.zh}</div>
+      </div>`;
+    aDiv.onclick = () => {
+      speak(pair.a.en);
+      aDiv.classList.add('revealed');
+      revealedLines.add('a'+idx);
+      checkAllRevealed();
+    };
+
+    pairDiv.appendChild(qDiv);
+    pairDiv.appendChild(aDiv);
+    box.appendChild(pairDiv);
+  });
+}
+
+function checkAllRevealed(){
+  const total = readPairs.length * 2;
+  if(revealedLines.size >= total) document.getElementById('btn1').disabled = false;
+}
+
+function buildVocab(){
+  const grid = document.getElementById('vocabGrid');
+  vocabData.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'vocab-card';
+    card.innerHTML = `<div class="vocab-emoji">${v.emoji}</div><div class="vocab-word">${v.word}</div><div class="vocab-zh">${v.zh}</div>`;
+    card.onclick = () => {
+      speak(v.word);
+      card.classList.add('playing');
+      setTimeout(() => card.classList.remove('playing'), 1000);
+    };
+    grid.appendChild(card);
+  });
+}
+
+function initQA(){
+  qaDone = 0;
+  const dots = document.getElementById('scoreDots3');
+  dots.innerHTML = qaQuestions.map((_,i) => `<div class="score-dot" id="dot3_${i}"></div>`).join('');
+  showQA(0);
+}
+
+function showQA(idx){
+  const q = qaQuestions[idx];
+  document.getElementById('qaFeedback').textContent = '';
+  const shuffled = [...q.opts].sort(() => Math.random()-.5);
+  document.getElementById('qaArea').innerHTML = `
+    <div class="qa-card">
+      <div class="qa-scene">${q.scene}</div>
+      <div class="qa-question">
+        <div class="qa-question-label">❓ Question</div>
+        <div class="qa-question-text">${q.question}</div>
+      </div>
+      <div class="qa-opts">
+        ${shuffled.map((o,i) => `
+          <button class="qa-opt" id="qao_${idx}_${i}"
+            onclick="answerQA(${idx}, \`${o.replace(/`/g,"'")}\`, \`${q.answer.replace(/`/g,"'")}\`)">
+            ${o}
+          </button>`).join('')}
+      </div>
+    </div>`;
+  speak(q.question);
+}
+
+function answerQA(idx, chosen, answer){
+  document.getElementById('qaArea').querySelectorAll('.qa-opt').forEach(b => {
+    b.disabled = true;
+    if(b.textContent.trim() === answer) b.classList.add('correct');
+    else if(b.textContent.trim() === chosen && chosen !== answer) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('qaFeedback');
+  if(chosen === answer){
+    fb.textContent = '✅ 正确！'; fb.className = 'qa-feedback ok';
+  } else {
+    fb.textContent = '❌ 正确答案：' + answer; fb.className = 'qa-feedback no';
+  }
+  speak(answer);
+  document.getElementById('dot3_'+idx).classList.add('active');
+  qaDone++;
+  setTimeout(() => {
+    if(qaDone < qaQuestions.length) showQA(qaDone);
+    else document.getElementById('btn3').disabled = false;
+  }, 1700);
+}
+
+function initFill(){
+  fillDone = 0;
+  const dots = document.getElementById('scoreDots4');
+  dots.innerHTML = fillQuestions.map((_,i) => `<div class="score-dot" id="dot4_${i}"></div>`).join('');
+  const area = document.getElementById('fillArea');
+  area.innerHTML = fillQuestions.map((q,i) => `
+    <div class="fill-card" id="fcard${i}">
+      <div class="fill-q">${q.q.replace('_____', `<span class="fill-blank" id="blank${i}">_____</span>`)}</div>
+      <div class="fill-opts">
+        ${q.opts.map(o => `<button class="fill-opt" onclick="answerFill(${i},\`${o}\`,\`${q.answer}\`)">${o}</button>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function answerFill(idx, chosen, answer){
+  const card = document.getElementById('fcard'+idx);
+  card.querySelectorAll('.fill-opt').forEach(b => b.disabled = true);
+  card.querySelectorAll('.fill-opt').forEach(b => {
+    if(b.textContent === answer) b.classList.add('correct');
+    else if(b.textContent === chosen) b.classList.add('wrong');
+  });
+  document.getElementById('blank'+idx).textContent = answer;
+  document.getElementById('dot4_'+idx).classList.add('active');
+  speak(answer);
+  fillDone++;
+  if(fillDone >= fillQuestions.length) document.getElementById('btn4').disabled = false;
+}
+
+function finishLesson(){
+  starsEarned = 4; updateProgress(); saveProgress(); spawnConfetti(); goStage(5);
+}
+
+window.speechSynthesis && window.speechSynthesis.getVoices();
+buildReadText();
+buildVocab();
+updateProgress();
+</script>
+</body>
+</html>

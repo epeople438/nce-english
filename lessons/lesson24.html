@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 24 · Which glasses?</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #4527A0;
+  --primary-light: #5E35B1;
+  --primary-pale: #EDE7F6;
+  --accent: #FF6F00;
+  --accent-light: #FFF3E0;
+  --bg: #F5F0FF;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --text-muted: #6c757d;
+  --radius: 20px;
+  --shadow: 0 8px 32px rgba(69,39,160,0.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+.top-nav{position:sticky;top:0;z-index:100;background:var(--primary);color:#fff;display:flex;align-items:center;padding:10px 16px;gap:12px;box-shadow:0 2px 12px rgba(69,39,160,0.22);}
+.back-btn{color:#fff;text-decoration:none;font-size:1.4rem;line-height:1;padding:4px 8px;border-radius:10px;transition:background .2s;}
+.back-btn:hover{background:rgba(255,255,255,0.2);}
+.nav-title{flex:1;font-family:'Fredoka One',cursive;font-size:1.1rem;letter-spacing:.5px;}
+.star-row{display:flex;gap:4px;font-size:1.3rem;}
+.star-icon{filter:grayscale(1);transition:filter .4s;}
+.star-icon.lit{filter:grayscale(0);}
+
+.progress-wrap{height:6px;background:#d1c4e9;}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#4527A0,#FF6F00,#FFCA28,#00838F);transition:width .5s;}
+
+.stage{display:none;padding:20px 16px 40px;max-width:600px;margin:0 auto;animation:fadeUp .4s ease;}
+.stage.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+.scene-header{text-align:center;margin-bottom:22px;}
+.scene-header .emoji{font-size:2.6rem;margin-bottom:6px;}
+.scene-header h2{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--primary);margin-bottom:4px;}
+.scene-header p{color:var(--text-muted);font-size:.95rem;}
+
+.stage-label{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.stage-num{width:32px;height:32px;border-radius:50%;background:var(--primary);color:#fff;font-family:'Fredoka One',cursive;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.stage-title{font-weight:800;font-size:1rem;color:var(--primary);}
+
+.read-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.read-line{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--primary-pale);cursor:pointer;transition:background .2s;}
+.read-line:last-child{border-bottom:none;}
+.read-line:hover{background:var(--primary-pale);}
+.read-line.revealed{background:var(--primary-pale);}
+.line-num{font-family:'Fredoka One',cursive;font-size:.85rem;color:#fff;background:var(--primary);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.line-text{flex:1;}
+.line-en{font-weight:700;font-size:1rem;color:var(--text);}
+.line-zh{font-size:.85rem;color:var(--text-muted);margin-top:2px;display:none;}
+.read-line.revealed .line-zh{display:block;}
+.tap-hint{text-align:center;color:var(--text-muted);font-size:.85rem;margin-bottom:14px;}
+
+.vocab-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.vocab-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;}
+.vocab-card:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(69,39,160,0.16);}
+.vocab-card.playing{border-color:var(--accent);}
+.vocab-word{font-family:'Fredoka One',cursive;font-size:1.3rem;color:var(--primary);}
+.vocab-zh{font-size:.9rem;color:var(--text-muted);margin-top:4px;}
+.vocab-emoji{font-size:1.8rem;margin-bottom:6px;}
+
+/* 对话重组游戏 */
+.reorder-intro{background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:14px;font-size:.9rem;color:var(--text);line-height:1.6;}
+.reorder-intro strong{color:var(--primary);}
+.dialog-q{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:12px;}
+.dialog-scene{font-size:.9rem;font-weight:700;color:var(--primary);margin-bottom:12px;padding:8px 12px;background:var(--primary-pale);border-radius:10px;}
+.dialog-prompt{font-weight:800;font-size:1rem;color:var(--text);margin-bottom:14px;line-height:1.5;}
+.dialog-prompt em{color:var(--primary);font-style:normal;font-weight:800;}
+.dialog-opts{display:grid;grid-template-columns:1fr;gap:8px;}
+.dialog-opt{background:var(--primary-pale);border:2px solid transparent;border-radius:12px;padding:12px 16px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);text-align:left;transition:all .2s;}
+.dialog-opt:hover:not(:disabled){border-color:var(--primary);background:#fff;}
+.dialog-opt.correct{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;}
+.dialog-opt.wrong{border-color:#f44336;background:#FFEBEE;color:#c62828;}
+.dialog-opt:disabled{cursor:default;}
+.dialog-feedback{text-align:center;margin-top:8px;font-weight:700;font-size:1rem;min-height:22px;}
+.dialog-feedback.ok{color:#4CAF50;}
+.dialog-feedback.no{color:#f44336;}
+
+.score-dots{display:flex;gap:6px;justify-content:center;margin-bottom:16px;}
+.score-dot{width:10px;height:10px;border-radius:50%;background:#d1c4e9;transition:background .3s;}
+.score-dot.active{background:var(--accent);}
+
+.fill-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:12px;}
+.fill-q{font-size:1rem;font-weight:700;margin-bottom:14px;color:var(--text);line-height:1.6;}
+.fill-blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--primary);color:var(--primary);font-weight:800;}
+.fill-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fill-opt{background:var(--primary-pale);border:2px solid transparent;border-radius:12px;padding:10px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.95rem;color:var(--text);transition:all .2s;}
+.fill-opt:hover{border-color:var(--primary);background:#fff;}
+.fill-opt.correct{border-color:#4CAF50;background:#E8F5E9;color:#2E7D32;}
+.fill-opt.wrong{border-color:#f44336;background:#FFEBEE;color:#c62828;}
+.fill-opt:disabled{cursor:default;}
+
+.complete-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px;text-align:center;margin-bottom:20px;}
+.complete-emoji{font-size:4rem;margin-bottom:10px;}
+.complete-title{font-family:'Fredoka One',cursive;font-size:1.8rem;color:var(--primary);margin-bottom:8px;}
+.complete-sub{color:var(--text-muted);font-size:.95rem;margin-bottom:20px;}
+.summary-row{display:flex;justify-content:center;gap:24px;margin-bottom:24px;}
+.summary-item{text-align:center;}
+.summary-num{font-family:'Fredoka One',cursive;font-size:2rem;color:var(--accent);}
+.summary-label{font-size:.8rem;color:var(--text-muted);}
+
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:var(--radius);font-family:'Fredoka One',cursive;font-size:1.1rem;cursor:pointer;transition:all .2s;margin-bottom:10px;}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 16px rgba(69,39,160,0.25);}
+.btn-primary:hover:not(:disabled){background:var(--primary-light);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-outline{background:#fff;color:var(--primary);border:2px solid var(--primary);}
+.btn-outline:hover{background:var(--primary-pale);}
+
+.confetti-piece{position:fixed;top:-10px;border-radius:3px;animation:confettiFall linear forwards;z-index:9999;pointer-events:none;}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="../index.html" class="back-btn">←</a>
+  <div class="nav-title">Lesson 24 · Which glasses?</div>
+  <div class="star-row">
+    <span class="star-icon" id="s1">⭐</span>
+    <span class="star-icon" id="s2">⭐</span>
+    <span class="star-icon" id="s3">⭐</span>
+    <span class="star-icon" id="s4">⭐</span>
+  </div>
+</nav>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<!-- STAGE 1 -->
+<div class="stage active" id="stage1">
+  <div class="scene-header">
+    <div class="emoji">📖</div>
+    <h2>Read the Text</h2>
+    <p>点击每一句，听发音、看翻译</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">1</div>
+    <div class="stage-title">读课文</div>
+  </div>
+  <p class="tap-hint">👆 点击每一句来朗读</p>
+  <div class="read-box" id="readBox"></div>
+  <button class="btn btn-primary" id="btn1" disabled onclick="goStage(2)">下一关 →</button>
+</div>
+
+<!-- STAGE 2 -->
+<div class="stage" id="stage2">
+  <div class="scene-header">
+    <div class="emoji">🔤</div>
+    <h2>Learn the Words</h2>
+    <p>点击卡片，听发音</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">2</div>
+    <div class="stage-title">认单词</div>
+  </div>
+  <div class="vocab-grid" id="vocabGrid"></div>
+  <button class="btn btn-primary" onclick="goStage(3)">下一关 →</button>
+</div>
+
+<!-- STAGE 3 -->
+<div class="stage" id="stage3">
+  <div class="scene-header">
+    <div class="emoji">💬</div>
+    <h2>Pick the Right Reply! 选出正确回答</h2>
+    <p>看上句，选出对话中最合适的下一句</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">3</div>
+    <div class="stage-title">对话接龙游戏</div>
+  </div>
+  <div class="score-dots" id="scoreDots3"></div>
+  <div class="reorder-intro">
+    💡 练习课的重点：<strong>用 these / those / ones / them</strong> 回应 Which 问句，让对话自然流畅！
+  </div>
+  <div id="dialogGameArea"></div>
+  <div id="dialogFeedback" class="dialog-feedback"></div>
+  <button class="btn btn-primary" id="btn3" disabled onclick="goStage(4)">下一关 →</button>
+</div>
+
+<!-- STAGE 4 -->
+<div class="stage" id="stage4">
+  <div class="scene-header">
+    <div class="emoji">✏️</div>
+    <h2>Fill in the Blanks</h2>
+    <p>选出最合适的词</p>
+  </div>
+  <div class="stage-label">
+    <div class="stage-num">4</div>
+    <div class="stage-title">填空挑战</div>
+  </div>
+  <div class="score-dots" id="scoreDots4"></div>
+  <div id="fillArea"></div>
+  <button class="btn btn-primary" id="btn4" disabled onclick="finishLesson()">🎉 完成本课！</button>
+</div>
+
+<!-- STAGE 5 -->
+<div class="stage" id="stage5">
+  <div class="complete-card">
+    <div class="complete-emoji">🏆</div>
+    <div class="complete-title">太棒了！</div>
+    <div class="complete-sub">Lesson 24 全部完成！Which glasses? 彻底掌握！</div>
+    <div class="summary-row">
+      <div class="summary-item"><div class="summary-num">4</div><div class="summary-label">关卡完成</div></div>
+      <div class="summary-item"><div class="summary-num">⭐⭐⭐⭐</div><div class="summary-label">满星！</div></div>
+    </div>
+    <div style="background:var(--primary-pale);border-radius:14px;padding:16px;margin-bottom:20px;text-align:left;">
+      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">📖 本课要点复习</div>
+      <p style="font-size:.9rem;color:var(--text);line-height:1.8;">
+        ✅ <b>Which glasses?</b> 问哪几个<br>
+        ✅ <b>These / Those glasses</b> 近处 / 远处<br>
+        ✅ <b>No, not those.</b> 拒绝 + 指正<br>
+        ✅ <b>The ones next to…</b> 用 ones 替代重复的名词<br>
+        ✅ <b>I'll get them for you.</b> 用 them 代替复数物品
+      </p>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="goStage(1)">🔄 再来一次</button>
+  <button class="btn btn-outline" onclick="location.href='../index.html'">🏠 回到主页</button>
+</div>
+
+<div id="confettiContainer"></div>
+
+<script>
+const LESSON = 24;
+
+// 练习课课文（照搬原文句子）
+const readTexts = [
+  { en:'Give me some glasses, please, Jane.', zh:'请给我几个杯子，简。', num:1 },
+  { en:'Which glasses?', zh:'哪几个杯子？', num:2 },
+  { en:'These glasses?', zh:'这几个吗？', num:3 },
+  { en:'No, not those. The ones on the shelf.', zh:'不，不是那些。是架子上的那几个。', num:4 },
+  { en:"I'm sorry. I can't reach them.", zh:'对不起，我够不到它们。', num:5 },
+  { en:'Can you reach those glasses on the top shelf?', zh:'你能够到最上层架子上的那些杯子吗？', num:6 },
+  { en:'Which ones?', zh:'哪几个？', num:7 },
+  { en:'The ones next to the jug.', zh:'水壶旁边的那几个。', num:8 },
+  { en:"I'll get them for you.", zh:'我来帮你取。', num:9 },
+  { en:'Thank you.', zh:'谢谢你。', num:10 },
+];
+
+const vocabData = [
+  { word:'give', zh:'给', emoji:'🎁' },
+  { word:'glasses', zh:'杯子', emoji:'🥛' },
+  { word:'these', zh:'这些（近）', emoji:'👇' },
+  { word:'those', zh:'那些（远）', emoji:'👉' },
+  { word:'ones', zh:'那几个（代替）', emoji:'🔢' },
+  { word:'them', zh:'它们（宾格）', emoji:'↩️' },
+  { word:'jug', zh:'水壶', emoji:'🫖' },
+  { word:'top shelf', zh:'最上层架子', emoji:'⬆️🗄️' },
+];
+
+// 对话接龙游戏（逐题翻页）
+const dialogQuestions = [
+  {
+    scene:'🙋 说了一句话，你来选回应',
+    prompt:'A: Give me some glasses, please.\n— B 应该怎么问？',
+    answer:'Which glasses?',
+    opts:[
+      'Which glasses?',
+      'What glasses?',
+      'Where glasses?',
+      'How glasses?',
+    ]
+  },
+  {
+    scene:'B 已经问了 "Which glasses?"',
+    prompt:'A 拿起近处的杯子问——',
+    answer:'These glasses?',
+    opts:[
+      'Those glasses?',
+      'These glasses?',
+      'Which glasses?',
+      'Some glasses?',
+    ]
+  },
+  {
+    scene:'A 拿起的不是 B 想要的',
+    prompt:'B 要拒绝，说"不，不是那些"——',
+    answer:'No, not those.',
+    opts:[
+      'No, not these.',
+      'No, not those.',
+      'No, not them.',
+      'No, not ones.',
+    ]
+  },
+  {
+    scene:'B 让 A 去拿最上层架子上的杯子',
+    prompt:'A 够不到，应该怎么说？',
+    answer:"I'm sorry. I can't reach them.",
+    opts:[
+      "I'm sorry. I can't reach it.",
+      "I'm sorry. I can't reach them.",
+      "I'm sorry. I can't find them.",
+      "I'm sorry. I don't like them.",
+    ]
+  },
+  {
+    scene:'B 说：The ones next to the jug.',
+    prompt:'A 成功拿到了，应该怎么回应？',
+    answer:"I'll get them for you.",
+    opts:[
+      "I'll get it for you.",
+      "I'll get those for me.",
+      "I'll get them for you.",
+      "I'll reach ones for you.",
+    ]
+  },
+];
+
+let revealedReads = new Set();
+let dDone = 0;
+let fillDone = 0;
+let starsEarned = 0;
+
+function speak(text, rate=0.88){
+  if(!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US'; u.rate=rate;
+  const v=window.speechSynthesis.getVoices();
+  const pref=v.find(x=>/Samantha|Daniel|Google US|Karen/.test(x.name));
+  if(pref)u.voice=pref;
+  window.speechSynthesis.speak(u);
+}
+
+function saveProgress(){
+  try{
+    const p=JSON.parse(localStorage.getItem('nce_progress')||'{}');
+    const prev=p[LESSON]?p[LESSON].stars:0;
+    p[LESSON]={stars:Math.max(4,prev),date:new Date().toISOString()};
+    localStorage.setItem('nce_progress',JSON.stringify(p));
+    const streak=JSON.parse(localStorage.getItem('nce_streak')||'{"days":0,"last":""}');
+    const today=new Date().toDateString();
+    if(streak.last!==today){
+      streak.days=(streak.last===new Date(Date.now()-86400000).toDateString())?streak.days+1:1;
+      streak.last=today;
+    }
+    localStorage.setItem('nce_streak',JSON.stringify(streak));
+  }catch(e){}
+}
+
+function spawnConfetti(){
+  const colors=['#4527A0','#FF6F00','#FFCA28','#00838F','#FFEB3B','#E91E63'];
+  const c=document.getElementById('confettiContainer');
+  for(let i=0;i<55;i++){
+    const p=document.createElement('div');p.className='confetti-piece';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    const sz=(8+Math.random()*8)+'px';p.style.width=sz;p.style.height=sz;
+    p.style.animationDuration=(2+Math.random()*2)+'s';
+    p.style.animationDelay=Math.random()*1.5+'s';
+    c.appendChild(p);
+  }
+  setTimeout(()=>c.innerHTML='',5000);
+}
+
+function updateProgress(){
+  document.getElementById('progressBar').style.width=(starsEarned*25)+'%';
+  for(let i=1;i<=4;i++) document.getElementById('s'+i).classList.toggle('lit',i<=starsEarned);
+}
+
+function goStage(n){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById('stage'+n).classList.add('active');
+  window.scrollTo(0,0);
+  if(n===2){starsEarned=Math.max(starsEarned,1);updateProgress();}
+  if(n===3){starsEarned=Math.max(starsEarned,2);updateProgress();initDialogGame();}
+  if(n===4){starsEarned=Math.max(starsEarned,3);updateProgress();initFill();}
+}
+
+function buildReadText(){
+  const box=document.getElementById('readBox');
+  readTexts.forEach((line,idx)=>{
+    const div=document.createElement('div');
+    div.className='read-line';
+    div.innerHTML=`
+      <div class="line-num">${line.num}</div>
+      <div class="line-text">
+        <div class="line-en">🔊 ${line.en}</div>
+        <div class="line-zh">${line.zh}</div>
+      </div>`;
+    div.onclick=()=>{
+      speak(line.en);
+      div.classList.add('revealed');
+      revealedReads.add(idx);
+      if(revealedReads.size>=readTexts.length) document.getElementById('btn1').disabled=false;
+    };
+    box.appendChild(div);
+  });
+}
+
+function buildVocab(){
+  const grid=document.getElementById('vocabGrid');
+  vocabData.forEach(v=>{
+    const card=document.createElement('div');
+    card.className='vocab-card';
+    card.innerHTML=`<div class="vocab-emoji">${v.emoji}</div><div class="vocab-word">${v.word}</div><div class="vocab-zh">${v.zh}</div>`;
+    card.onclick=()=>{
+      speak(v.word);
+      card.classList.add('playing');
+      setTimeout(()=>card.classList.remove('playing'),1000);
+    };
+    grid.appendChild(card);
+  });
+}
+
+function initDialogGame(){
+  dDone=0;
+  const dots=document.getElementById('scoreDots3');
+  dots.innerHTML=dialogQuestions.map((_,i)=>`<div class="score-dot" id="dot3_${i}"></div>`).join('');
+  showDialogQ(0);
+}
+
+function showDialogQ(idx){
+  const q=dialogQuestions[idx];
+  document.getElementById('dialogFeedback').textContent='';
+  const shuffled=[...q.opts].sort(()=>Math.random()-.5);
+  document.getElementById('dialogGameArea').innerHTML=`
+    <div class="dialog-q">
+      <div class="dialog-scene">💡 ${q.scene}</div>
+      <div class="dialog-prompt">${q.prompt.replace('\n','<br>')}</div>
+      <div class="dialog-opts">
+        ${shuffled.map((o,i)=>`
+          <button class="dialog-opt" id="dopt_${idx}_${i}"
+            onclick="answerDialog(${idx},\`${o.replace(/`/g,"'")}\`,\`${q.answer.replace(/`/g,"'")}\`)">
+            ${o}
+          </button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function answerDialog(idx, chosen, answer){
+  document.getElementById('dialogGameArea').querySelectorAll('.dialog-opt').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent.trim()===answer) b.classList.add('correct');
+    else if(b.textContent.trim()===chosen&&chosen!==answer) b.classList.add('wrong');
+  });
+  const fb=document.getElementById('dialogFeedback');
+  if(chosen===answer){
+    fb.textContent='✅ 正确！';fb.className='dialog-feedback ok';
+  } else {
+    fb.textContent='❌ 正确答案：'+answer;fb.className='dialog-feedback no';
+  }
+  speak(answer);
+  document.getElementById('dot3_'+idx).classList.add('active');
+  dDone++;
+  setTimeout(()=>{
+    if(dDone<dialogQuestions.length) showDialogQ(dDone);
+    else document.getElementById('btn3').disabled=false;
+  },1600);
+}
+
+const fillQuestions=[
+  { q:'Give me some _____, please, Jane.', answer:'glasses', opts:['glasses','books','jugs','vases'] },
+  { q:'— Which glasses?\n— _____ glasses?', answer:'These', opts:['These','Those','That','This'] },
+  { q:'No, not _____. The ones on the shelf.', answer:'those', opts:['those','these','them','ones'] },
+  { q:'Can you reach _____ glasses on the top shelf?', answer:'those', opts:['those','these','this','that'] },
+  { q:'The ones next to the _____.', answer:'jug', opts:['jug','shelf','vase','book'] },
+  { q:"I'll get _____ for you.", answer:'them', opts:['them','it','those','ones'] },
+];
+
+function initFill(){
+  fillDone=0;
+  const dots=document.getElementById('scoreDots4');
+  dots.innerHTML=fillQuestions.map((_,i)=>`<div class="score-dot" id="dot4_${i}"></div>`).join('');
+  const area=document.getElementById('fillArea');
+  area.innerHTML=fillQuestions.map((q,i)=>`
+    <div class="fill-card" id="fcard${i}">
+      <div class="fill-q">${q.q.replace('\n','<br>').replace('_____',`<span class="fill-blank" id="blank${i}">_____</span>`)}</div>
+      <div class="fill-opts">
+        ${q.opts.map(o=>`<button class="fill-opt" onclick="answerFill(${i},\`${o}\`,\`${q.answer}\`)">${o}</button>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function answerFill(idx,chosen,answer){
+  const card=document.getElementById('fcard'+idx);
+  card.querySelectorAll('.fill-opt').forEach(b=>b.disabled=true);
+  card.querySelectorAll('.fill-opt').forEach(b=>{
+    if(b.textContent===answer) b.classList.add('correct');
+    else if(b.textContent===chosen) b.classList.add('wrong');
+  });
+  document.getElementById('blank'+idx).textContent=answer;
+  document.getElementById('dot4_'+idx).classList.add('active');
+  speak(answer);
+  fillDone++;
+  if(fillDone>=fillQuestions.length) document.getElementById('btn4').disabled=false;
+}
+
+function finishLesson(){
+  starsEarned=4;updateProgress();saveProgress();spawnConfetti();goStage(5);
+}
+
+window.speechSynthesis&&window.speechSynthesis.getVoices();
+buildReadText();
+buildVocab();
+updateProgress();
+</script>
+</body>
+</html>
